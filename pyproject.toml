@@ -38,6 +38,7 @@ dependencies = [
     "torch==2.7.0",
     "torchvision==0.22.0",
     "tyro>=0.9.18",
+    "wandb>=0.12.21",
     "xxhash>=3.5.0",
 ]
 

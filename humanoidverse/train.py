@@ -104,6 +104,7 @@ class TrainConfig(BaseConfig):
     wandb_ename: str | None = None
     wandb_gname: str | None = None
     wandb_pname: str | None = None
+    wandb_run_name: str | None = None
 
     # misc
     load_isaac_expert_data: bool = True
@@ -175,9 +176,18 @@ def create_agent_or_load_checkpoint(work_dir: Path, cfg: TrainConfig, agent_buil
 
 def init_wandb(cfg: TrainConfig):
     exp_name = "BFM-Zero"
-    wandb_name = exp_name
-    wandb_config = cfg.model_dump()
-    wandb.init(entity=cfg.wandb_ename, project=cfg.wandb_pname, group=cfg.wandb_gname, name=wandb_name, config=wandb_config, dir="./_wandb")
+    wandb_name = cfg.wandb_run_name or f"{exp_name}-{cfg.tags.get('robot', 'robot')}-{Path(cfg.work_dir).name}"
+    wandb_config = json.loads(cfg.model_dump_json())
+    wandb_dir = Path(cfg.work_dir) / "_wandb"
+    wandb_dir.mkdir(exist_ok=True, parents=True)
+    wandb.init(
+        entity=cfg.wandb_ename,
+        project=cfg.wandb_pname,
+        group=cfg.wandb_gname,
+        name=wandb_name,
+        config=wandb_config,
+        dir=str(wandb_dir),
+    )
 
 
 class Workspace:
@@ -600,6 +610,11 @@ def train_bfm_zero(
     num_env_steps: int | None = None,
     smoke_test: bool = False,
     disable_domain_randomization: bool = False,
+    use_wandb: bool = False,
+    wandb_entity: str | None = None,
+    wandb_project: str = "bfmzero-isaac",
+    wandb_group: str | None = None,
+    wandb_run_name: str | None = None,
 ):
     """Train BFM-Zero with a robot-specific Hydra profile.
 
@@ -650,6 +665,8 @@ def train_bfm_zero(
     actual_num_envs = online_parallel_envs if online_parallel_envs is not None else (8 if smoke_test else 1024)
     actual_num_env_steps = num_env_steps if num_env_steps is not None else (actual_num_envs * 64 if smoke_test else 384_000_000)
     actual_work_dir = work_dir or (f"{profile['work_dir']}-smoke" if smoke_test else profile["work_dir"])
+    actual_wandb_group = wandb_group or f"bfmzero-{robot_profile}-isaac"
+    actual_wandb_run_name = wandb_run_name or f"{robot_profile}-{Path(actual_work_dir).name}"
     actual_batch_size = 64 if smoke_test else 1024
     actual_buffer_size = actual_num_envs * 64 if smoke_test else 5_120_000
     actual_buffer_device = "cpu" if smoke_test else "cuda"
@@ -788,10 +805,11 @@ def train_bfm_zero(
         prioritization_mode='exp',
         use_trajectory_buffer=True,
         buffer_size=actual_buffer_size,
-        use_wandb=False,
-        wandb_ename='yitangl',  # your wandb entity (username/team), empty = default from wandb login
-        wandb_gname='bfmzero-isaac',  # run group
-        wandb_pname='bfmzero-isaac',  # your wandb project name
+        use_wandb=use_wandb,
+        wandb_ename=wandb_entity,  # your wandb entity (username/team); empty = default from wandb login
+        wandb_gname=actual_wandb_group,  # run group
+        wandb_pname=wandb_project,  # your wandb project name
+        wandb_run_name=actual_wandb_run_name,
         load_isaac_expert_data=True,
         buffer_device=actual_buffer_device,
         disable_tqdm=True,
