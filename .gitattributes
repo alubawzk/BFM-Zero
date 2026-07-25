@@ -3,3 +3,6 @@ humanoidverse/data/**/*.pkl filter=lfs diff=lfs merge=lfs -text
 
 humanoidverse/data/lafan_29dof.pkl filter=lfs diff=lfs merge=lfs -text
 humanoidverse/data/lafan_29dof_10s-clipped.pkl filter=lfs diff=lfs merge=lfs -text
+
+# Exported policies exceed GitHub's regular Git object limit.
+model/**/*.onnx filter=lfs diff=lfs merge=lfs -text
