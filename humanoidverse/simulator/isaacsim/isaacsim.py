@@ -96,7 +96,6 @@ class IsaacSim(BaseSimulator):
             self.scene = InteractiveScene(scene_config)
             self._setup_scene()
         print("[INFO]: Scene manager: ", self.scene)
-    
         
         viewer_config: ViewerCfg = ViewerCfg()
         if self.sim.render_mode >= self.sim.RenderMode.PARTIAL_RENDERING:
@@ -147,16 +146,13 @@ class IsaacSim(BaseSimulator):
             self.event_types.add("startup")
 
         if self.domain_rand_config.get("randomize_base_com", False):
-            
             self.events_cfg.random_base_com = EventTerm(
                 func=randomize_body_com,
                 mode="startup",
                 params={
                     "asset_cfg": SceneEntityCfg(
                         "robot",
-                        body_names=[
-                            "torso_link",
-                        ],
+                        body_names=[self.robot_config.root_body_name],
                     ),
                     "distribution_params": (
                         torch.tensor([float(self.domain_rand_config["base_com_range"]["x"][0]), float(self.domain_rand_config["base_com_range"]["y"][0]), float(self.domain_rand_config["base_com_range"]["z"][0])]),
@@ -233,17 +229,10 @@ class IsaacSim(BaseSimulator):
         
     def _setup_scene(self):
         asset_root = self.robot_config.asset.asset_root
-        asset_path = self.robot_config.asset.usd_file
-        # prapare to override the spawn configuration in HumanoidVerse/humanoidverse/simulator/isaacsim_articulation_cfg.py
-        from isaaclab.utils.assets import ISAACLAB_NUCLEUS_DIR
-        asset_abs_path = os.path.abspath(os.path.join(asset_root, asset_path))
-
-        assert(os.path.isfile(asset_abs_path))
-        
-        
-        spawn=sim_utils.UsdFileCfg(
-            usd_path=asset_abs_path,
-            # usd_path=f"{ISAACLAB_NUCLEUS_DIR}/Robots/Unitree/H1/h1.usd",
+        usd_file = self.robot_config.asset.get("usd_file")
+        urdf_file = self.robot_config.asset.get("urdf_file")
+        self_collisions_enabled = not bool(self.env_config.robot.asset.self_collisions)
+        common_spawn_kwargs = dict(
             activate_contact_sensors=True,
             rigid_props=sim_utils.RigidBodyPropertiesCfg(
                 disable_gravity=False,
@@ -255,9 +244,34 @@ class IsaacSim(BaseSimulator):
                 max_depenetration_velocity=1.0,
             ),
             articulation_props=sim_utils.ArticulationRootPropertiesCfg(
-                enabled_self_collisions=not bool(self.env_config.robot.asset.self_collisions), solver_position_iteration_count=4, solver_velocity_iteration_count=0
+                enabled_self_collisions=self_collisions_enabled,
+                solver_position_iteration_count=4,
+                solver_velocity_iteration_count=0,
             ),
         )
+
+        if usd_file:
+            asset_abs_path = os.path.abspath(os.path.join(asset_root, usd_file))
+            if not os.path.isfile(asset_abs_path):
+                raise FileNotFoundError(f"Robot USD does not exist: {asset_abs_path}")
+            spawn = sim_utils.UsdFileCfg(usd_path=asset_abs_path, **common_spawn_kwargs)
+        elif urdf_file:
+            asset_abs_path = os.path.abspath(os.path.join(asset_root, urdf_file))
+            if not os.path.isfile(asset_abs_path):
+                raise FileNotFoundError(f"Robot URDF does not exist: {asset_abs_path}")
+            spawn = sim_utils.UrdfFileCfg(
+                asset_path=asset_abs_path,
+                fix_base=bool(self.robot_config.asset.get("fix_base_link", False)),
+                merge_fixed_joints=bool(self.robot_config.asset.get("collapse_fixed_joints", True)),
+                replace_cylinders_with_capsules=bool(
+                    self.robot_config.asset.get("replace_cylinder_with_capsule", False)
+                ),
+                self_collision=self_collisions_enabled,
+                joint_drive=None,
+                **common_spawn_kwargs,
+            )
+        else:
+            raise ValueError("Robot asset must configure either asset.usd_file or asset.urdf_file")
         
         # prepare to override the articulation configuration in HumanoidVerse/humanoidverse/simulator/isaacsim_articulation_cfg.py
         default_joint_angles = copy.deepcopy(self.robot_config.init_state.default_joint_angles)
@@ -324,7 +338,7 @@ class IsaacSim(BaseSimulator):
 
         # Add a height scanner to the torso to detect the height of the terrain mesh
         height_scanner_config = RayCasterCfg(
-            prim_path="/World/envs/env_.*/Robot/pelvis",
+            prim_path=f"/World/envs/env_.*/Robot/{self.robot_config.root_body_name}",
             offset=RayCasterCfg.OffsetCfg(pos=(0.0, 0.0, 0.0)),
             attach_yaw_only=True,
             # Apply a grid pattern that is smaller than the resolution to only return one height value.
@@ -703,5 +717,3 @@ class IsaacSim(BaseSimulator):
                 height=512,
             ))
         self.scene.sensors["rendering_cam"] = self.rendering_cam
-
-    

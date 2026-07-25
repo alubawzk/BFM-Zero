@@ -4,7 +4,16 @@ requires-python = "==3.10.*"
 resolution-markers = [
     "sys_platform == 'darwin'",
     "platform_machine == 'aarch64' and sys_platform == 'linux'",
-    "(platform_machine != 'aarch64' and sys_platform == 'linux') or (sys_platform != 'darwin' and sys_platform != 'linux')",
+    "platform_machine != 'aarch64' and sys_platform == 'linux'",
+    "sys_platform != 'darwin' and sys_platform != 'linux'",
+]
+
+[manifest]
+overrides = [
+    { name = "torch", marker = "sys_platform != 'linux'", specifier = "==2.7.0" },
+    { name = "torch", marker = "sys_platform == 'linux'", specifier = "==2.7.0", index = "https://download.pytorch.org/whl/cu128" },
+    { name = "torchvision", marker = "sys_platform != 'linux'", specifier = "==0.22.0" },
+    { name = "torchvision", marker = "sys_platform == 'linux'", specifier = "==0.22.0", index = "https://download.pytorch.org/whl/cu128" },
 ]
 
 [[package]]
@@ -193,9 +202,9 @@ name = "boto3"
 version = "1.39.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "botocore", marker = "sys_platform != 'darwin'" },
-    { name = "jmespath", marker = "sys_platform != 'darwin'" },
-    { name = "s3transfer", marker = "sys_platform != 'darwin'" },
+    { name = "botocore" },
+    { name = "jmespath" },
+    { name = "s3transfer" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/02/42/712a74bb86d06538c55067a35b8a82c57aa303eba95b2b1ee91c829288f4/boto3-1.39.3.tar.gz", hash = "sha256:0a367106497649ae3d8a7b571b8c3be01b7b935a0fe303d4cc2574ed03aecbb4", size = 111838, upload-time = "2025-07-03T19:26:00.988Z" }
 wheels = [
@@ -207,9 +216,9 @@ name = "botocore"
 version = "1.39.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "jmespath", marker = "sys_platform != 'darwin'" },
-    { name = "python-dateutil", marker = "sys_platform != 'darwin'" },
-    { name = "urllib3", marker = "sys_platform != 'darwin'" },
+    { name = "jmespath" },
+    { name = "python-dateutil" },
+    { name = "urllib3" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/60/66/96e89cc261d75f0b8125436272c335c74d2a39df84504a0c3956adcd1301/botocore-1.39.3.tar.gz", hash = "sha256:da8f477e119f9f8a3aaa8b3c99d9c6856ed0a243680aa3a3fbbfc15a8d4093fb", size = 14132316, upload-time = "2025-07-03T19:25:49.502Z" }
 wheels = [
@@ -480,7 +489,7 @@ name = "docker-pycreds"
 version = "0.4.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "six", marker = "sys_platform != 'darwin'" },
+    { name = "six" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/c5/e6/d1f6c00b7221e2d7c4b470132c931325c8b22c51ca62417e300f5ce16009/docker-pycreds-0.4.0.tar.gz", hash = "sha256:6ce3270bcaf404cc4c3e27e4b6c70d3521deae82fb508767870fdbf772d584d4", size = 8754, upload-time = "2018-11-29T03:26:50.996Z" }
 wheels = [
@@ -660,7 +669,7 @@ name = "gitdb"
 version = "4.0.12"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "smmap", marker = "sys_platform != 'darwin'" },
+    { name = "smmap" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/72/94/63b0fc47eb32792c7ba1fe1b694daec9a63620db1e313033d18140c2320a/gitdb-4.0.12.tar.gz", hash = "sha256:5ef71f855d191a3326fcfbc0d5da835f26b13fbcba60c32c21091c349ffdb571", size = 394684, upload-time = "2025-01-02T07:20:46.413Z" }
 wheels = [
@@ -672,7 +681,7 @@ name = "gitpython"
 version = "3.1.44"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "gitdb", marker = "sys_platform != 'darwin'" },
+    { name = "gitdb" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/c0/89/37df0b71473153574a5cdef8f242de422a0f5d26d7a9e231e6f169b4ad14/gitpython-3.1.44.tar.gz", hash = "sha256:c87e30b26253bf5418b01b0660f818967f3c503193838337fe5e573331249269", size = 214196, upload-time = "2025-01-02T07:32:43.59Z" }
 wheels = [
@@ -715,15 +724,15 @@ name = "gym"
 version = "0.23.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "cloudpickle", marker = "sys_platform != 'darwin'" },
-    { name = "gym-notices", marker = "sys_platform != 'darwin'" },
-    { name = "numpy", marker = "sys_platform != 'darwin'" },
+    { name = "cloudpickle" },
+    { name = "gym-notices" },
+    { name = "numpy" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/87/86/3f5467531428b6ce6f3c12d3121b4304d2ea1536a50775a4df036add37b8/gym-0.23.1.tar.gz", hash = "sha256:d0f9b9da34edbdace421c9442fc9205d03b8d15d0fb451053c766cde706d40e0", size = 626191, upload-time = "2022-03-14T22:44:47.272Z" }
 
 [package.optional-dependencies]
 classic-control = [
-    { name = "pygame", marker = "sys_platform != 'darwin'" },
+    { name = "pygame" },
 ]
 
 [[package]]
@@ -795,7 +804,7 @@ name = "hidapi"
 version = "0.14.0.post2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "setuptools", marker = "sys_platform != 'darwin'" },
+    { name = "setuptools" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/bf/6f/90c536b020a8e860f047a2839830a1ade3e1490e67336ecf489b4856eb7b/hidapi-0.14.0.post2.tar.gz", hash = "sha256:6c0e97ba6b059a309d51b495a8f0d5efbcea8756b640d98b6f6bb9fdef2458ac", size = 172542, upload-time = "2024-07-23T21:26:54.838Z" }
 wheels = [
@@ -868,7 +877,8 @@ wheels = [
 
 [[package]]
 name = "humenv"
-source = { editable = "external/humenv" }
+version = "0.2.0"
+source = { git = "https://github.com/facebookresearch/humenv.git#0548761a19b783c6a3548a14a8c4ea1ca35e94af" }
 dependencies = [
     { name = "absl-py" },
     { name = "dm-control" },
@@ -878,21 +888,6 @@ dependencies = [
     { name = "numpy" },
     { name = "packaging" },
 ]
-
-[package.metadata]
-requires-dist = [
-    { name = "absl-py" },
-    { name = "dm-control", specifier = ">=1.0.24" },
-    { name = "gymnasium", specifier = ">=0.26" },
-    { name = "h5py", specifier = ">=3.11.0" },
-    { name = "mujoco", specifier = ">=3.2.3" },
-    { name = "numpy", specifier = ">=1.24" },
-    { name = "packaging" },
-    { name = "pot", marker = "extra == 'bench'", specifier = ">0.9" },
-    { name = "torch", marker = "extra == 'bench'", specifier = ">=2" },
-    { name = "tqdm", marker = "extra == 'bench'", specifier = ">4.66" },
-]
-provides-extras = ["bench"]
 
 [[package]]
 name = "hydra-core"
@@ -922,8 +917,8 @@ name = "imageio"
 version = "2.37.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "numpy", marker = "sys_platform != 'darwin'" },
-    { name = "pillow", marker = "sys_platform != 'darwin'" },
+    { name = "numpy" },
+    { name = "pillow" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/0c/47/57e897fb7094afb2d26e8b2e4af9a45c7cf1a405acdeeca001fdf2c98501/imageio-2.37.0.tar.gz", hash = "sha256:71b57b3669666272c818497aebba2b4c5f20d5b37c81720e5e1a56d59c492996", size = 389963, upload-time = "2025-01-20T02:42:37.089Z" }
 wheels = [
@@ -1012,39 +1007,40 @@ name = "isaaclab"
 version = "2.0.2"
 source = { registry = "https://pypi.nvidia.com/" }
 dependencies = [
-    { name = "einops", marker = "sys_platform != 'darwin'" },
-    { name = "gymnasium", marker = "sys_platform != 'darwin'" },
-    { name = "h5py", marker = "sys_platform != 'darwin'" },
-    { name = "hidapi", marker = "sys_platform != 'darwin'" },
-    { name = "hydra-core", marker = "sys_platform != 'darwin'" },
-    { name = "moviepy", marker = "sys_platform != 'darwin'" },
-    { name = "numpy", marker = "sys_platform != 'darwin'" },
-    { name = "onnx", marker = "sys_platform != 'darwin'" },
-    { name = "pillow", marker = "sys_platform != 'darwin'" },
-    { name = "prettytable", marker = "sys_platform != 'darwin'" },
-    { name = "protobuf", marker = "sys_platform != 'darwin'" },
-    { name = "pyglet", marker = "sys_platform != 'darwin'" },
-    { name = "tensorboard", marker = "sys_platform != 'darwin'" },
-    { name = "toml", marker = "sys_platform != 'darwin'" },
-    { name = "torch", marker = "sys_platform != 'darwin'" },
-    { name = "torchvision", marker = "sys_platform != 'darwin'" },
-    { name = "transformers", marker = "sys_platform != 'darwin'" },
-    { name = "trimesh", marker = "sys_platform != 'darwin'" },
-    { name = "warp-lang", marker = "sys_platform != 'darwin'" },
+    { name = "einops" },
+    { name = "gymnasium" },
+    { name = "h5py" },
+    { name = "hidapi" },
+    { name = "hydra-core" },
+    { name = "moviepy" },
+    { name = "numpy" },
+    { name = "onnx" },
+    { name = "pillow" },
+    { name = "prettytable" },
+    { name = "protobuf" },
+    { name = "pyglet" },
+    { name = "tensorboard" },
+    { name = "toml" },
+    { name = "torch", version = "2.7.0+cu128", source = { registry = "https://download.pytorch.org/whl/cu128" } },
+    { name = "torchvision", version = "0.22.0", source = { registry = "https://download.pytorch.org/whl/cu128" }, marker = "platform_machine == 'aarch64'" },
+    { name = "torchvision", version = "0.22.0+cu128", source = { registry = "https://download.pytorch.org/whl/cu128" }, marker = "platform_machine != 'aarch64'" },
+    { name = "transformers" },
+    { name = "trimesh" },
+    { name = "warp-lang" },
 ]
 wheels = [
-    { url = "https://pypi.nvidia.cn/isaaclab/isaaclab-2.0.2-cp310-none-manylinux_2_34_x86_64.whl", hash = "sha256:5427b462be3cf408c8f5c709fcc83b89c45c2b634cd164b77fedc3a6920fbfb5" },
+    { url = "https://pypi.nvidia.com/isaaclab/isaaclab-2.0.2-cp310-none-manylinux_2_34_x86_64.whl", hash = "sha256:5427b462be3cf408c8f5c709fcc83b89c45c2b634cd164b77fedc3a6920fbfb5" },
 ]
 
 [package.optional-dependencies]
 all = [
-    { name = "rl-games", marker = "sys_platform != 'darwin'" },
-    { name = "rsl-rl-lib", marker = "sys_platform != 'darwin'" },
-    { name = "skrl", marker = "sys_platform != 'darwin'" },
-    { name = "stable-baselines3", marker = "sys_platform != 'darwin'" },
+    { name = "rl-games" },
+    { name = "rsl-rl-lib" },
+    { name = "skrl" },
+    { name = "stable-baselines3" },
 ]
 isaacsim = [
-    { name = "isaacsim", extra = ["all", "extscache"], marker = "sys_platform != 'darwin'" },
+    { name = "isaacsim", extra = ["all", "extscache"] },
 ]
 
 [[package]]
@@ -1052,39 +1048,39 @@ name = "isaacsim"
 version = "4.5.0.0"
 source = { registry = "https://pypi.nvidia.com/" }
 dependencies = [
-    { name = "isaacsim-kernel", marker = "sys_platform != 'darwin'" },
+    { name = "isaacsim-kernel" },
 ]
 wheels = [
-    { url = "https://pypi.nvidia.cn/isaacsim/isaacsim-4.5.0.0-cp310-none-manylinux_2_34_x86_64.whl", hash = "sha256:29ac8907cf85d5935594132b7a2b2f812e3ea2ac85988bd2e0cc06933ce07081" },
+    { url = "https://pypi.nvidia.com/isaacsim/isaacsim-4.5.0.0-cp310-none-manylinux_2_34_x86_64.whl", hash = "sha256:29ac8907cf85d5935594132b7a2b2f812e3ea2ac85988bd2e0cc06933ce07081" },
 ]
 
 [package.optional-dependencies]
 all = [
-    { name = "isaacsim-app", marker = "sys_platform != 'darwin'" },
-    { name = "isaacsim-asset", marker = "sys_platform != 'darwin'" },
-    { name = "isaacsim-benchmark", marker = "sys_platform != 'darwin'" },
-    { name = "isaacsim-code-editor", marker = "sys_platform != 'darwin'" },
-    { name = "isaacsim-core", marker = "sys_platform != 'darwin'" },
-    { name = "isaacsim-cortex", marker = "sys_platform != 'darwin'" },
-    { name = "isaacsim-example", marker = "sys_platform != 'darwin'" },
-    { name = "isaacsim-gui", marker = "sys_platform != 'darwin'" },
-    { name = "isaacsim-replicator", marker = "sys_platform != 'darwin'" },
-    { name = "isaacsim-rl", marker = "sys_platform != 'darwin'" },
-    { name = "isaacsim-robot", marker = "sys_platform != 'darwin'" },
-    { name = "isaacsim-robot-motion", marker = "sys_platform != 'darwin'" },
-    { name = "isaacsim-robot-setup", marker = "sys_platform != 'darwin'" },
-    { name = "isaacsim-ros1", marker = "sys_platform != 'darwin'" },
-    { name = "isaacsim-ros2", marker = "sys_platform != 'darwin'" },
-    { name = "isaacsim-sensor", marker = "sys_platform != 'darwin'" },
-    { name = "isaacsim-storage", marker = "sys_platform != 'darwin'" },
-    { name = "isaacsim-template", marker = "sys_platform != 'darwin'" },
-    { name = "isaacsim-test", marker = "sys_platform != 'darwin'" },
-    { name = "isaacsim-utils", marker = "sys_platform != 'darwin'" },
+    { name = "isaacsim-app" },
+    { name = "isaacsim-asset" },
+    { name = "isaacsim-benchmark" },
+    { name = "isaacsim-code-editor" },
+    { name = "isaacsim-core" },
+    { name = "isaacsim-cortex" },
+    { name = "isaacsim-example" },
+    { name = "isaacsim-gui" },
+    { name = "isaacsim-replicator" },
+    { name = "isaacsim-rl" },
+    { name = "isaacsim-robot" },
+    { name = "isaacsim-robot-motion" },
+    { name = "isaacsim-robot-setup" },
+    { name = "isaacsim-ros1" },
+    { name = "isaacsim-ros2" },
+    { name = "isaacsim-sensor" },
+    { name = "isaacsim-storage" },
+    { name = "isaacsim-template" },
+    { name = "isaacsim-test" },
+    { name = "isaacsim-utils" },
 ]
 extscache = [
-    { name = "isaacsim-extscache-kit", marker = "sys_platform != 'darwin'" },
-    { name = "isaacsim-extscache-kit-sdk", marker = "sys_platform != 'darwin'" },
-    { name = "isaacsim-extscache-physics", marker = "sys_platform != 'darwin'" },
+    { name = "isaacsim-extscache-kit" },
+    { name = "isaacsim-extscache-kit-sdk" },
+    { name = "isaacsim-extscache-physics" },
 ]
 
 [[package]]
@@ -1092,11 +1088,11 @@ name = "isaacsim-app"
 version = "4.5.0.0"
 source = { registry = "https://pypi.nvidia.com/" }
 dependencies = [
-    { name = "isaacsim-kernel", marker = "sys_platform != 'darwin'" },
-    { name = "pyperclip", marker = "sys_platform != 'darwin'" },
+    { name = "isaacsim-kernel" },
+    { name = "pyperclip" },
 ]
 wheels = [
-    { url = "https://pypi.nvidia.cn/isaacsim-app/isaacsim_app-4.5.0.0-cp310-none-manylinux_2_34_x86_64.whl", hash = "sha256:9e2c89e9d058e3faa2de7d9d129c8bbea4c9f92e818f50ff771ec5c70d077bc2" },
+    { url = "https://pypi.nvidia.com/isaacsim-app/isaacsim_app-4.5.0.0-cp310-none-manylinux_2_34_x86_64.whl", hash = "sha256:9e2c89e9d058e3faa2de7d9d129c8bbea4c9f92e818f50ff771ec5c70d077bc2" },
 ]
 
 [[package]]
@@ -1104,12 +1100,12 @@ name = "isaacsim-asset"
 version = "4.5.0.0"
 source = { registry = "https://pypi.nvidia.com/" }
 dependencies = [
-    { name = "isaacsim-storage", marker = "sys_platform != 'darwin'" },
-    { name = "isaacsim-utils", marker = "sys_platform != 'darwin'" },
-    { name = "pillow", marker = "sys_platform != 'darwin'" },
+    { name = "isaacsim-storage" },
+    { name = "isaacsim-utils" },
+    { name = "pillow" },
 ]
 wheels = [
-    { url = "https://pypi.nvidia.cn/isaacsim-asset/isaacsim_asset-4.5.0.0-cp310-none-manylinux_2_34_x86_64.whl", hash = "sha256:59d1249754f8cf94bc6d939622c7f0ee0e86d2bd91b0621ad3a0afa266479134" },
+    { url = "https://pypi.nvidia.com/isaacsim-asset/isaacsim_asset-4.5.0.0-cp310-none-manylinux_2_34_x86_64.whl", hash = "sha256:59d1249754f8cf94bc6d939622c7f0ee0e86d2bd91b0621ad3a0afa266479134" },
 ]
 
 [[package]]
@@ -1117,10 +1113,10 @@ name = "isaacsim-benchmark"
 version = "4.5.0.0"
 source = { registry = "https://pypi.nvidia.com/" }
 dependencies = [
-    { name = "isaacsim-robot", marker = "sys_platform != 'darwin'" },
+    { name = "isaacsim-robot" },
 ]
 wheels = [
-    { url = "https://pypi.nvidia.cn/isaacsim-benchmark/isaacsim_benchmark-4.5.0.0-cp310-none-manylinux_2_34_x86_64.whl", hash = "sha256:c69067ce4c40076526fbba68f5bfb16f808c1c2ea1fbc79b4de4d38a36ff3dcb" },
+    { url = "https://pypi.nvidia.com/isaacsim-benchmark/isaacsim_benchmark-4.5.0.0-cp310-none-manylinux_2_34_x86_64.whl", hash = "sha256:c69067ce4c40076526fbba68f5bfb16f808c1c2ea1fbc79b4de4d38a36ff3dcb" },
 ]
 
 [[package]]
@@ -1128,10 +1124,10 @@ name = "isaacsim-code-editor"
 version = "4.5.0.0"
 source = { registry = "https://pypi.nvidia.com/" }
 dependencies = [
-    { name = "isaacsim-kernel", marker = "sys_platform != 'darwin'" },
+    { name = "isaacsim-kernel" },
 ]
 wheels = [
-    { url = "https://pypi.nvidia.cn/isaacsim-code-editor/isaacsim_code_editor-4.5.0.0-cp310-none-manylinux_2_34_x86_64.whl", hash = "sha256:eaf9a469023d743cf66aeec92447e765ffa5089a76669c314e7ea696d11ce784" },
+    { url = "https://pypi.nvidia.com/isaacsim-code-editor/isaacsim_code_editor-4.5.0.0-cp310-none-manylinux_2_34_x86_64.whl", hash = "sha256:eaf9a469023d743cf66aeec92447e765ffa5089a76669c314e7ea696d11ce784" },
 ]
 
 [[package]]
@@ -1139,18 +1135,18 @@ name = "isaacsim-core"
 version = "4.5.0.0"
 source = { registry = "https://pypi.nvidia.com/" }
 dependencies = [
-    { name = "boto3", marker = "sys_platform != 'darwin'" },
-    { name = "isaacsim-kernel", marker = "sys_platform != 'darwin'" },
-    { name = "matplotlib", marker = "sys_platform != 'darwin'" },
-    { name = "numpy", marker = "sys_platform != 'darwin'" },
-    { name = "opencv-python", marker = "sys_platform != 'darwin'" },
-    { name = "psutil", marker = "sys_platform != 'darwin'" },
-    { name = "pyyaml", marker = "sys_platform != 'darwin'" },
-    { name = "scipy", marker = "sys_platform != 'darwin'" },
-    { name = "torch", marker = "sys_platform != 'darwin'" },
+    { name = "boto3" },
+    { name = "isaacsim-kernel" },
+    { name = "matplotlib" },
+    { name = "numpy" },
+    { name = "opencv-python" },
+    { name = "psutil" },
+    { name = "pyyaml" },
+    { name = "scipy" },
+    { name = "torch", version = "2.7.0+cu128", source = { registry = "https://download.pytorch.org/whl/cu128" } },
 ]
 wheels = [
-    { url = "https://pypi.nvidia.cn/isaacsim-core/isaacsim_core-4.5.0.0-cp310-none-manylinux_2_34_x86_64.whl", hash = "sha256:8b09f580b892ee3c6768e019c4070c9785e82930f6becfee2eec36dfd208541e" },
+    { url = "https://pypi.nvidia.com/isaacsim-core/isaacsim_core-4.5.0.0-cp310-none-manylinux_2_34_x86_64.whl", hash = "sha256:8b09f580b892ee3c6768e019c4070c9785e82930f6becfee2eec36dfd208541e" },
 ]
 
 [[package]]
@@ -1158,11 +1154,11 @@ name = "isaacsim-cortex"
 version = "4.5.0.0"
 source = { registry = "https://pypi.nvidia.com/" }
 dependencies = [
-    { name = "isaacsim-robot", marker = "sys_platform != 'darwin'" },
-    { name = "isaacsim-ros1", marker = "sys_platform != 'darwin'" },
+    { name = "isaacsim-robot" },
+    { name = "isaacsim-ros1" },
 ]
 wheels = [
-    { url = "https://pypi.nvidia.cn/isaacsim-cortex/isaacsim_cortex-4.5.0.0-cp310-none-manylinux_2_34_x86_64.whl", hash = "sha256:6d05328a1a81f994a8ddc389d8fbf6bbe30e9e25cedf17eb22f6b93b60b03638" },
+    { url = "https://pypi.nvidia.com/isaacsim-cortex/isaacsim_cortex-4.5.0.0-cp310-none-manylinux_2_34_x86_64.whl", hash = "sha256:6d05328a1a81f994a8ddc389d8fbf6bbe30e9e25cedf17eb22f6b93b60b03638" },
 ]
 
 [[package]]
@@ -1170,10 +1166,10 @@ name = "isaacsim-example"
 version = "4.5.0.0"
 source = { registry = "https://pypi.nvidia.com/" }
 dependencies = [
-    { name = "isaacsim-cortex", marker = "sys_platform != 'darwin'" },
+    { name = "isaacsim-cortex" },
 ]
 wheels = [
-    { url = "https://pypi.nvidia.cn/isaacsim-example/isaacsim_example-4.5.0.0-cp310-none-manylinux_2_34_x86_64.whl", hash = "sha256:f5291734195b2157b481cf811766136bb97a9f2bac9a8b35be989f440eda9df9" },
+    { url = "https://pypi.nvidia.com/isaacsim-example/isaacsim_example-4.5.0.0-cp310-none-manylinux_2_34_x86_64.whl", hash = "sha256:f5291734195b2157b481cf811766136bb97a9f2bac9a8b35be989f440eda9df9" },
 ]
 
 [[package]]
@@ -1181,7 +1177,7 @@ name = "isaacsim-extscache-kit"
 version = "4.5.0.0"
 source = { registry = "https://pypi.nvidia.com/" }
 wheels = [
-    { url = "https://pypi.nvidia.cn/isaacsim-extscache-kit/isaacsim_extscache_kit-4.5.0.0-cp310-none-manylinux_2_34_x86_64.whl", hash = "sha256:03a5d4d1a9122876ee0f84fdff87b1464cfbd7cc17669dd3f5fa2e352bc11207" },
+    { url = "https://pypi.nvidia.com/isaacsim-extscache-kit/isaacsim_extscache_kit-4.5.0.0-cp310-none-manylinux_2_34_x86_64.whl", hash = "sha256:03a5d4d1a9122876ee0f84fdff87b1464cfbd7cc17669dd3f5fa2e352bc11207" },
 ]
 
 [[package]]
@@ -1189,7 +1185,7 @@ name = "isaacsim-extscache-kit-sdk"
 version = "4.5.0.0"
 source = { registry = "https://pypi.nvidia.com/" }
 wheels = [
-    { url = "https://pypi.nvidia.cn/isaacsim-extscache-kit-sdk/isaacsim_extscache_kit_sdk-4.5.0.0-cp310-none-manylinux_2_34_x86_64.whl", hash = "sha256:060a574c11f36527f7be14761544ed40cc18b0a2da46f48635517cd3e8f278c3" },
+    { url = "https://pypi.nvidia.com/isaacsim-extscache-kit-sdk/isaacsim_extscache_kit_sdk-4.5.0.0-cp310-none-manylinux_2_34_x86_64.whl", hash = "sha256:060a574c11f36527f7be14761544ed40cc18b0a2da46f48635517cd3e8f278c3" },
 ]
 
 [[package]]
@@ -1197,7 +1193,7 @@ name = "isaacsim-extscache-physics"
 version = "4.5.0.0"
 source = { registry = "https://pypi.nvidia.com/" }
 wheels = [
-    { url = "https://pypi.nvidia.cn/isaacsim-extscache-physics/isaacsim_extscache_physics-4.5.0.0-cp310-none-manylinux_2_34_x86_64.whl", hash = "sha256:23cac12f28b5876aa4f351596818b0f909d3cf50cf10ad6f914eea7feb34aeeb" },
+    { url = "https://pypi.nvidia.com/isaacsim-extscache-physics/isaacsim_extscache_physics-4.5.0.0-cp310-none-manylinux_2_34_x86_64.whl", hash = "sha256:23cac12f28b5876aa4f351596818b0f909d3cf50cf10ad6f914eea7feb34aeeb" },
 ]
 
 [[package]]
@@ -1205,10 +1201,10 @@ name = "isaacsim-gui"
 version = "4.5.0.0"
 source = { registry = "https://pypi.nvidia.com/" }
 dependencies = [
-    { name = "isaacsim-core", marker = "sys_platform != 'darwin'" },
+    { name = "isaacsim-core" },
 ]
 wheels = [
-    { url = "https://pypi.nvidia.cn/isaacsim-gui/isaacsim_gui-4.5.0.0-cp310-none-manylinux_2_34_x86_64.whl", hash = "sha256:c859ab7b1075b922d05c054dcf2dc53a01400252b61814638923b45d0d693784" },
+    { url = "https://pypi.nvidia.com/isaacsim-gui/isaacsim_gui-4.5.0.0-cp310-none-manylinux_2_34_x86_64.whl", hash = "sha256:c859ab7b1075b922d05c054dcf2dc53a01400252b61814638923b45d0d693784" },
 ]
 
 [[package]]
@@ -1216,10 +1212,10 @@ name = "isaacsim-kernel"
 version = "4.5.0.0"
 source = { registry = "https://pypi.nvidia.com/" }
 dependencies = [
-    { name = "omniverse-kit", marker = "sys_platform != 'darwin'" },
+    { name = "omniverse-kit" },
 ]
 wheels = [
-    { url = "https://pypi.nvidia.cn/isaacsim-kernel/isaacsim_kernel-4.5.0.0-cp310-none-manylinux_2_34_x86_64.whl", hash = "sha256:f1966f4ad9e3e73ac10211994eeefb43559481cb2211769b133c984808286742" },
+    { url = "https://pypi.nvidia.com/isaacsim-kernel/isaacsim_kernel-4.5.0.0-cp310-none-manylinux_2_34_x86_64.whl", hash = "sha256:f1966f4ad9e3e73ac10211994eeefb43559481cb2211769b133c984808286742" },
 ]
 
 [[package]]
@@ -1227,12 +1223,12 @@ name = "isaacsim-replicator"
 version = "4.5.0.0"
 source = { registry = "https://pypi.nvidia.com/" }
 dependencies = [
-    { name = "isaacsim-core", marker = "sys_platform != 'darwin'" },
-    { name = "isaacsim-storage", marker = "sys_platform != 'darwin'" },
-    { name = "pillow", marker = "sys_platform != 'darwin'" },
+    { name = "isaacsim-core" },
+    { name = "isaacsim-storage" },
+    { name = "pillow" },
 ]
 wheels = [
-    { url = "https://pypi.nvidia.cn/isaacsim-replicator/isaacsim_replicator-4.5.0.0-cp310-none-manylinux_2_34_x86_64.whl", hash = "sha256:44e3f74cffbb8351ebbc88d731bad9802984a69ab4a025aa308307de99abfb34" },
+    { url = "https://pypi.nvidia.com/isaacsim-replicator/isaacsim_replicator-4.5.0.0-cp310-none-manylinux_2_34_x86_64.whl", hash = "sha256:44e3f74cffbb8351ebbc88d731bad9802984a69ab4a025aa308307de99abfb34" },
 ]
 
 [[package]]
@@ -1240,12 +1236,12 @@ name = "isaacsim-rl"
 version = "4.5.0.0"
 source = { registry = "https://pypi.nvidia.com/" }
 dependencies = [
-    { name = "gymnasium", marker = "sys_platform != 'darwin'" },
-    { name = "isaacsim-benchmark", marker = "sys_platform != 'darwin'" },
-    { name = "isaacsim-robot", marker = "sys_platform != 'darwin'" },
+    { name = "gymnasium" },
+    { name = "isaacsim-benchmark" },
+    { name = "isaacsim-robot" },
 ]
 wheels = [
-    { url = "https://pypi.nvidia.cn/isaacsim-rl/isaacsim_rl-4.5.0.0-cp310-none-manylinux_2_34_x86_64.whl", hash = "sha256:5ab5e710f69a3ac60a4b481b1d78c0193768db9e0bf5d771188e0ae94cd0b893" },
+    { url = "https://pypi.nvidia.com/isaacsim-rl/isaacsim_rl-4.5.0.0-cp310-none-manylinux_2_34_x86_64.whl", hash = "sha256:5ab5e710f69a3ac60a4b481b1d78c0193768db9e0bf5d771188e0ae94cd0b893" },
 ]
 
 [[package]]
@@ -1253,12 +1249,12 @@ name = "isaacsim-robot"
 version = "4.5.0.0"
 source = { registry = "https://pypi.nvidia.com/" }
 dependencies = [
-    { name = "isaacsim-robot-motion", marker = "sys_platform != 'darwin'" },
-    { name = "isaacsim-sensor", marker = "sys_platform != 'darwin'" },
-    { name = "osqp", marker = "sys_platform != 'darwin'" },
+    { name = "isaacsim-robot-motion" },
+    { name = "isaacsim-sensor" },
+    { name = "osqp" },
 ]
 wheels = [
-    { url = "https://pypi.nvidia.cn/isaacsim-robot/isaacsim_robot-4.5.0.0-cp310-none-manylinux_2_34_x86_64.whl", hash = "sha256:53f029ee683d9bf0b4306a333ba4bbceec4bcc838f19821e0908d06d9697af43" },
+    { url = "https://pypi.nvidia.com/isaacsim-robot/isaacsim_robot-4.5.0.0-cp310-none-manylinux_2_34_x86_64.whl", hash = "sha256:53f029ee683d9bf0b4306a333ba4bbceec4bcc838f19821e0908d06d9697af43" },
 ]
 
 [[package]]
@@ -1266,10 +1262,10 @@ name = "isaacsim-robot-motion"
 version = "4.5.0.0"
 source = { registry = "https://pypi.nvidia.com/" }
 dependencies = [
-    { name = "isaacsim-gui", marker = "sys_platform != 'darwin'" },
+    { name = "isaacsim-gui" },
 ]
 wheels = [
-    { url = "https://pypi.nvidia.cn/isaacsim-robot-motion/isaacsim_robot_motion-4.5.0.0-cp310-none-manylinux_2_34_x86_64.whl", hash = "sha256:b68c2037f7a24e815b22543c0390684d62a2071dcf3e5db80f6045a21fafa554" },
+    { url = "https://pypi.nvidia.com/isaacsim-robot-motion/isaacsim_robot_motion-4.5.0.0-cp310-none-manylinux_2_34_x86_64.whl", hash = "sha256:b68c2037f7a24e815b22543c0390684d62a2071dcf3e5db80f6045a21fafa554" },
 ]
 
 [[package]]
@@ -1277,10 +1273,10 @@ name = "isaacsim-robot-setup"
 version = "4.5.0.0"
 source = { registry = "https://pypi.nvidia.com/" }
 dependencies = [
-    { name = "isaacsim-robot-motion", marker = "sys_platform != 'darwin'" },
+    { name = "isaacsim-robot-motion" },
 ]
 wheels = [
-    { url = "https://pypi.nvidia.cn/isaacsim-robot-setup/isaacsim_robot_setup-4.5.0.0-cp310-none-manylinux_2_34_x86_64.whl", hash = "sha256:aa6cf98ae893893910e2b20d8986fb176fbe9a9c6a565998d1872f5caff2e8eb" },
+    { url = "https://pypi.nvidia.com/isaacsim-robot-setup/isaacsim_robot_setup-4.5.0.0-cp310-none-manylinux_2_34_x86_64.whl", hash = "sha256:aa6cf98ae893893910e2b20d8986fb176fbe9a9c6a565998d1872f5caff2e8eb" },
 ]
 
 [[package]]
@@ -1288,10 +1284,10 @@ name = "isaacsim-ros1"
 version = "4.5.0.0"
 source = { registry = "https://pypi.nvidia.com/" }
 dependencies = [
-    { name = "isaacsim-sensor", marker = "sys_platform != 'darwin'" },
+    { name = "isaacsim-sensor" },
 ]
 wheels = [
-    { url = "https://pypi.nvidia.cn/isaacsim-ros1/isaacsim_ros1-4.5.0.0-cp310-none-manylinux_2_34_x86_64.whl", hash = "sha256:20fc79a06a4875346a6d5cecbec853c777f20ac433b16b33ca74bc018ecc0945" },
+    { url = "https://pypi.nvidia.com/isaacsim-ros1/isaacsim_ros1-4.5.0.0-cp310-none-manylinux_2_34_x86_64.whl", hash = "sha256:20fc79a06a4875346a6d5cecbec853c777f20ac433b16b33ca74bc018ecc0945" },
 ]
 
 [[package]]
@@ -1299,10 +1295,10 @@ name = "isaacsim-ros2"
 version = "4.5.0.0"
 source = { registry = "https://pypi.nvidia.com/" }
 dependencies = [
-    { name = "isaacsim-sensor", marker = "sys_platform != 'darwin'" },
+    { name = "isaacsim-sensor" },
 ]
 wheels = [
-    { url = "https://pypi.nvidia.cn/isaacsim-ros2/isaacsim_ros2-4.5.0.0-cp310-none-manylinux_2_34_x86_64.whl", hash = "sha256:46cb951f807d7635359a708dadc54557f01ed11733327a7b7dd36beb4e13c136" },
+    { url = "https://pypi.nvidia.com/isaacsim-ros2/isaacsim_ros2-4.5.0.0-cp310-none-manylinux_2_34_x86_64.whl", hash = "sha256:46cb951f807d7635359a708dadc54557f01ed11733327a7b7dd36beb4e13c136" },
 ]
 
 [[package]]
@@ -1310,13 +1306,13 @@ name = "isaacsim-sensor"
 version = "4.5.0.0"
 source = { registry = "https://pypi.nvidia.com/" }
 dependencies = [
-    { name = "isaacsim-gui", marker = "sys_platform != 'darwin'" },
-    { name = "isaacsim-storage", marker = "sys_platform != 'darwin'" },
-    { name = "isaacsim-utils", marker = "sys_platform != 'darwin'" },
-    { name = "pillow", marker = "sys_platform != 'darwin'" },
+    { name = "isaacsim-gui" },
+    { name = "isaacsim-storage" },
+    { name = "isaacsim-utils" },
+    { name = "pillow" },
 ]
 wheels = [
-    { url = "https://pypi.nvidia.cn/isaacsim-sensor/isaacsim_sensor-4.5.0.0-cp310-none-manylinux_2_34_x86_64.whl", hash = "sha256:43022a94857e8ccaec0a731449bcaf5e690eaaea6bf670386eb3f3ccbcd1810d" },
+    { url = "https://pypi.nvidia.com/isaacsim-sensor/isaacsim_sensor-4.5.0.0-cp310-none-manylinux_2_34_x86_64.whl", hash = "sha256:43022a94857e8ccaec0a731449bcaf5e690eaaea6bf670386eb3f3ccbcd1810d" },
 ]
 
 [[package]]
@@ -1324,10 +1320,10 @@ name = "isaacsim-storage"
 version = "4.5.0.0"
 source = { registry = "https://pypi.nvidia.com/" }
 dependencies = [
-    { name = "isaacsim-kernel", marker = "sys_platform != 'darwin'" },
+    { name = "isaacsim-kernel" },
 ]
 wheels = [
-    { url = "https://pypi.nvidia.cn/isaacsim-storage/isaacsim_storage-4.5.0.0-cp310-none-manylinux_2_34_x86_64.whl", hash = "sha256:eeb6d039c3a9ce8ab0232d842835187338f0eea0b39d448a1e2102fd91a05148" },
+    { url = "https://pypi.nvidia.com/isaacsim-storage/isaacsim_storage-4.5.0.0-cp310-none-manylinux_2_34_x86_64.whl", hash = "sha256:eeb6d039c3a9ce8ab0232d842835187338f0eea0b39d448a1e2102fd91a05148" },
 ]
 
 [[package]]
@@ -1335,11 +1331,11 @@ name = "isaacsim-template"
 version = "4.5.0.0"
 source = { registry = "https://pypi.nvidia.com/" }
 dependencies = [
-    { name = "isaacsim-gui", marker = "sys_platform != 'darwin'" },
-    { name = "isaacsim-storage", marker = "sys_platform != 'darwin'" },
+    { name = "isaacsim-gui" },
+    { name = "isaacsim-storage" },
 ]
 wheels = [
-    { url = "https://pypi.nvidia.cn/isaacsim-template/isaacsim_template-4.5.0.0-cp310-none-manylinux_2_34_x86_64.whl", hash = "sha256:fc11393a282f802c5b0fae6fd406cd710f0025bdae2509f3036566b881efbc29" },
+    { url = "https://pypi.nvidia.com/isaacsim-template/isaacsim_template-4.5.0.0-cp310-none-manylinux_2_34_x86_64.whl", hash = "sha256:fc11393a282f802c5b0fae6fd406cd710f0025bdae2509f3036566b881efbc29" },
 ]
 
 [[package]]
@@ -1347,10 +1343,10 @@ name = "isaacsim-test"
 version = "4.5.0.0"
 source = { registry = "https://pypi.nvidia.com/" }
 dependencies = [
-    { name = "isaacsim-robot", marker = "sys_platform != 'darwin'" },
+    { name = "isaacsim-robot" },
 ]
 wheels = [
-    { url = "https://pypi.nvidia.cn/isaacsim-test/isaacsim_test-4.5.0.0-cp310-none-manylinux_2_34_x86_64.whl", hash = "sha256:0bdbb23206ef2ba19b7e5101cc2435a25d1f8be7edd3ec2f5d882773fdcf6b0c" },
+    { url = "https://pypi.nvidia.com/isaacsim-test/isaacsim_test-4.5.0.0-cp310-none-manylinux_2_34_x86_64.whl", hash = "sha256:0bdbb23206ef2ba19b7e5101cc2435a25d1f8be7edd3ec2f5d882773fdcf6b0c" },
 ]
 
 [[package]]
@@ -1358,10 +1354,10 @@ name = "isaacsim-utils"
 version = "4.5.0.0"
 source = { registry = "https://pypi.nvidia.com/" }
 dependencies = [
-    { name = "isaacsim-gui", marker = "sys_platform != 'darwin'" },
+    { name = "isaacsim-gui" },
 ]
 wheels = [
-    { url = "https://pypi.nvidia.cn/isaacsim-utils/isaacsim_utils-4.5.0.0-cp310-none-manylinux_2_34_x86_64.whl", hash = "sha256:b0d8ca62ba938d08ecebfae9b994234587b7f8e678af20a5d625977fff46fbe7" },
+    { url = "https://pypi.nvidia.com/isaacsim-utils/isaacsim_utils-4.5.0.0-cp310-none-manylinux_2_34_x86_64.whl", hash = "sha256:b0d8ca62ba938d08ecebfae9b994234587b7f8e678af20a5d625977fff46fbe7" },
 ]
 
 [[package]]
@@ -1562,7 +1558,7 @@ dependencies = [
     { name = "overrides" },
     { name = "packaging" },
     { name = "prometheus-client" },
-    { name = "pywinpty", marker = "(os_name == 'nt' and platform_machine != 'aarch64' and sys_platform == 'linux') or (os_name == 'nt' and sys_platform != 'darwin' and sys_platform != 'linux')" },
+    { name = "pywinpty", marker = "os_name == 'nt' and sys_platform != 'darwin' and sys_platform != 'linux'" },
     { name = "pyzmq" },
     { name = "send2trash" },
     { name = "terminado" },
@@ -1580,7 +1576,7 @@ name = "jupyter-server-terminals"
 version = "0.5.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "pywinpty", marker = "(os_name == 'nt' and platform_machine != 'aarch64' and sys_platform == 'linux') or (os_name == 'nt' and sys_platform != 'darwin' and sys_platform != 'linux')" },
+    { name = "pywinpty", marker = "os_name == 'nt' and sys_platform != 'darwin' and sys_platform != 'linux'" },
     { name = "terminado" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/fc/d5/562469734f476159e99a55426d697cbf8e7eb5efe89fb0e0b4f83a3d3459/jupyter_server_terminals-0.5.3.tar.gz", hash = "sha256:5ae0295167220e9ace0edcfdb212afd2b01ee8d179fe6f23c899590e9b8a5269", size = 31430, upload-time = "2024-03-12T14:37:03.049Z" }
@@ -1886,7 +1882,11 @@ dependencies = [
     { name = "safetensors" },
     { name = "tensordict" },
     { name = "termcolor" },
-    { name = "torch" },
+    { name = "torch", version = "2.7.0", source = { registry = "https://pypi.org/simple" }, marker = "sys_platform != 'linux'" },
+    { name = "torch", version = "2.7.0+cu128", source = { registry = "https://download.pytorch.org/whl/cu128" }, marker = "sys_platform == 'linux'" },
+    { name = "torchvision", version = "0.22.0", source = { registry = "https://download.pytorch.org/whl/cu128" }, marker = "platform_machine == 'aarch64' and sys_platform == 'linux'" },
+    { name = "torchvision", version = "0.22.0", source = { registry = "https://pypi.org/simple" }, marker = "sys_platform != 'linux'" },
+    { name = "torchvision", version = "0.22.0+cu128", source = { registry = "https://download.pytorch.org/whl/cu128" }, marker = "platform_machine != 'aarch64' and sys_platform == 'linux'" },
     { name = "tyro" },
     { name = "xxhash" },
 ]
@@ -1902,7 +1902,7 @@ requires-dist = [
     { name = "exca", specifier = ">=0.2.5" },
     { name = "hf-xet", specifier = ">=1.1.2" },
     { name = "huggingface-hub", specifier = ">=0.30.2" },
-    { name = "humenv", editable = "external/humenv" },
+    { name = "humenv", git = "https://github.com/facebookresearch/humenv.git" },
     { name = "hydra-core", specifier = ">=1.2.0" },
     { name = "isaaclab", extras = ["all", "isaacsim"], marker = "sys_platform == 'linux'", specifier = "==2.0.2" },
     { name = "isaacsim", extras = ["all", "extscache"], marker = "sys_platform == 'linux'", specifier = "==4.5.0" },
@@ -1923,7 +1923,10 @@ requires-dist = [
     { name = "safetensors", specifier = ">=0.5.3" },
     { name = "tensordict", specifier = ">=0.8.3" },
     { name = "termcolor", specifier = ">=3.0.1" },
-    { name = "torch", specifier = ">=2.5.0" },
+    { name = "torch", marker = "sys_platform != 'linux'", specifier = "==2.7.0" },
+    { name = "torch", marker = "sys_platform == 'linux'", specifier = "==2.7.0", index = "https://download.pytorch.org/whl/cu128" },
+    { name = "torchvision", marker = "sys_platform != 'linux'", specifier = "==0.22.0" },
+    { name = "torchvision", marker = "sys_platform == 'linux'", specifier = "==0.22.0", index = "https://download.pytorch.org/whl/cu128" },
     { name = "tyro", specifier = ">=0.9.18" },
     { name = "xxhash", specifier = ">=3.5.0" },
 ]
@@ -1936,13 +1939,13 @@ name = "moviepy"
 version = "2.2.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "decorator", marker = "sys_platform != 'darwin'" },
-    { name = "imageio", marker = "sys_platform != 'darwin'" },
-    { name = "imageio-ffmpeg", marker = "sys_platform != 'darwin'" },
-    { name = "numpy", marker = "sys_platform != 'darwin'" },
-    { name = "pillow", marker = "sys_platform != 'darwin'" },
-    { name = "proglog", marker = "sys_platform != 'darwin'" },
-    { name = "python-dotenv", marker = "sys_platform != 'darwin'" },
+    { name = "decorator" },
+    { name = "imageio" },
+    { name = "imageio-ffmpeg" },
+    { name = "numpy" },
+    { name = "pillow" },
+    { name = "proglog" },
+    { name = "python-dotenv" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/de/61/15f9476e270f64c78a834e7459ca045d669f869cec24eed26807b8cd479d/moviepy-2.2.1.tar.gz", hash = "sha256:c80cb56815ece94e5e3e2d361aa40070eeb30a09d23a24c4e684d03e16deacb1", size = 58431438, upload-time = "2025-05-21T19:31:52.601Z" }
 wheels = [
@@ -2119,112 +2122,128 @@ wheels = [
 
 [[package]]
 name = "nvidia-cublas-cu12"
-version = "12.4.5.8"
+version = "12.8.3.14"
 source = { registry = "https://pypi.nvidia.com/" }
 wheels = [
-    { url = "https://pypi.nvidia.cn/nvidia-cublas-cu12/nvidia_cublas_cu12-12.4.5.8-py3-none-manylinux2014_x86_64.whl", hash = "sha256:2fc8da60df463fdefa81e323eef2e36489e1c94335b5358bcb38360adf75ac9b" },
+    { url = "https://pypi.nvidia.com/nvidia-cublas-cu12/nvidia_cublas_cu12-12.8.3.14-py3-none-manylinux_2_27_x86_64.whl", hash = "sha256:3f0e05e7293598cf61933258b73e66a160c27d59c4422670bf0b79348c04be44" },
 ]
 
 [[package]]
 name = "nvidia-cuda-cupti-cu12"
-version = "12.4.127"
+version = "12.8.57"
 source = { registry = "https://pypi.nvidia.com/" }
 wheels = [
-    { url = "https://pypi.nvidia.cn/nvidia-cuda-cupti-cu12/nvidia_cuda_cupti_cu12-12.4.127-py3-none-manylinux2014_x86_64.whl", hash = "sha256:9dec60f5ac126f7bb551c055072b69d85392b13311fcc1bcda2202d172df30fb" },
+    { url = "https://pypi.nvidia.com/nvidia-cuda-cupti-cu12/nvidia_cuda_cupti_cu12-12.8.57-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:8e0b2eb847de260739bee4a3f66fac31378f4ff49538ff527a38a01a9a39f950" },
 ]
 
 [[package]]
 name = "nvidia-cuda-nvrtc-cu12"
-version = "12.4.127"
+version = "12.8.61"
 source = { registry = "https://pypi.nvidia.com/" }
 wheels = [
-    { url = "https://pypi.nvidia.cn/nvidia-cuda-nvrtc-cu12/nvidia_cuda_nvrtc_cu12-12.4.127-py3-none-manylinux2014_x86_64.whl", hash = "sha256:a178759ebb095827bd30ef56598ec182b85547f1508941a3d560eb7ea1fbf338" },
+    { url = "https://pypi.nvidia.com/nvidia-cuda-nvrtc-cu12/nvidia_cuda_nvrtc_cu12-12.8.61-py3-none-manylinux2010_x86_64.manylinux_2_12_x86_64.whl", hash = "sha256:a0fa9c2a21583105550ebd871bd76e2037205d56f33f128e69f6d2a55e0af9ed" },
 ]
 
 [[package]]
 name = "nvidia-cuda-runtime-cu12"
-version = "12.4.127"
+version = "12.8.57"
 source = { registry = "https://pypi.nvidia.com/" }
 wheels = [
-    { url = "https://pypi.nvidia.cn/nvidia-cuda-runtime-cu12/nvidia_cuda_runtime_cu12-12.4.127-py3-none-manylinux2014_x86_64.whl", hash = "sha256:64403288fa2136ee8e467cdc9c9427e0434110899d07c779f25b5c068934faa5" },
+    { url = "https://pypi.nvidia.com/nvidia-cuda-runtime-cu12/nvidia_cuda_runtime_cu12-12.8.57-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:75342e28567340b7428ce79a5d6bb6ca5ff9d07b69e7ce00d2c7b4dc23eff0be" },
 ]
 
 [[package]]
 name = "nvidia-cudnn-cu12"
-version = "9.1.0.70"
-source = { registry = "https://pypi.org/simple" }
+version = "9.7.1.26"
+source = { registry = "https://pypi.nvidia.com/" }
 dependencies = [
-    { name = "nvidia-cublas-cu12", marker = "(platform_machine != 'aarch64' and sys_platform == 'linux') or (sys_platform != 'darwin' and sys_platform != 'linux')" },
+    { name = "nvidia-cublas-cu12" },
 ]
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/9f/fd/713452cd72343f682b1c7b9321e23829f00b842ceaedcda96e742ea0b0b3/nvidia_cudnn_cu12-9.1.0.70-py3-none-manylinux2014_x86_64.whl", hash = "sha256:165764f44ef8c61fcdfdfdbe769d687e06374059fbb388b6c89ecb0e28793a6f", size = 664752741, upload-time = "2024-04-22T15:24:15.253Z" },
+    { url = "https://pypi.nvidia.com/nvidia-cudnn-cu12/nvidia_cudnn_cu12-9.7.1.26-py3-none-manylinux_2_27_x86_64.whl", hash = "sha256:6d011159a158f3cfc47bf851aea79e31bcff60d530b70ef70474c84cac484d07" },
 ]
 
 [[package]]
 name = "nvidia-cufft-cu12"
-version = "11.2.1.3"
+version = "11.3.3.41"
 source = { registry = "https://pypi.nvidia.com/" }
 dependencies = [
-    { name = "nvidia-nvjitlink-cu12", marker = "(platform_machine != 'aarch64' and sys_platform == 'linux') or (sys_platform != 'darwin' and sys_platform != 'linux')" },
+    { name = "nvidia-nvjitlink-cu12" },
 ]
 wheels = [
-    { url = "https://pypi.nvidia.cn/nvidia-cufft-cu12/nvidia_cufft_cu12-11.2.1.3-py3-none-manylinux2014_x86_64.whl", hash = "sha256:f083fc24912aa410be21fa16d157fed2055dab1cc4b6934a0e03cba69eb242b9" },
+    { url = "https://pypi.nvidia.com/nvidia-cufft-cu12/nvidia_cufft_cu12-11.3.3.41-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:da650080ab79fcdf7a4b06aa1b460e99860646b176a43f6208099bdc17836b6a" },
+]
+
+[[package]]
+name = "nvidia-cufile-cu12"
+version = "1.13.0.11"
+source = { registry = "https://pypi.nvidia.com/" }
+wheels = [
+    { url = "https://pypi.nvidia.com/nvidia-cufile-cu12/nvidia_cufile_cu12-1.13.0.11-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:483f434c541806936b98366f6d33caef5440572de8ddf38d453213729da3e7d4" },
 ]
 
 [[package]]
 name = "nvidia-curand-cu12"
-version = "10.3.5.147"
+version = "10.3.9.55"
 source = { registry = "https://pypi.nvidia.com/" }
 wheels = [
-    { url = "https://pypi.nvidia.cn/nvidia-curand-cu12/nvidia_curand_cu12-10.3.5.147-py3-none-manylinux2014_x86_64.whl", hash = "sha256:a88f583d4e0bb643c49743469964103aa59f7f708d862c3ddb0fc07f851e3b8b" },
+    { url = "https://pypi.nvidia.com/nvidia-curand-cu12/nvidia_curand_cu12-10.3.9.55-py3-none-manylinux_2_27_x86_64.whl", hash = "sha256:8387d974240c91f6a60b761b83d4b2f9b938b7e0b9617bae0f0dafe4f5c36b86" },
 ]
 
 [[package]]
 name = "nvidia-cusolver-cu12"
-version = "11.6.1.9"
+version = "11.7.2.55"
 source = { registry = "https://pypi.nvidia.com/" }
 dependencies = [
-    { name = "nvidia-cublas-cu12", marker = "(platform_machine != 'aarch64' and sys_platform == 'linux') or (sys_platform != 'darwin' and sys_platform != 'linux')" },
-    { name = "nvidia-cusparse-cu12", marker = "(platform_machine != 'aarch64' and sys_platform == 'linux') or (sys_platform != 'darwin' and sys_platform != 'linux')" },
-    { name = "nvidia-nvjitlink-cu12", marker = "(platform_machine != 'aarch64' and sys_platform == 'linux') or (sys_platform != 'darwin' and sys_platform != 'linux')" },
+    { name = "nvidia-cublas-cu12" },
+    { name = "nvidia-cusparse-cu12" },
+    { name = "nvidia-nvjitlink-cu12" },
 ]
 wheels = [
-    { url = "https://pypi.nvidia.cn/nvidia-cusolver-cu12/nvidia_cusolver_cu12-11.6.1.9-py3-none-manylinux2014_x86_64.whl", hash = "sha256:19e33fa442bcfd085b3086c4ebf7e8debc07cfe01e11513cc6d332fd918ac260" },
+    { url = "https://pypi.nvidia.com/nvidia-cusolver-cu12/nvidia_cusolver_cu12-11.7.2.55-py3-none-manylinux_2_27_x86_64.whl", hash = "sha256:4d1354102f1e922cee9db51920dba9e2559877cf6ff5ad03a00d853adafb191b" },
 ]
 
 [[package]]
 name = "nvidia-cusparse-cu12"
-version = "12.3.1.170"
+version = "12.5.7.53"
 source = { registry = "https://pypi.nvidia.com/" }
 dependencies = [
-    { name = "nvidia-nvjitlink-cu12", marker = "(platform_machine != 'aarch64' and sys_platform == 'linux') or (sys_platform != 'darwin' and sys_platform != 'linux')" },
+    { name = "nvidia-nvjitlink-cu12" },
 ]
 wheels = [
-    { url = "https://pypi.nvidia.cn/nvidia-cusparse-cu12/nvidia_cusparse_cu12-12.3.1.170-py3-none-manylinux2014_x86_64.whl", hash = "sha256:ea4f11a2904e2a8dc4b1833cc1b5181cde564edd0d5cd33e3c168eff2d1863f1" },
+    { url = "https://pypi.nvidia.com/nvidia-cusparse-cu12/nvidia_cusparse_cu12-12.5.7.53-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:3c1b61eb8c85257ea07e9354606b26397612627fdcd327bfd91ccf6155e7c86d" },
+]
+
+[[package]]
+name = "nvidia-cusparselt-cu12"
+version = "0.6.3"
+source = { registry = "https://pypi.nvidia.com/" }
+wheels = [
+    { url = "https://pypi.nvidia.com/nvidia-cusparselt-cu12/nvidia_cusparselt_cu12-0.6.3-py3-none-manylinux2014_x86_64.whl", hash = "sha256:e5c8a26c36445dd2e6812f1177978a24e2d37cacce7e090f297a688d1ec44f46" },
 ]
 
 [[package]]
 name = "nvidia-nccl-cu12"
-version = "2.21.5"
+version = "2.26.2"
 source = { registry = "https://pypi.nvidia.com/" }
 wheels = [
-    { url = "https://pypi.nvidia.cn/nvidia-nccl-cu12/nvidia_nccl_cu12-2.21.5-py3-none-manylinux2014_x86_64.whl", hash = "sha256:8579076d30a8c24988834445f8d633c697d42397e92ffc3f63fa26766d25e0a0" },
+    { url = "https://pypi.nvidia.com/nvidia-nccl-cu12/nvidia_nccl_cu12-2.26.2-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:694cf3879a206553cc9d7dbda76b13efaf610fdb70a50cba303de1b0d1530ac6" },
 ]
 
 [[package]]
 name = "nvidia-nvjitlink-cu12"
-version = "12.4.127"
+version = "12.8.61"
 source = { registry = "https://pypi.nvidia.com/" }
 wheels = [
-    { url = "https://pypi.nvidia.cn/nvidia-nvjitlink-cu12/nvidia_nvjitlink_cu12-12.4.127-py3-none-manylinux2014_x86_64.whl", hash = "sha256:06b3b9b25bf3f8af351d664978ca26a16d2c5127dbd53c0497e28d1fb9611d57" },
+    { url = "https://pypi.nvidia.com/nvidia-nvjitlink-cu12/nvidia_nvjitlink_cu12-12.8.61-py3-none-manylinux2010_x86_64.manylinux_2_12_x86_64.whl", hash = "sha256:45fd79f2ae20bd67e8bc411055939049873bfd8fac70ff13bd4865e0b9bdab17" },
 ]
 
 [[package]]
 name = "nvidia-nvtx-cu12"
-version = "12.4.127"
+version = "12.8.55"
 source = { registry = "https://pypi.nvidia.com/" }
 wheels = [
-    { url = "https://pypi.nvidia.cn/nvidia-nvtx-cu12/nvidia_nvtx_cu12-12.4.127-py3-none-manylinux2014_x86_64.whl", hash = "sha256:781e950d9b9f60d8241ccea575b32f5105a5baf4c2351cab5256a24869f12a1a" },
+    { url = "https://pypi.nvidia.com/nvidia-nvtx-cu12/nvidia_nvtx_cu12-12.8.55-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:2dd0780f1a55c21d8e06a743de5bd95653de630decfff40621dbde78cc307102" },
 ]
 
 [[package]]
@@ -2245,7 +2264,7 @@ name = "omniverse-kit"
 version = "106.5.0.162521"
 source = { registry = "https://pypi.nvidia.com/" }
 wheels = [
-    { url = "https://pypi.nvidia.cn/omniverse-kit/omniverse_kit-106.5.0.162521-cp310-none-manylinux_2_34_x86_64.whl", hash = "sha256:c320dfb1dba2c660102e95fb48af9c3617933e5916d184d84f71917ca6bad7f1" },
+    { url = "https://pypi.nvidia.com/omniverse-kit/omniverse_kit-106.5.0.162521-cp310-none-manylinux_2_34_x86_64.whl", hash = "sha256:c320dfb1dba2c660102e95fb48af9c3617933e5916d184d84f71917ca6bad7f1" },
 ]
 
 [[package]]
@@ -2315,7 +2334,7 @@ name = "opencv-python"
 version = "4.11.0.86"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "numpy", marker = "sys_platform != 'darwin'" },
+    { name = "numpy" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/17/06/68c27a523103dad5837dc5b87e71285280c4f098c60e4fe8a8db6486ab09/opencv-python-4.11.0.86.tar.gz", hash = "sha256:03d60ccae62304860d232272e4a4fda93c39d595780cb40b161b310244b736a4", size = 95171956, upload-time = "2025-01-16T13:52:24.737Z" }
 wheels = [
@@ -2349,9 +2368,9 @@ name = "osqp"
 version = "0.6.7.post3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "numpy", marker = "sys_platform != 'darwin'" },
-    { name = "qdldl", marker = "sys_platform != 'darwin'" },
-    { name = "scipy", marker = "sys_platform != 'darwin'" },
+    { name = "numpy" },
+    { name = "qdldl" },
+    { name = "scipy" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/74/35/45d4d1832b31d207f83e0f9734d041be125fb4f0dff49413674bd1b08032/osqp-0.6.7.post3.tar.gz", hash = "sha256:b0c5e0a721f21c9724097a4fd50108304d296468d124e16f34ac67046f7020e1", size = 229274, upload-time = "2024-10-11T02:15:06.422Z" }
 wheels = [
@@ -2506,7 +2525,7 @@ name = "prettytable"
 version = "3.3.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "wcwidth", marker = "sys_platform != 'darwin'" },
+    { name = "wcwidth" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/10/88/ef38a6e4bc375600d3031e405a8d3b3dc4a154fccffd21d5d06e66c96230/prettytable-3.3.0.tar.gz", hash = "sha256:118eb54fd2794049b810893653b20952349df6d3bc1764e7facd8a18064fa9b0", size = 54305, upload-time = "2022-05-05T15:21:40.5Z" }
 wheels = [
@@ -2518,7 +2537,7 @@ name = "proglog"
 version = "0.1.12"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "tqdm", marker = "sys_platform != 'darwin'" },
+    { name = "tqdm" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/c2/af/c108866c452eda1132f3d6b3cb6be2ae8430c97e9309f38ca9dbd430af37/proglog-0.1.12.tar.gz", hash = "sha256:361ee074721c277b89b75c061336cb8c5f287c92b043efa562ccf7866cda931c", size = 8794, upload-time = "2025-05-09T14:36:18.316Z" }
 wheels = [
@@ -2539,7 +2558,7 @@ name = "promise"
 version = "2.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "six", marker = "sys_platform != 'darwin'" },
+    { name = "six" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/cf/9c/fb5d48abfe5d791cd496e4242ebcf87a4bb2e0c3dcd6e0ae68c11426a528/promise-2.3.tar.gz", hash = "sha256:dfd18337c523ba4b6a58801c164c1904a9d4d1b1747c7d5dbf45b693a49d93d0", size = 19534, upload-time = "2019-12-18T07:31:43.07Z" }
 
@@ -2861,8 +2880,8 @@ name = "qdldl"
 version = "0.1.7.post5"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "numpy", marker = "sys_platform != 'darwin'" },
-    { name = "scipy", marker = "sys_platform != 'darwin'" },
+    { name = "numpy" },
+    { name = "scipy" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/59/88/9254835c513a381b8c6d52773060844acf76dfa739648c18f61809c8ee04/qdldl-0.1.7.post5.tar.gz", hash = "sha256:0b1399e1c49b5bed5aac8fd63ef08ab708d340c37fb426fe00128bc1f36b286e", size = 73920, upload-time = "2025-01-02T17:40:44.586Z" }
 wheels = [
@@ -2967,14 +2986,14 @@ name = "rl-games"
 version = "1.6.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "gym", extra = ["classic-control"], marker = "sys_platform != 'darwin'" },
-    { name = "opencv-python", marker = "sys_platform != 'darwin'" },
-    { name = "psutil", marker = "sys_platform != 'darwin'" },
-    { name = "pyyaml", marker = "sys_platform != 'darwin'" },
-    { name = "setproctitle", marker = "sys_platform != 'darwin'" },
-    { name = "tensorboard", marker = "sys_platform != 'darwin'" },
-    { name = "tensorboardx", marker = "sys_platform != 'darwin'" },
-    { name = "wandb", marker = "sys_platform != 'darwin'" },
+    { name = "gym", extra = ["classic-control"] },
+    { name = "opencv-python" },
+    { name = "psutil" },
+    { name = "pyyaml" },
+    { name = "setproctitle" },
+    { name = "tensorboard" },
+    { name = "tensorboardx" },
+    { name = "wandb" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/f7/9e/21f9a9d79768d0fbfaf14989a56d8dd45ca672ea7b9b2cea73ee2a7505e3/rl-games-1.6.1.tar.gz", hash = "sha256:94d6675e0425c8e059068c5e00e0dcf7b6e9b8ed394642f2af279b37f74a9d5d", size = 14597021, upload-time = "2023-09-28T01:46:23.524Z" }
 
@@ -3016,11 +3035,12 @@ name = "rsl-rl-lib"
 version = "2.3.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "gitpython", marker = "sys_platform != 'darwin'" },
-    { name = "numpy", marker = "sys_platform != 'darwin'" },
-    { name = "onnx", marker = "sys_platform != 'darwin'" },
-    { name = "torch", marker = "sys_platform != 'darwin'" },
-    { name = "torchvision", marker = "sys_platform != 'darwin'" },
+    { name = "gitpython" },
+    { name = "numpy" },
+    { name = "onnx" },
+    { name = "torch", version = "2.7.0+cu128", source = { registry = "https://download.pytorch.org/whl/cu128" } },
+    { name = "torchvision", version = "0.22.0", source = { registry = "https://download.pytorch.org/whl/cu128" }, marker = "platform_machine == 'aarch64'" },
+    { name = "torchvision", version = "0.22.0+cu128", source = { registry = "https://download.pytorch.org/whl/cu128" }, marker = "platform_machine != 'aarch64'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/26/c5/46a9aab0afa60ed53e1e1bbda005f9ed76194e38b00ea7911113ea4af226/rsl_rl_lib-2.3.3.tar.gz", hash = "sha256:a71ae8190a8d28331260d4c7815efc2a175a77fdf09180c47f55a96bab69d8de", size = 48361, upload-time = "2025-05-30T10:52:05.359Z" }
 wheels = [
@@ -3057,7 +3077,7 @@ name = "s3transfer"
 version = "0.13.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "botocore", marker = "sys_platform != 'darwin'" },
+    { name = "botocore" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/ed/5d/9dcc100abc6711e8247af5aa561fc07c4a046f72f659c3adea9a449e191a/s3transfer-0.13.0.tar.gz", hash = "sha256:f5e6db74eb7776a37208001113ea7aa97695368242b364d73e91c981ac522177", size = 150232, upload-time = "2025-05-22T19:24:50.245Z" }
 wheels = [
@@ -3139,8 +3159,8 @@ name = "sentry-sdk"
 version = "2.32.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "certifi", marker = "sys_platform != 'darwin'" },
-    { name = "urllib3", marker = "sys_platform != 'darwin'" },
+    { name = "certifi" },
+    { name = "urllib3" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/10/59/eb90c45cb836cf8bec973bba10230ddad1c55e2b2e9ffa9d7d7368948358/sentry_sdk-2.32.0.tar.gz", hash = "sha256:9016c75d9316b0f6921ac14c8cd4fb938f26002430ac5be9945ab280f78bec6b", size = 334932, upload-time = "2025-06-27T08:10:02.89Z" }
 wheels = [
@@ -3206,10 +3226,10 @@ name = "skrl"
 version = "1.4.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "gymnasium", marker = "sys_platform != 'darwin'" },
-    { name = "packaging", marker = "sys_platform != 'darwin'" },
-    { name = "tensorboard", marker = "sys_platform != 'darwin'" },
-    { name = "tqdm", marker = "sys_platform != 'darwin'" },
+    { name = "gymnasium" },
+    { name = "packaging" },
+    { name = "tensorboard" },
+    { name = "tqdm" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/2c/6e/2f9260949187316e91643f69a2c503d96e1b8287baa12560d6ff07ff7716/skrl-1.4.3.tar.gz", hash = "sha256:24770278730c7ee8a7834ab9d7f737f44c4f3e2495c8316a879e11be1e33ec57", size = 214958, upload-time = "2025-03-30T01:29:20.271Z" }
 wheels = [
@@ -3248,12 +3268,12 @@ name = "stable-baselines3"
 version = "2.6.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "cloudpickle", marker = "sys_platform != 'darwin'" },
-    { name = "gymnasium", marker = "sys_platform != 'darwin'" },
-    { name = "matplotlib", marker = "sys_platform != 'darwin'" },
-    { name = "numpy", marker = "sys_platform != 'darwin'" },
-    { name = "pandas", marker = "sys_platform != 'darwin'" },
-    { name = "torch", marker = "sys_platform != 'darwin'" },
+    { name = "cloudpickle" },
+    { name = "gymnasium" },
+    { name = "matplotlib" },
+    { name = "numpy" },
+    { name = "pandas" },
+    { name = "torch", version = "2.7.0+cu128", source = { registry = "https://download.pytorch.org/whl/cu128" } },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/df/25/e71fabe1fdce82118a12bd8a92900d9b5c33d2a7e545ebcf5a582a5d23e9/stable_baselines3-2.6.0.tar.gz", hash = "sha256:972ef537a9a8f2b9de06cdca87ef1f33df5fc8239cfe64fed88976d7c799c2f7", size = 214085, upload-time = "2025-03-24T14:33:14.562Z" }
 wheels = [
@@ -3289,14 +3309,14 @@ wheels = [
 
 [[package]]
 name = "sympy"
-version = "1.13.1"
+version = "1.14.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "mpmath" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/ca/99/5a5b6f19ff9f083671ddf7b9632028436167cd3d33e11015754e41b249a4/sympy-1.13.1.tar.gz", hash = "sha256:9cebf7e04ff162015ce31c9c6c9144daa34a93bd082f54fd8f12deca4f47515f", size = 7533040, upload-time = "2024-07-19T09:26:51.238Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/83/d3/803453b36afefb7c2bb238361cd4ae6125a569b4db67cd9e79846ba2d68c/sympy-1.14.0.tar.gz", hash = "sha256:d3d3fe8df1e5a0b42f0e7bdf50541697dbe7d23746e894990c030e2b05e72517", size = 7793921, upload-time = "2025-04-27T18:05:01.611Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/b2/fe/81695a1aa331a842b582453b605175f419fe8540355886031328089d840a/sympy-1.13.1-py3-none-any.whl", hash = "sha256:db36cdc64bf61b9b24578b6f7bab1ecdd2452cf008f34faa33776680c26d66f8", size = 6189177, upload-time = "2024-07-19T09:26:48.863Z" },
+    { url = "https://files.pythonhosted.org/packages/a2/09/77d55d46fd61b4a135c444fc97158ef34a095e5681d0a6c10b75bf356191/sympy-1.14.0-py3-none-any.whl", hash = "sha256:e091cc3e99d2141a0ba2847328f5479b05d94a6635cb96148ccb3f34671bd8f5", size = 6299353, upload-time = "2025-04-27T18:04:59.103Z" },
 ]
 
 [[package]]
@@ -3304,16 +3324,16 @@ name = "tensorboard"
 version = "2.19.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "absl-py", marker = "sys_platform != 'darwin'" },
-    { name = "grpcio", marker = "sys_platform != 'darwin'" },
-    { name = "markdown", marker = "sys_platform != 'darwin'" },
-    { name = "numpy", marker = "sys_platform != 'darwin'" },
-    { name = "packaging", marker = "sys_platform != 'darwin'" },
-    { name = "protobuf", marker = "sys_platform != 'darwin'" },
-    { name = "setuptools", marker = "sys_platform != 'darwin'" },
-    { name = "six", marker = "sys_platform != 'darwin'" },
-    { name = "tensorboard-data-server", marker = "sys_platform != 'darwin'" },
-    { name = "werkzeug", marker = "sys_platform != 'darwin'" },
+    { name = "absl-py" },
+    { name = "grpcio" },
+    { name = "markdown" },
+    { name = "numpy" },
+    { name = "packaging" },
+    { name = "protobuf" },
+    { name = "setuptools" },
+    { name = "six" },
+    { name = "tensorboard-data-server" },
+    { name = "werkzeug" },
 ]
 wheels = [
     { url = "https://files.pythonhosted.org/packages/5d/12/4f70e8e2ba0dbe72ea978429d8530b0333f0ed2140cc571a48802878ef99/tensorboard-2.19.0-py3-none-any.whl", hash = "sha256:5e71b98663a641a7ce8a6e70b0be8e1a4c0c45d48760b076383ac4755c35b9a0", size = 5503412, upload-time = "2025-02-12T08:17:27.21Z" },
@@ -3333,9 +3353,9 @@ name = "tensorboardx"
 version = "2.6.4"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "numpy", marker = "sys_platform != 'darwin'" },
-    { name = "packaging", marker = "sys_platform != 'darwin'" },
-    { name = "protobuf", marker = "sys_platform != 'darwin'" },
+    { name = "numpy" },
+    { name = "packaging" },
+    { name = "protobuf" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/2b/c5/d4cc6e293fb837aaf9f76dd7745476aeba8ef7ef5146c3b3f9ee375fe7a5/tensorboardx-2.6.4.tar.gz", hash = "sha256:b163ccb7798b31100b9f5fa4d6bc22dad362d7065c2f24b51e50731adde86828", size = 4769801, upload-time = "2025-06-10T22:37:07.419Z" }
 wheels = [
@@ -3352,7 +3372,8 @@ dependencies = [
     { name = "numpy" },
     { name = "orjson" },
     { name = "packaging" },
-    { name = "torch" },
+    { name = "torch", version = "2.7.0", source = { registry = "https://pypi.org/simple" }, marker = "sys_platform != 'linux'" },
+    { name = "torch", version = "2.7.0+cu128", source = { registry = "https://download.pytorch.org/whl/cu128" }, marker = "sys_platform == 'linux'" },
 ]
 wheels = [
     { url = "https://files.pythonhosted.org/packages/39/5d/8ee0ca6b3a250c58e96c9480ab91c251deaeeb605f06ee620a7d469ba190/tensordict-0.8.3-cp310-cp310-macosx_15_0_arm64.whl", hash = "sha256:c06cc58195632bb6ff30fba2faa44d76825b699b0d54eb311aa746647e31f58a", size = 724308, upload-time = "2025-05-16T15:17:50.827Z" },
@@ -3376,7 +3397,7 @@ version = "0.18.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "ptyprocess", marker = "os_name != 'nt'" },
-    { name = "pywinpty", marker = "(os_name == 'nt' and platform_machine != 'aarch64' and sys_platform == 'linux') or (os_name == 'nt' and sys_platform != 'darwin' and sys_platform != 'linux')" },
+    { name = "pywinpty", marker = "os_name == 'nt' and sys_platform != 'darwin' and sys_platform != 'linux'" },
     { name = "tornado" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/8a/11/965c6fd8e5cc254f1fe142d547387da17a8ebfd75a3455f637c663fb38a0/terminado-0.18.1.tar.gz", hash = "sha256:de09f2c4b85de4765f7714688fff57d3e75bad1f909b589fde880460c753fd2e", size = 32701, upload-time = "2024-03-12T14:34:39.026Z" }
@@ -3410,7 +3431,7 @@ name = "tokenizers"
 version = "0.21.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "huggingface-hub", marker = "sys_platform != 'darwin'" },
+    { name = "huggingface-hub" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/ab/2d/b0fce2b8201635f60e8c95990080f58461cc9ca3d5026de2e900f38a7f21/tokenizers-0.21.2.tar.gz", hash = "sha256:fdc7cffde3e2113ba0e6cc7318c40e3438a4d74bbc62bf04bcc63bdfb082ac77", size = 351545, upload-time = "2025-06-24T10:24:52.449Z" }
 wheels = [
@@ -3446,48 +3467,109 @@ wheels = [
 
 [[package]]
 name = "torch"
-version = "2.5.1"
+version = "2.7.0"
 source = { registry = "https://pypi.org/simple" }
+resolution-markers = [
+    "sys_platform == 'darwin'",
+    "sys_platform != 'darwin' and sys_platform != 'linux'",
+]
 dependencies = [
     { name = "filelock" },
     { name = "fsspec" },
     { name = "jinja2" },
     { name = "networkx" },
-    { name = "nvidia-cublas-cu12", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
-    { name = "nvidia-cuda-cupti-cu12", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
-    { name = "nvidia-cuda-nvrtc-cu12", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
-    { name = "nvidia-cuda-runtime-cu12", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
-    { name = "nvidia-cudnn-cu12", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
-    { name = "nvidia-cufft-cu12", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
-    { name = "nvidia-curand-cu12", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
-    { name = "nvidia-cusolver-cu12", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
-    { name = "nvidia-cusparse-cu12", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
-    { name = "nvidia-nccl-cu12", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
-    { name = "nvidia-nvjitlink-cu12", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
-    { name = "nvidia-nvtx-cu12", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
     { name = "sympy" },
-    { name = "triton", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
     { name = "typing-extensions" },
 ]
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/2a/ef/834af4a885b31a0b32fff2d80e1e40f771e1566ea8ded55347502440786a/torch-2.5.1-cp310-cp310-manylinux1_x86_64.whl", hash = "sha256:71328e1bbe39d213b8721678f9dcac30dfc452a46d586f1d514a6aa0a99d4744", size = 906446312, upload-time = "2024-10-29T17:33:38.045Z" },
-    { url = "https://files.pythonhosted.org/packages/69/f0/46e74e0d145f43fa506cb336eaefb2d240547e4ce1f496e442711093ab25/torch-2.5.1-cp310-cp310-manylinux2014_aarch64.whl", hash = "sha256:34bfa1a852e5714cbfa17f27c49d8ce35e1b7af5608c4bc6e81392c352dbc601", size = 91919522, upload-time = "2024-10-29T17:39:08.74Z" },
-    { url = "https://files.pythonhosted.org/packages/a5/13/1eb674c8efbd04d71e4a157ceba991904f633e009a584dd65dccbafbb648/torch-2.5.1-cp310-cp310-win_amd64.whl", hash = "sha256:32a037bd98a241df6c93e4c789b683335da76a2ac142c0973675b715102dc5fa", size = 203088048, upload-time = "2024-10-29T17:34:10.913Z" },
-    { url = "https://files.pythonhosted.org/packages/a9/9d/e0860474ee0ff8f6ef2c50ec8f71a250f38d78a9b9df9fd241ad3397a65b/torch-2.5.1-cp310-none-macosx_11_0_arm64.whl", hash = "sha256:23d062bf70776a3d04dbe74db950db2a5245e1ba4f27208a87f0d743b0d06e86", size = 63877046, upload-time = "2024-10-29T17:34:19.174Z" },
+    { url = "https://files.pythonhosted.org/packages/7f/7e/1b1cc4e0e7cc2666cceb3d250eef47a205f0821c330392cf45eb08156ce5/torch-2.7.0-cp310-cp310-win_amd64.whl", hash = "sha256:2ad79d0d8c2a20a37c5df6052ec67c2078a2c4e9a96dd3a8b55daaff6d28ea29", size = 212521189, upload-time = "2025-04-23T14:34:53.898Z" },
+    { url = "https://files.pythonhosted.org/packages/dc/0b/b2b83f30b8e84a51bf4f96aa3f5f65fdf7c31c591cc519310942339977e2/torch-2.7.0-cp310-none-macosx_11_0_arm64.whl", hash = "sha256:34e0168ed6de99121612d72224e59b2a58a83dae64999990eada7260c5dd582d", size = 68559462, upload-time = "2025-04-23T14:35:39.889Z" },
+]
+
+[[package]]
+name = "torch"
+version = "2.7.0+cu128"
+source = { registry = "https://download.pytorch.org/whl/cu128" }
+resolution-markers = [
+    "platform_machine == 'aarch64' and sys_platform == 'linux'",
+    "platform_machine != 'aarch64' and sys_platform == 'linux'",
+]
+dependencies = [
+    { name = "filelock" },
+    { name = "fsspec" },
+    { name = "jinja2" },
+    { name = "networkx" },
+    { name = "nvidia-cublas-cu12", marker = "platform_machine == 'x86_64'" },
+    { name = "nvidia-cuda-cupti-cu12", marker = "platform_machine == 'x86_64'" },
+    { name = "nvidia-cuda-nvrtc-cu12", marker = "platform_machine == 'x86_64'" },
+    { name = "nvidia-cuda-runtime-cu12", marker = "platform_machine == 'x86_64'" },
+    { name = "nvidia-cudnn-cu12", marker = "platform_machine == 'x86_64'" },
+    { name = "nvidia-cufft-cu12", marker = "platform_machine == 'x86_64'" },
+    { name = "nvidia-cufile-cu12", marker = "platform_machine == 'x86_64'" },
+    { name = "nvidia-curand-cu12", marker = "platform_machine == 'x86_64'" },
+    { name = "nvidia-cusolver-cu12", marker = "platform_machine == 'x86_64'" },
+    { name = "nvidia-cusparse-cu12", marker = "platform_machine == 'x86_64'" },
+    { name = "nvidia-cusparselt-cu12", marker = "platform_machine == 'x86_64'" },
+    { name = "nvidia-nccl-cu12", marker = "platform_machine == 'x86_64'" },
+    { name = "nvidia-nvjitlink-cu12", marker = "platform_machine == 'x86_64'" },
+    { name = "nvidia-nvtx-cu12", marker = "platform_machine == 'x86_64'" },
+    { name = "sympy" },
+    { name = "triton" },
+    { name = "typing-extensions" },
+]
+wheels = [
+    { url = "https://download-r2.pytorch.org/whl/cu128/torch-2.7.0%2Bcu128-cp310-cp310-manylinux_2_28_aarch64.whl", hash = "sha256:b1f0cdd0720ad60536deb5baa427b782fd920dd4fcf72e244d32974caafa3b9e", upload-time = "2025-05-14T03:33:41Z" },
+    { url = "https://download-r2.pytorch.org/whl/cu128/torch-2.7.0%2Bcu128-cp310-cp310-manylinux_2_28_x86_64.whl", hash = "sha256:ac1849553ee673dfafb44c610c60cb60a2890f0e117f43599a526cf777eb8b8c", upload-time = "2025-04-22T18:19:25Z" },
 ]
 
 [[package]]
 name = "torchvision"
-version = "0.20.1"
-source = { registry = "https://pypi.org/simple" }
+version = "0.22.0"
+source = { registry = "https://download.pytorch.org/whl/cu128" }
+resolution-markers = [
+    "platform_machine == 'aarch64' and sys_platform == 'linux'",
+]
 dependencies = [
-    { name = "numpy", marker = "sys_platform != 'darwin'" },
-    { name = "pillow", marker = "sys_platform != 'darwin'" },
-    { name = "torch", marker = "sys_platform != 'darwin'" },
+    { name = "numpy" },
+    { name = "pillow" },
+    { name = "torch", version = "2.7.0+cu128", source = { registry = "https://download.pytorch.org/whl/cu128" } },
 ]
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/a2/f6/7ff89a9f8703f623f5664afd66c8600e3f09fe188e1e0b7e6f9a8617f865/torchvision-0.20.1-cp310-cp310-manylinux1_x86_64.whl", hash = "sha256:8ffbdf8bf5b30eade22d459f5a313329eeadb20dc75efa142987b53c007098c3", size = 7238975, upload-time = "2024-10-29T17:41:03.374Z" },
-    { url = "https://files.pythonhosted.org/packages/f7/ce/4c31e9b96cc4f9fec746b258d2aa35f8d1247f4f58d63f9c505ea5eb254d/torchvision-0.20.1-cp310-cp310-manylinux2014_aarch64.whl", hash = "sha256:75f8a4d51a593c4bab6c9bf7d75bdd88691b00a53b07656678bc55a3a753dd73", size = 14265343, upload-time = "2024-10-29T17:40:57.799Z" },
+    { url = "https://download-r2.pytorch.org/whl/cu128/torchvision-0.22.0-cp310-cp310-manylinux_2_28_aarch64.whl", hash = "sha256:566224d7b4f00bc6366bed1d62f834ca80f8e57fe41e10e4a5636bfa3ffb984e", upload-time = "2025-04-22T18:30:20Z" },
+]
+
+[[package]]
+name = "torchvision"
+version = "0.22.0"
+source = { registry = "https://pypi.org/simple" }
+resolution-markers = [
+    "sys_platform == 'darwin'",
+    "sys_platform != 'darwin' and sys_platform != 'linux'",
+]
+dependencies = [
+    { name = "numpy" },
+    { name = "pillow" },
+    { name = "torch", version = "2.7.0", source = { registry = "https://pypi.org/simple" } },
+]
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/eb/03/a514766f068b088180f273913e539d08e830be3ae46ef8577ea62584a27c/torchvision-0.22.0-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:72256f1d7ff510b16c9fb4dd488584d0693f40c792f286a9620674438a81ccca", size = 1947829, upload-time = "2025-04-23T14:42:04.652Z" },
+    { url = "https://files.pythonhosted.org/packages/c7/ec/2cdb90c6d9d61410b3df9ca67c210b60bf9b07aac31f800380b20b90386c/torchvision-0.22.0-cp310-cp310-win_amd64.whl", hash = "sha256:8c869df2e8e00f7b1d80a34439e6d4609b50fe3141032f50b38341ec2b59404e", size = 1716700, upload-time = "2025-04-23T14:42:03.562Z" },
+]
+
+[[package]]
+name = "torchvision"
+version = "0.22.0+cu128"
+source = { registry = "https://download.pytorch.org/whl/cu128" }
+resolution-markers = [
+    "platform_machine != 'aarch64' and sys_platform == 'linux'",
+]
+dependencies = [
+    { name = "numpy" },
+    { name = "pillow" },
+    { name = "torch", version = "2.7.0+cu128", source = { registry = "https://download.pytorch.org/whl/cu128" } },
+]
+wheels = [
+    { url = "https://download-r2.pytorch.org/whl/cu128/torchvision-0.22.0%2Bcu128-cp310-cp310-manylinux_2_28_x86_64.whl", hash = "sha256:59df5a550113a80ce523047066eaaedb168c69482da88c3ab246716ab45ba092", upload-time = "2025-04-22T18:30:20Z" },
 ]
 
 [[package]]
@@ -3535,16 +3617,16 @@ name = "transformers"
 version = "4.53.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "filelock", marker = "sys_platform != 'darwin'" },
-    { name = "huggingface-hub", marker = "sys_platform != 'darwin'" },
-    { name = "numpy", marker = "sys_platform != 'darwin'" },
-    { name = "packaging", marker = "sys_platform != 'darwin'" },
-    { name = "pyyaml", marker = "sys_platform != 'darwin'" },
-    { name = "regex", marker = "sys_platform != 'darwin'" },
-    { name = "requests", marker = "sys_platform != 'darwin'" },
-    { name = "safetensors", marker = "sys_platform != 'darwin'" },
-    { name = "tokenizers", marker = "sys_platform != 'darwin'" },
-    { name = "tqdm", marker = "sys_platform != 'darwin'" },
+    { name = "filelock" },
+    { name = "huggingface-hub" },
+    { name = "numpy" },
+    { name = "packaging" },
+    { name = "pyyaml" },
+    { name = "regex" },
+    { name = "requests" },
+    { name = "safetensors" },
+    { name = "tokenizers" },
+    { name = "tqdm" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/9f/2c/68a0024c311db41bb92d4ec17d22e90b7406a4d28aa18d87662f2bbebcd9/transformers-4.53.1.tar.gz", hash = "sha256:da5a9f66ad480bc2a7f75bc32eaf735fd20ac56af4325ca4ce994021ceb37710", size = 9192189, upload-time = "2025-07-04T08:28:40.571Z" }
 wheels = [
@@ -3556,7 +3638,7 @@ name = "trimesh"
 version = "4.6.13"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "numpy", marker = "sys_platform != 'darwin'" },
+    { name = "numpy" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/68/c2/b97f9fea123b608d0027abb3bb87cfbecfb974ad8f1f034641e5fe4f0312/trimesh-4.6.13.tar.gz", hash = "sha256:2950dd6c3c9c9948a652f7a2966319b47130467bbbf447b254e02b9d90c94f14", size = 804497, upload-time = "2025-06-27T18:34:27.839Z" }
 wheels = [
@@ -3565,13 +3647,13 @@ wheels = [
 
 [[package]]
 name = "triton"
-version = "3.1.0"
+version = "3.3.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "filelock", marker = "(platform_machine != 'aarch64' and sys_platform == 'linux') or (sys_platform != 'darwin' and sys_platform != 'linux')" },
+    { name = "setuptools" },
 ]
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/98/29/69aa56dc0b2eb2602b553881e34243475ea2afd9699be042316842788ff5/triton-3.1.0-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:6b0dd10a925263abbe9fa37dcde67a5e9b2383fc269fdf59f5657cac38c5d1d8", size = 209460013, upload-time = "2024-10-14T16:05:32.106Z" },
+    { url = "https://files.pythonhosted.org/packages/76/04/d54d3a6d077c646624dc9461b0059e23fd5d30e0dbe67471e3654aec81f9/triton-3.3.0-cp310-cp310-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:fad99beafc860501d7fcc1fb7045d9496cbe2c882b1674640304949165a916e7", size = 156441993, upload-time = "2025-04-09T20:27:25.107Z" },
 ]
 
 [[package]]
@@ -3665,20 +3747,20 @@ name = "wandb"
 version = "0.12.21"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "click", marker = "sys_platform != 'darwin'" },
-    { name = "docker-pycreds", marker = "sys_platform != 'darwin'" },
-    { name = "gitpython", marker = "sys_platform != 'darwin'" },
-    { name = "pathtools", marker = "sys_platform != 'darwin'" },
-    { name = "promise", marker = "sys_platform != 'darwin'" },
-    { name = "protobuf", marker = "sys_platform != 'darwin'" },
-    { name = "psutil", marker = "sys_platform != 'darwin'" },
-    { name = "pyyaml", marker = "sys_platform != 'darwin'" },
-    { name = "requests", marker = "sys_platform != 'darwin'" },
-    { name = "sentry-sdk", marker = "sys_platform != 'darwin'" },
-    { name = "setproctitle", marker = "sys_platform != 'darwin'" },
-    { name = "setuptools", marker = "sys_platform != 'darwin'" },
-    { name = "shortuuid", marker = "sys_platform != 'darwin'" },
-    { name = "six", marker = "sys_platform != 'darwin'" },
+    { name = "click" },
+    { name = "docker-pycreds" },
+    { name = "gitpython" },
+    { name = "pathtools" },
+    { name = "promise" },
+    { name = "protobuf" },
+    { name = "psutil" },
+    { name = "pyyaml" },
+    { name = "requests" },
+    { name = "sentry-sdk" },
+    { name = "setproctitle" },
+    { name = "setuptools" },
+    { name = "shortuuid" },
+    { name = "six" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/7a/de/e96554c5ffbdbee7f390e6a9019da3e51cd064a08ade234cf1c192fb9097/wandb-0.12.21.tar.gz", hash = "sha256:1975ff88c5024923c3321c93cfefb8d9b871543c0b009f34001bf0f31e444b04", size = 1530491, upload-time = "2022-07-05T19:34:02.397Z" }
 wheels = [
@@ -3690,7 +3772,7 @@ name = "warp-lang"
 version = "1.8.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "numpy", marker = "sys_platform != 'darwin'" },
+    { name = "numpy" },
 ]
 wheels = [
     { url = "https://files.pythonhosted.org/packages/5a/7d/4a80e98139220476db62d9990fadf6d8e93404bc0dab5d6147e69da937c4/warp_lang-1.8.0-py3-none-manylinux_2_28_x86_64.whl", hash = "sha256:373464bee59be37018d134b5924bf8fdb33d1313f484fd1b7c64296971c26ae2", size = 129935644, upload-time = "2025-07-01T18:32:07.543Z" },

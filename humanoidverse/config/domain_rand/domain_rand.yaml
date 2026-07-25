@@ -20,9 +20,9 @@ domain_rand:
   link_mass_range : [0.95, 1.05]
 
   # pd gain
-  randomize_pd_gain : False
-  kp_range : [0.75, 1.25]
-  kd_range : [0.75, 1.25]
+  randomize_pd_gain : True
+  kp_range : [0.8, 1.2]
+  kd_range : [0.8, 1.2]
 
   # friction
   randomize_friction : True
@@ -39,7 +39,7 @@ domain_rand:
 
 
   # control delay
-  randomize_ctrl_delay : False
+  randomize_ctrl_delay : True
   ctrl_delay_step_range : [0, 1] # integer max real delay is 90ms
 
   # Mimicing BeyondMimic: https://github.com/HybridRobotics/whole_body_tracking/blob/dcecabd8c24c68f59d143fdf8e3a670f420c972d/source/whole_body_tracking/whole_body_tracking/tasks/tracking/tracking_env_cfg.py#L170

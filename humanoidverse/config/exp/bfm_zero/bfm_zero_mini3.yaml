@@ -1,0 +1,49 @@
+# @package _global_
+
+defaults:
+  - /env: legged_motions
+  - /simulator: isaacsim
+  - /domain_rand: domain_rand
+  - /rewards: reward_bfm_zero
+  - /robot: mini3/mini3_21dof
+  - /terrain: terrain_locomotion_plane
+  - /obs: bfm_zero_obs
+  - /callbacks: im_eval
+  - _self_
+
+exp_base: ${hydra:runtime.choices.exp}
+exp_var: mini3
+experiment_name: ${exp_base}_${exp_var}
+experiment_dir: ${base_dir}/${project_name}/${experiment_name}-${timestamp}
+
+num_envs: 50
+project_name: BFMZero
+
+robot:
+  motion:
+    motion_file: data/lafan1_mini3
+    # The provided files contain long LaFAN sequences. Load 10-second windows.
+    max_len: 300
+  asset:
+    self_collisions: 0
+
+simulator:
+  config:
+    sim:
+      fps: 500
+      control_decimation: 10
+
+rewards:
+  reward_penalty_curriculum: true
+  reward_penalty_degree: 0.00001
+
+env:
+  config:
+    resample_motion_when_training: true
+    termination:
+      terminate_when_motion_far: false
+    termination_curriculum:
+      terminate_when_motion_far_curriculum: false
+      terminate_when_motion_far_threshold_min: 0.15
+      terminate_when_motion_far_threshold_max: 0.35
+      terminate_when_motion_far_curriculum_degree: 0.000025

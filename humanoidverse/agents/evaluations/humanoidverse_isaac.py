@@ -1,25 +1,21 @@
 
 import collections
-import functools
+import copy
+import dataclasses
 import numbers
 import random
-import time
-from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
-from typing import Any, Dict, Mapping
-import dataclasses
 from collections import defaultdict
-import copy
+from typing import Any, Dict, Mapping
 
-import mujoco
 import numpy as np
 import ot
 import torch
 from torch.utils._pytree import tree_map
 from tqdm import tqdm
 
-from ..buffers.trajectory import TrajectoryDictBufferMultiDim
-from ..envs.humanoidverse_isaac import HumanoidVerseIsaacConfig, HumanoidVerseVectorEnv, IsaacRendererWithMuJoco
+from ..envs.humanoidverse_isaac import HumanoidVerseIsaacConfig, HumanoidVerseVectorEnv
 from .base import BaseEvalConfig, extract_model
+
 
 def get_next(field: str, data: Any):
     if "next" in data and field in data["next"]:
@@ -86,41 +82,12 @@ class Episode:
                 output[k] = np.array(v)
         return output
 
-xpos_bodies = [
-    "pelvis",
-    "left_hip_pitch_link",
-    "left_hip_roll_link",
-    "left_hip_yaw_link",
-    "left_knee_link",
-    "left_ankle_pitch_link",
-    "left_ankle_roll_link",
-    "right_hip_pitch_link",
-    "right_hip_roll_link",
-    "right_hip_yaw_link",
-    "right_knee_link",
-    "right_ankle_pitch_link",
-    "right_ankle_roll_link",
-    "waist_yaw_link",
-    "waist_roll_link",
-    "torso_link",
-    "left_shoulder_pitch_link",
-    "left_shoulder_roll_link",
-    "left_shoulder_yaw_link",
-    "left_elbow_link",
-    # "left_wrist_roll_link",
-    # "left_wrist_pitch_link",
-    # "left_wrist_yaw_link",
-    "right_shoulder_pitch_link",
-    "right_shoulder_roll_link",
-    "right_shoulder_yaw_link",
-    "right_elbow_link",
-    # "right_wrist_roll_link",
-    # "right_wrist_pitch_link",
-    # "right_wrist_yaw_link",
-]
-
-def get_backward_observation(env, motion_id, include_last_action, velocity_multiplier: float = 1.0) -> torch.Tensor:
-    import numpy as np
+def get_backward_observation(
+    env,
+    motion_id,
+    include_last_action,
+    velocity_multiplier: float = 1.0,
+) -> tuple[dict[str, torch.Tensor], dict[str, torch.Tensor]]:
     from humanoidverse.envs.legged_robot_motions.legged_robot_motions import (
         compute_humanoid_observations_max,
         compute_humanoid_observations_max_with_contact,
@@ -139,62 +106,6 @@ def get_backward_observation(env, motion_id, include_last_action, velocity_multi
     ref_body_angular_vels = motion_state["body_ang_vel_t"] * velocity_multiplier
     ref_dof_pos = motion_state["dof_pos"] - env.default_dof_pos[0]
     ref_dof_vel = motion_state["dof_vel"] * velocity_multiplier
-
-    # npz_path = "dataprocess/push_door-3steps-no_door_amass-robot_only-processed/motion.npz"
-    # data_npz = np.load(npz_path)
-    # data_dict = {key: data_npz[key] for key in data_npz.files}
-
-    def process_body_data(data_dict, device="cuda"):
-        def extract_and_concat_vec3(arr: torch.Tensor) -> torch.Tensor:
-            arr = arr.float()
-            # arr: (T, N, 3)
-            return torch.cat(
-                [
-                    arr[:, 0:13],
-                    torch.zeros_like(arr[:, 14:16]),  # 两个补 0
-                    arr[:, 13:18],
-                    arr[:, 21:25],
-                    arr[:, 20:21],
-                    arr[:, 27:28],
-                    arr[:, 12:13],
-                ],
-                dim=1,
-            )
-
-        def extract_and_concat_quat_torch(arr: torch.Tensor) -> torch.Tensor:
-            arr = arr.float()
-            # arr: (T, N, 4), wxyz
-            seg1 = arr[:, 0:13]
-            seg2 = torch.tensor([1, 0, 0, 0], dtype=arr.dtype, device=arr.device).view(1, 1, 4).repeat(arr.shape[0], 2, 1)
-            seg3 = arr[:, 13:18]
-            seg4 = arr[:, 21:25]
-            seg7 = arr[:, 12:13]
-            seg5 = arr[:, 20:21]
-            seg6 = arr[:, 27:28]
-            quat_wxyz = torch.cat([seg1, seg2, seg3, seg4, seg5, seg6, seg7], dim=1)  # (T, 24, 4)
-            quat_xyzw = torch.cat([quat_wxyz[..., 1:], quat_wxyz[..., :1]], dim=-1)  # (T, 24, 4)
-            return quat_xyzw
-
-        # 转为 torch tensor 并送到 GPU
-        body_pos = torch.from_numpy(data_dict["body_pos_w"]).to(device)
-        body_quat = torch.from_numpy(data_dict["body_quat_w"]).to(device)
-        body_lin_vel = torch.from_numpy(data_dict["body_lin_vel_w"]).to(device)
-        body_ang_vel = torch.from_numpy(data_dict["body_ang_vel_w"]).to(device)
-        joint_pos = torch.from_numpy(data_dict["joint_pos"]).to(device)[:, 1:]
-        joint_vel = torch.from_numpy(data_dict["joint_vel"]).to(device)[:, 1:]
-
-        # 处理
-        ref_body_pos = extract_and_concat_vec3(body_pos)
-        ref_body_vels = extract_and_concat_vec3(body_lin_vel)
-        ref_body_angular_vels = extract_and_concat_vec3(body_ang_vel)
-        ref_body_rots = extract_and_concat_quat_torch(body_quat)
-        ref_dof_pos = joint_pos.float() - env.default_dof_pos[0]
-        ref_dof_vel = joint_vel.float()
-
-        return ref_body_pos, ref_body_rots, ref_body_vels, ref_body_angular_vels, ref_dof_pos, ref_dof_vel
-
-    # import ipdb; ipdb.set_trace()
-    # ref_body_pos, ref_body_rots, ref_body_vels, ref_body_angular_vels, ref_dof_pos, ref_dof_vel = process_body_data(data_dict)
 
     # construct observation
     if env.use_contact_in_obs_max:
@@ -219,14 +130,16 @@ def get_backward_observation(env, motion_id, include_last_action, velocity_multi
         )
     max_local_self_obs = torch.cat([v for v in obs_dict.values()], dim=-1)
 
-    if env.config.obs.use_obs_filter:
-        base_quat = ref_body_rots[:, 0]  # root orientation
-        # ref_dof_pos = motion_state["dof_pos"] - env.default_dof_pos[0]
-        # ref_dof_vel = motion_state["dof_vel"]
-        ref_ang_vel = ref_body_angular_vels[:, 0]
-        projected_gravity = quat_rotate_inverse(base_quat, env.gravity_vec[0:1].repeat(max_local_self_obs.shape[0], 1), w_last=True)
-        bogus_actions = ref_dof_pos
+    base_quat = ref_body_rots[:, 0]
+    ref_ang_vel = ref_body_angular_vels[:, 0]
+    projected_gravity = quat_rotate_inverse(
+        base_quat,
+        env.gravity_vec[0:1].repeat(max_local_self_obs.shape[0], 1),
+        w_last=True,
+    )
+    bogus_actions = ref_dof_pos
 
+    if env.config.obs.use_obs_filter:
         bogus_history_actor = torch.cat([bogus_actions, ref_ang_vel, ref_dof_pos, ref_dof_vel, projected_gravity], dim=-1).repeat(1, 4)
         # obs = torch.cat([bogus_actions, ref_ang_vel, ref_dof_pos, ref_dof_vel, bogus_history_actor, max_local_self_obs, projected_gravity], dim=-1)
         ref_dict = {
@@ -254,10 +167,7 @@ def get_backward_observation(env, motion_id, include_last_action, velocity_multi
             "max_local_self_obs": max_local_self_obs,
         }
 
-    projected_gravity = quat_rotate_inverse(base_quat, env.gravity_vec[0:1].repeat(max_local_self_obs.shape[0], 1), w_last=True)
-
-    # TODO ensure this is correct
-    g1env_state = torch.cat(
+    state = torch.cat(
         [
             ref_dof_pos,
             ref_dof_vel,
@@ -266,21 +176,17 @@ def get_backward_observation(env, motion_id, include_last_action, velocity_multi
         ],
         dim=-1,
     )
-    bogus_actions = ref_dof_pos
-    g1env_last_action = bogus_actions
 
-    g1env_privileged_obs = ref_dict["max_local_self_obs"]
-
-    g1env_obs = {
-        "state": g1env_state,
-        "privileged_state": g1env_privileged_obs,
+    observation = {
+        "state": state,
+        "privileged_state": ref_dict["max_local_self_obs"],
     }
 
     if include_last_action:
         # NOTE we multiply by zero to align with mujoco data
-        g1env_obs["last_action"] = g1env_last_action * 0
+        observation["last_action"] = bogus_actions * 0
 
-    return g1env_obs, ref_dict
+    return observation, ref_dict
 
 
 class HumanoidVerseIsaacTrackingEvaluationConfig(BaseEvalConfig):
@@ -401,7 +307,12 @@ def _async_tracking_worker(
 
     if not isaac_env._motion_lib.all_motions_loaded:
         isaac_env._motion_lib.all_motions_loaded = True
-        isaac_env._motion_lib.load_motions(random_sample=False, num_motions_to_load=isaac_env._motion_lib._num_unique_motions, start_idx=0)
+        isaac_env._motion_lib.load_motions(
+            random_sample=False,
+            num_motions_to_load=isaac_env._motion_lib._num_unique_motions,
+            start_idx=0,
+            max_len=isaac_env._motion_lib.m_cfg.get("max_len", -1),
+        )
 
     metrics = {}
     num_envs = isaac_env.num_envs
@@ -450,7 +361,6 @@ def _async_tracking_worker(
             dof_init_state[..., 1] = tracking_target_dict["ref_dof_vel"][0]
             dof_states_list[env_id] = dof_init_state
             root_states_list[env_id] = ref_root_init_state
-            # target_xpos_dict[env_id] = tracking_target_dict["ref_body_pos"][:, : len(xpos_bodies)]
 
     # this is for environments that are not initialized
     for i in range(num_envs):
@@ -549,11 +459,6 @@ def _async_tracking_worker(
 
 
 
-QPOS_START = 23 + 3
-QPOS_END = 23 + 3 + 23
-QVEL_IDX = 23
-
-
 def distance_matrix(X: torch.Tensor, Y: torch.Tensor):
     X_norm = X.pow(2).sum(1).reshape(-1, 1)
     Y_norm = Y.pow(2).sum(1).reshape(1, -1)
@@ -585,8 +490,9 @@ def distance_proximity(next_obs: torch.Tensor, tracking_target: torch.Tensor, bo
 
 def _calc_metrics(ep):
     metr = {}
-    next_obs = torch.tensor(ep["observation"]["state"][:, :QVEL_IDX], dtype=torch.float32)
-    tracking_target = torch.tensor(ep["tracking_target"]["state"][:, :QVEL_IDX], dtype=torch.float32)
+    pose_dim = ep["target_joint_pos"].shape[-1]
+    next_obs = torch.tensor(ep["observation"]["state"][:, :pose_dim], dtype=torch.float32)
+    tracking_target = torch.tensor(ep["tracking_target"]["state"][:, :pose_dim], dtype=torch.float32)
     dist_prox_res = distance_proximity(next_obs=next_obs, tracking_target=tracking_target, prefix="obs_state_")
     metr.update(dist_prox_res)
     emd_res = emd_numpy(next_obs=next_obs, tracking_target=tracking_target, prefix="obs_state_")

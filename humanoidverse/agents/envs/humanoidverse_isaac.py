@@ -1,4 +1,6 @@
 import os
+import warnings
+from pathlib import Path
 
 os.environ["HYDRA_FULL_ERROR"] = "1"
 # For Isaac Sim
@@ -7,23 +9,25 @@ import typing as tp
 from typing import Any, Dict, Tuple, Union
 
 import gymnasium
-import humanoidverse
 import hydra
 import numpy as np
-import torch
 import pydantic
+import torch
 from gymnasium import Env
 from gymnasium.vector import VectorEnv
-from humanoidverse.envs.legged_robot_motions.legged_robot_motions import LeggedRobotMotions, compute_humanoid_observations_max
-from humanoidverse.utils.helpers import pre_process_config
-from humanoidverse.utils.torch_utils import quat_rotate_inverse
 from omegaconf import OmegaConf
 from torch.utils._pytree import tree_map
+
+import humanoidverse
+from humanoidverse.envs.env_utils.history_handler import HistoryHandler as HVHistoryHandler
+from humanoidverse.envs.legged_robot_motions.legged_robot_motions import LeggedRobotMotions, compute_humanoid_observations_max
+from humanoidverse.utils.helpers import pre_process_config
+from humanoidverse.utils.robot_config import validate_robot_config
+from humanoidverse.utils.torch_utils import quat_rotate_inverse
 
 from ..base import BaseConfig
 from ..buffers.trajectory import TrajectoryDictBuffer
 from .utils.history_handler import HistoryHandler
-from humanoidverse.envs.env_utils.history_handler import HistoryHandler as HVHistoryHandler
 
 # Resolve humanoidverse root: use package __file__ when set,
 # otherwise derive from this file (e.g. when run from release_version/humanoidverse where __file__ can be None).
@@ -376,7 +380,7 @@ class HumanoidVerseVectorEnv(VectorEnv):
             raise ValueError("Cannot specify both reset_to_default_pose and target_states.")
         target_states = target_states or (self._default_pose_target_reset if reset_to_default_pose else None)
         _, info = self.base_env.reset_all(target_states=target_states)
-        observation = self._get_g1env_observation(to_numpy=to_numpy)
+        observation = self._get_robot_observation(to_numpy=to_numpy)
         qpos, qvel = self._get_qpos_qvel(to_numpy=to_numpy)
         # add only observation to the history
         # observation is now 1 step ahead
@@ -401,13 +405,24 @@ class HumanoidVerseVectorEnv(VectorEnv):
             mujoco_qvel = mujoco_qvel.cpu().numpy()
         return mujoco_qpos, mujoco_qvel
 
-    def _get_g1env_observation(self, to_numpy: bool = True):
-        """Turn current Isaac sim state into a G1Env-like observation."""
-
-        # G1Env state: https://github.com/fairinternal/HumEnv/blob/main/g1env/robot.py#L545-L551
+    def _get_robot_observation(self, to_numpy: bool = True):
+        """Build the robot-agnostic BFM-Zero observation from Isaac state."""
         raw_obs = self._env.obs_buf_dict_raw["actor_obs"]
+        expected_action_dim = int(self._env.config.robot.actions_dim)
+        dof_pos_dim = raw_obs["dof_pos"].shape[-1]
+        dof_vel_dim = raw_obs["dof_vel"].shape[-1]
+        action_dim = raw_obs["actions"].shape[-1]
+        if dof_pos_dim != expected_action_dim or dof_vel_dim != expected_action_dim:
+            raise ValueError(
+                f"Robot observation DOF mismatch: dof_pos={dof_pos_dim}, dof_vel={dof_vel_dim}, "
+                f"configured actions_dim={expected_action_dim}"
+            )
+        if action_dim != expected_action_dim:
+            raise ValueError(
+                f"Robot action mismatch: observation actions={action_dim}, configured actions_dim={expected_action_dim}"
+            )
 
-        g1env_state = torch.cat(
+        state = torch.cat(
             [
                 raw_obs["dof_pos"],
                 raw_obs["dof_vel"],
@@ -416,15 +431,14 @@ class HumanoidVerseVectorEnv(VectorEnv):
             ],
             dim=-1,
         )
+        expected_state_dim = 2 * expected_action_dim + 6
+        if state.shape[-1] != expected_state_dim:
+            raise ValueError(f"Robot state has dim {state.shape[-1]}, expected {expected_state_dim}")
         last_action = raw_obs["actions"]
 
-        # This is the function used to produce "max_local_self"
-        # G1Env:
-        #  https://github.com/fairinternal/HumEnv/blob/main/g1env/robot.py#L584-L587
-        #  https://github.com/fairinternal/HumEnv/blob/main/g1env/robot.py#L713
         privileged_state = raw_obs["max_local_self"]
         observation = {
-            "state": g1env_state,
+            "state": state,
             "privileged_state": privileged_state,
         }
         if self.include_last_action:
@@ -448,6 +462,10 @@ class HumanoidVerseVectorEnv(VectorEnv):
             observation = tree_map(lambda x: x.cpu().numpy(), observation)
 
         return observation
+
+    def _get_g1env_observation(self, to_numpy: bool = True):
+        """Deprecated compatibility alias for older checkpoints and callers."""
+        return self._get_robot_observation(to_numpy=to_numpy)
 
     def get_episodic_dr_info(self) -> Dict[str, np.ndarray]:
         """Get the episodic domain randomization information."""
@@ -477,7 +495,7 @@ class HumanoidVerseVectorEnv(VectorEnv):
         truncated = time_outs
 
         # update observation and history
-        observation = self._get_g1env_observation(to_numpy=to_numpy)
+        observation = self._get_robot_observation(to_numpy=to_numpy)
         observation = self._add_history_to_observation(observation, to_numpy=to_numpy)
         self._update_history(env_to_reset, observation, None)
         if len(env_to_reset) > 0 and self.history_handler is not None:
@@ -563,6 +581,24 @@ def instantiate_isaac_sim(num_envs: int, enable_cameras: bool = False, headless:
     _ISAAC_SIM_INITIALIZED = True
 
 
+def validate_cuda_architecture(device: str) -> None:
+    """Fail early when the installed PyTorch build cannot execute on the selected GPU."""
+    if not device.startswith("cuda"):
+        return
+    if not torch.cuda.is_available():
+        raise RuntimeError(f"CUDA device {device!r} was requested, but PyTorch cannot access CUDA")
+
+    device_index = torch.device(device).index or 0
+    capability = torch.cuda.get_device_capability(device_index)
+    cuda_version = tuple(int(part) for part in (torch.version.cuda or "0.0").split(".")[:2])
+    if capability >= (12, 0) and cuda_version < (12, 8):
+        raise RuntimeError(
+            f"{torch.cuda.get_device_name(device_index)} has CUDA capability sm_{capability[0]}{capability[1]}, "
+            f"but PyTorch {torch.__version__} was built with CUDA {torch.version.cuda}. "
+            "RTX 50-series GPUs require a PyTorch CUDA 12.8+ build; run `uv sync` to install the project's cu128 lock."
+        )
+
+
 _humanoidverse_env_singleton = None
 
 
@@ -571,7 +607,9 @@ class HumanoidVerseIsaacConfig(BaseConfig):
 
     device: str = "cuda:0"
 
-    lafan_tail_path: str
+    motion_path: str | None = None
+    # Deprecated checkpoint compatibility. New profiles should use motion_path.
+    lafan_tail_path: str | None = None
 
     enable_cameras: bool = False
     camera_render_save_dir: str = "isaac_videos"
@@ -623,7 +661,7 @@ class HumanoidVerseIsaacConfig(BaseConfig):
         # --> create new file with that single line changed
         hydra_overrides = self.hydra_overrides.copy()
 
-        with hydra.initialize_config_dir(config_dir=HYDRA_CONFIG_DIR):
+        with hydra.initialize_config_dir(version_base=None, config_dir=HYDRA_CONFIG_DIR):
             cfg = hydra.compose(config_name=self.relative_config_path, overrides=hydra_overrides or [])
         unresolved_conf = OmegaConf.to_container(cfg, resolve=False)
 
@@ -639,15 +677,31 @@ class HumanoidVerseIsaacConfig(BaseConfig):
         cfg.env.config.save_rendering_dir = self.camera_render_save_dir
         cfg.robot.asset.asset_root = cfg.robot.asset.asset_root.replace("humanoidverse", HUMANOIDVERSE_DIR)
         cfg.robot.motion.asset.assetRoot = cfg.robot.motion.asset.assetRoot.replace("humanoidverse", HUMANOIDVERSE_DIR)
-        cfg.robot.motion.motion_file = self.lafan_tail_path
-
-        # This sets obs/action dims etc
-        pre_process_config(cfg)
+        configured_motion_path = self.motion_path or self.lafan_tail_path
+        if configured_motion_path is None:
+            raise ValueError("HumanoidVerseIsaacConfig requires motion_path")
+        motion_path = Path(configured_motion_path).expanduser()
+        if not motion_path.is_absolute():
+            candidates = (
+                Path.cwd() / motion_path,
+                Path(HUMANOIDVERSE_DIR) / motion_path,
+                Path(HUMANOIDVERSE_DIR).parent / motion_path,
+            )
+            motion_path = next((candidate for candidate in candidates if candidate.exists()), candidates[0])
+        motion_path = motion_path.resolve()
+        if not motion_path.exists():
+            raise FileNotFoundError(f"Motion path does not exist: {motion_path}")
+        cfg.robot.motion.motion_file = str(motion_path)
 
         OmegaConf.set_struct(cfg, False)
 
         if self.make_config_g1env_compatible:
-            cfg.robot.motion.num_extend_bodies = 0
+            warnings.warn(
+                "make_config_g1env_compatible is deprecated; encode the motion profile in the robot config",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            cfg.robot.motion.nums_extend_bodies = 0
             cfg.robot.motion.extend_config = []
             cfg.robot.motion.motion_tracking_link = []
             cfg.robot.motion.upper_body_link = [
@@ -673,6 +727,16 @@ class HumanoidVerseIsaacConfig(BaseConfig):
                 ["right_shoulder_roll_link", "R_Shoulder"],
                 ["right_elbow_link", "R_Elbow"],
             ]
+
+        schema = validate_robot_config(cfg.robot)
+        print(
+            "Robot schema: "
+            f"name={schema['robot']} dofs={schema['num_dofs']} bodies={schema['num_bodies']} "
+            f"state_dim={schema['state_dim']} action_dim={schema['action_dim']}"
+        )
+
+        # This sets observation/action dimensions after all robot profile overrides.
+        pre_process_config(cfg)
 
         if self.enable_cameras:
             cfg.simulator.enable_cameras = True
@@ -713,6 +777,7 @@ class HumanoidVerseIsaacConfig(BaseConfig):
 
         simulator_type = cfg.simulator["_target_"].split(".")[-1]
         if simulator_type == "IsaacSim":
+            validate_cuda_architecture(self.device)
             instantiate_isaac_sim(num_envs, enable_cameras=self.enable_cameras, headless=cfg.env.config.headless)
         isaac_env = LeggedRobotMotions(cfg.env.config, device=self.device)
 

@@ -1,33 +1,26 @@
+import gc
 import glob
 import os.path as osp
-import numpy as np
+import random
+from enum import Enum
+from pathlib import Path
+
 import joblib
+import numpy as np
 import torch
 import torch.multiprocessing as mp
-import random
-
-from enum import Enum
-from humanoidverse.utils.motion_lib.skeleton import SkeletonTree
-from pathlib import Path
 from easydict import EasyDict
 from loguru import logger
 from rich.progress import track
 from scipy.spatial.transform import Rotation as sRot
-import gc
 
-from humanoidverse.utils.torch_utils import(
-    quat_angle_axis,
-    quat_inverse,
-    quat_mul_norm,
-    get_euler_xyz,
-    normalize_angle,
-    slerp,
+from humanoidverse.utils.motion_lib.skeleton import SkeletonTree
+from humanoidverse.utils.torch_utils import (
+    calc_heading_quat_inv,
     quat_to_exp_map,
-    quat_to_angle_axis,
-    quat_mul,
-    quat_conjugate,
-    calc_heading_quat_inv
+    slerp,
 )
+
 
 class FixHeightMode(Enum):
     no_fix = 0
@@ -120,7 +113,7 @@ class MotionLibBase():
             print("############################################################ Auto PMCP ############################################################")
             print(f"Training mostly on {len(self._sampling_prob.cpu().nonzero())} seqs ")
             print(self._motion_data_keys[self._sampling_prob.cpu().nonzero()].flatten())
-            print(f"###############################################################################################################################")
+            print("###############################################################################################################################")
         else:
             all_keys = self._motion_data_keys.tolist()
             self._sampling_prob = torch.ones(self._num_unique_motions).to(self._device) / self._num_unique_motions  # For use in sampling batches
@@ -173,9 +166,8 @@ class MotionLibBase():
         num_frames = self._motion_num_frames[motion_ids]
         dt = self._motion_dt[motion_ids]
         # import ipdb; ipdb.set_trace()
-        frame_idx0, frame_idx1, blend = self._calc_frame_blend(motion_times, motion_len, num_frames, dt)
+        frame_idx0, _, _ = self._calc_frame_blend(motion_times, motion_len, num_frames, dt)
         f0l = frame_idx0 + self.length_starts[motion_ids]
-        f1l = frame_idx1 + self.length_starts[motion_ids]
 
         action = self._motion_actions[f0l]
         return action
@@ -301,14 +293,26 @@ class MotionLibBase():
         if max_num_seqs is None: # if not specified, load all motions, can OOM if the dataset is too large. 
             max_num_seqs = self._num_unique_motions
             self.all_motions_loaded = True
-            self.load_motions(random_sample=False,  num_motions_to_load=self._num_unique_motions)
+            self.load_motions(
+                random_sample=False,
+                num_motions_to_load=self._num_unique_motions,
+                max_len=self.m_cfg.get("max_len", -1),
+            )
         else: # 
             if max_num_seqs > self._num_unique_motions: # if specified but more than the number of unique motions, load all motions as well.
                 self.all_motions_loaded = True
-                self.load_motions(random_sample=False,  num_motions_to_load=self._num_unique_motions)
+                self.load_motions(
+                    random_sample=False,
+                    num_motions_to_load=self._num_unique_motions,
+                    max_len=self.m_cfg.get("max_len", -1),
+                )
             else: # if there are more motions than specified, then randomly sample the requested number of motions. 
                 self.all_motions_loaded = False
-                self.load_motions(random_sample=True, num_motions_to_load=max_num_seqs)
+                self.load_motions(
+                    random_sample=True,
+                    num_motions_to_load=max_num_seqs,
+                    max_len=self.m_cfg.get("max_len", -1),
+                )
     
     def load_motions_for_evaluation(self, start_idx = 0):
         if self.all_motions_loaded:
@@ -317,14 +321,28 @@ class MotionLibBase():
 
         if self._num_unique_motions > self.num_envs: # if number of motions is more than number of envs, then we should only partially load the motions. 
             self.all_motions_loaded = False
-            self.load_motions(random_sample=False,  num_motions_to_load=self.num_envs, start_idx=start_idx)
+            self.load_motions(
+                random_sample=False,
+                num_motions_to_load=self.num_envs,
+                start_idx=start_idx,
+                max_len=self.m_cfg.get("max_len", -1),
+            )
         else:
             self.all_motions_loaded = True  
-            self.load_motions(random_sample=False,  num_motions_to_load=self._num_unique_motions, start_idx=start_idx)
+            self.load_motions(
+                random_sample=False,
+                num_motions_to_load=self._num_unique_motions,
+                start_idx=start_idx,
+                max_len=self.m_cfg.get("max_len", -1),
+            )
 
     def load_all_motions(self):
         self.all_motions_loaded = True
-        self.load_motions(random_sample=False,  num_motions_to_load=self._num_unique_motions)
+        self.load_motions(
+            random_sample=False,
+            num_motions_to_load=self._num_unique_motions,
+            max_len=self.m_cfg.get("max_len", -1),
+        )
 
     def load_motions(self, 
                      random_sample=True, 
@@ -345,7 +363,6 @@ class MotionLibBase():
         _motion_num_frames = []
         _motion_bodies = []
         _motion_aa = []
-        has_action = False
         _motion_actions = []
         _motion_smpl_poses = []
 
@@ -462,7 +479,6 @@ class MotionLibBase():
         lengths_shifted[0] = 0
         self.length_starts = lengths_shifted.cumsum(0)
         self.motion_ids = torch.arange(len(motions), dtype=torch.long, device=self._device)
-        motion = motions[0]
         self.num_bodies = self.num_joints
         
         num_motions = self.num_motions()
@@ -507,19 +523,70 @@ class MotionLibBase():
             curr_file = motion_data_list[f]
             if not isinstance(curr_file, dict) and osp.isfile(curr_file):
                 key = motion_data_list[f].split("/")[-1].split(".")[0]
-                curr_file = joblib.load(curr_file)[key]
-            
-            seq_len = curr_file['root_trans_offset'].shape[0]
+                loaded_motion = joblib.load(curr_file)
+                if isinstance(loaded_motion, dict) and key in loaded_motion and isinstance(loaded_motion[key], dict):
+                    curr_file = loaded_motion[key]
+                else:
+                    curr_file = loaded_motion
+
+            direct_robot_motion = {"root_pos", "root_rot", "dof_pos"}.issubset(curr_file)
+            if direct_robot_motion:
+                seq_len = curr_file["root_pos"].shape[0]
+            else:
+                seq_len = curr_file['root_trans_offset'].shape[0]
             if max_len == -1 or seq_len < max_len:
                 start, end = 0, seq_len
             else:
                 start = random.randint(0, seq_len - max_len)
                 end = start + max_len
-                
-                
-            trans = to_torch(curr_file['root_trans_offset']).clone()[start:end]
-            pose_aa = to_torch(curr_file['pose_aa'][start:end]).clone()
-            
+
+            if direct_robot_motion:
+                trans = to_torch(curr_file["root_pos"]).detach().cpu().clone()[start:end].float()
+                root_rot = to_torch(curr_file["root_rot"]).detach().cpu().clone()[start:end].float()
+                dof_pos = to_torch(curr_file["dof_pos"]).detach().cpu().clone()[start:end].float()
+
+                if root_rot.shape[-1] != 4:
+                    raise ValueError(f"root_rot must end in 4 quaternion values, got {tuple(root_rot.shape)}")
+                if dof_pos.shape[-1] != self.mesh_parsers.num_dof:
+                    raise ValueError(
+                        f"Motion has {dof_pos.shape[-1]} DOFs, but {self.m_cfg.humanoid_type} expects "
+                        f"{self.mesh_parsers.num_dof}"
+                    )
+                if not (trans.shape[0] == root_rot.shape[0] == dof_pos.shape[0]):
+                    raise ValueError("root_pos, root_rot, and dof_pos must contain the same number of frames")
+
+                root_quat = root_rot.detach().cpu().numpy()
+                quaternion_order = self.m_cfg.get("quaternion_order", "xyzw")
+                if quaternion_order == "wxyz":
+                    root_quat = root_quat[:, [1, 2, 3, 0]]
+                elif quaternion_order != "xyzw":
+                    raise ValueError(f"Unsupported quaternion_order: {quaternion_order}")
+
+                pose_aa = torch.zeros(
+                    (dof_pos.shape[0], self.mesh_parsers.num_bodies, 3),
+                    dtype=dof_pos.dtype,
+                    device=dof_pos.device,
+                )
+                pose_aa[:, 0] = torch.as_tensor(
+                    sRot.from_quat(root_quat).as_rotvec(),
+                    dtype=dof_pos.dtype,
+                    device=dof_pos.device,
+                )
+                actuated_body_ids = torch.as_tensor(
+                    self.mesh_parsers.actuated_joints_idx,
+                    dtype=torch.long,
+                    device=dof_pos.device,
+                )
+                dof_axis = self.mesh_parsers.dof_axis.to(device=dof_pos.device, dtype=dof_pos.dtype)
+                if len(actuated_body_ids) != dof_pos.shape[-1] or dof_axis.shape != (dof_pos.shape[-1], 3):
+                    raise ValueError(
+                        "MJCF actuator/body mapping is inconsistent with the direct robot motion DOF layout"
+                    )
+                pose_aa[:, actuated_body_ids] = dof_pos.unsqueeze(-1) * dof_axis.unsqueeze(0)
+            else:
+                trans = to_torch(curr_file['root_trans_offset']).clone()[start:end]
+                pose_aa = to_torch(curr_file['pose_aa'][start:end]).clone()
+
             # import ipdb; ipdb.set_trace()
             if "action" in curr_file.keys():
                 self.has_action = True
@@ -528,7 +595,7 @@ class MotionLibBase():
             
             B, J, N = pose_aa.shape
 
-            if not target_heading is None:
+            if target_heading is not None:
                 start_root_rot = sRot.from_rotvec(pose_aa[0, 0])
                 heading_inv_rot = sRot.from_quat(calc_heading_quat_inv(torch.from_numpy(start_root_rot.as_quat()[None, ]), w_last=True))
                 heading_delta = sRot.from_quat(target_heading) * heading_inv_rot 
@@ -552,7 +619,7 @@ class MotionLibBase():
             else:
                 logger.error("No mesh parser found")
                 
-        if not queue is None:
+        if queue is not None:
             queue.put(res)
         else:
             return res
@@ -571,7 +638,6 @@ class MotionLibBase():
             return (self._motion_num_frames[motion_ids] * self._sim_fps / self._motion_fps[motion_ids]).ceil().int()
 
     def sample_time(self, motion_ids, truncate_time=None):
-        n = len(motion_ids)
         phase = torch.rand(motion_ids.shape, device=self._device)
         motion_len = self._motion_lengths[motion_ids]
         if (truncate_time is not None):

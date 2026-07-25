@@ -5,11 +5,11 @@
 
 import os
 
+from humanoidverse.agents.envs.humanoidverse_isaac import HumanoidVerseIsaacConfig, load_expert_trajectories_from_motion_lib
 from humanoidverse.agents.evaluations.humanoidverse_isaac import (
     HumanoidVerseIsaacTrackingEvaluation,
     HumanoidVerseIsaacTrackingEvaluationConfig,
 )
-from humanoidverse.agents.envs.humanoidverse_isaac import load_expert_trajectories_from_motion_lib, HumanoidVerseIsaacConfig
 
 os.environ["OMP_NUM_THREADS"] = "1"
 
@@ -20,10 +20,8 @@ torch.set_float32_matmul_precision("high")
 import json
 import time
 import typing as tp
-import warnings
 from pathlib import Path
 from typing import Dict, List
-from torch.utils._pytree import tree_map
 
 import exca as xk
 import gymnasium
@@ -35,7 +33,6 @@ import wandb
 from packaging.version import Version
 from torch.utils._pytree import tree_map
 from tqdm import tqdm
-
 
 from humanoidverse.agents.base import BaseConfig
 from humanoidverse.agents.buffers.load_data import load_expert_trajectories
@@ -55,8 +52,6 @@ CHECKPOINT_DIR_NAME = "checkpoint"
 _ENC_CONFIG_TO_EXPERT_DATA_OBS_MAPPER = {
     HumanoidVerseIsaacConfig: None,
 }
-
-
 
 Evaluation = tp.Annotated[
     tp.Union[
@@ -209,6 +204,19 @@ class Workspace:
         del self.obs_space.spaces["time"]
 
         self.action_dim = self.action_space.shape[0]
+        if isinstance(cfg.env, HumanoidVerseIsaacConfig):
+            robot_cfg = self.train_env._env.config.robot
+            expected_action_dim = int(robot_cfg.actions_dim)
+            if self.action_dim != expected_action_dim:
+                raise ValueError(f"Agent action_dim={self.action_dim}, but robot actions_dim={expected_action_dim}")
+            state_dim = self.obs_space["state"].shape[0]
+            expected_state_dim = 2 * expected_action_dim + 6
+            if state_dim != expected_state_dim:
+                raise ValueError(f"Agent state_dim={state_dim}, expected {expected_state_dim} for {expected_action_dim} DOFs")
+            print(
+                f"Resolved spaces: state={state_dim}, action={self.action_dim}, "
+                f"privileged_state={self.obs_space['privileged_state'].shape[0]}"
+            )
 
         print(f"Workdir: {self.cfg.work_dir}")
         self.work_dir = Path(self.cfg.work_dir)
@@ -584,12 +592,87 @@ class Workspace:
             json.dump({"time": time}, f, indent=4)
 
 
-def train_bfm_zero():
-    from humanoidverse.agents.fb_cpr_aux.model import FBcprAuxModelArchiConfig, FBcprAuxModelConfig
+def train_bfm_zero(
+    robot_profile: tp.Literal["g1", "mini3"] = "g1",
+    motion_path: str | None = None,
+    work_dir: str | None = None,
+    online_parallel_envs: int | None = None,
+    num_env_steps: int | None = None,
+    smoke_test: bool = False,
+    disable_domain_randomization: bool = False,
+):
+    """Train BFM-Zero with a robot-specific Hydra profile.
+
+    Use ``--robot-profile mini3`` for the 21-DoF Mini3 setup. ``--smoke-test``
+    selects a small configuration that exercises reset, rollout, update, and
+    checkpoint code paths before a full training run.
+    """
     from humanoidverse.agents.fb_cpr_aux.agent import FBcprAuxAgentTrainConfig
-    from humanoidverse.agents.nn_models import ForwardArchiConfig, BackwardArchiConfig, ActorArchiConfig, DiscriminatorArchiConfig, RewardNormalizerConfig
-    from humanoidverse.agents.normalizers import ObsNormalizerConfig, BatchNormNormalizerConfig
+    from humanoidverse.agents.fb_cpr_aux.model import FBcprAuxModelArchiConfig, FBcprAuxModelConfig
     from humanoidverse.agents.nn_filters import DictInputFilterConfig
+    from humanoidverse.agents.nn_models import (
+        ActorArchiConfig,
+        BackwardArchiConfig,
+        DiscriminatorArchiConfig,
+        ForwardArchiConfig,
+        RewardNormalizerConfig,
+    )
+    from humanoidverse.agents.normalizers import BatchNormNormalizerConfig, ObsNormalizerConfig
+
+    package_dir = Path(__file__).resolve().parent
+    profiles = {
+        "g1": {
+            "config": "exp/bfm_zero/bfm_zero",
+            "motion_path": package_dir / "data/lafan_29dof_10s-clipped.pkl",
+            "work_dir": "results/bfmzero-isaac",
+            "hydra_overrides": [
+                "robot=g1/g1_29dof_hard_waist",
+                "robot.control.action_scale=0.25",
+                "robot.control.action_clip_value=5.0",
+                "robot.control.normalize_action_to=5.0",
+                "env.config.lie_down_init=True",
+                "env.config.lie_down_init_prob=0.3",
+            ],
+        },
+        "mini3": {
+            "config": "exp/bfm_zero/bfm_zero_mini3",
+            "motion_path": package_dir / "data/lafan1_mini3",
+            "work_dir": "results/bfmzero-mini3-isaac",
+            "hydra_overrides": [],
+        },
+    }
+    profile = profiles[robot_profile]
+    resolved_motion_path = Path(motion_path).expanduser() if motion_path is not None else profile["motion_path"]
+    resolved_motion_path = resolved_motion_path.resolve()
+    if not resolved_motion_path.exists():
+        raise FileNotFoundError(f"Motion path does not exist: {resolved_motion_path}")
+
+    actual_num_envs = online_parallel_envs if online_parallel_envs is not None else (8 if smoke_test else 1024)
+    actual_num_env_steps = num_env_steps if num_env_steps is not None else (actual_num_envs * 64 if smoke_test else 384_000_000)
+    actual_work_dir = work_dir or (f"{profile['work_dir']}-smoke" if smoke_test else profile["work_dir"])
+    actual_batch_size = 64 if smoke_test else 1024
+    actual_buffer_size = actual_num_envs * 64 if smoke_test else 5_120_000
+    actual_buffer_device = "cpu" if smoke_test else "cuda"
+    actual_inference_batch_size = 8192 if smoke_test else 500000
+    actual_z_buffer_size = 512 if smoke_test else 8192
+    actual_rollout_expert_trajectories_length = 16 if smoke_test else 250
+    prioritization = not smoke_test
+    evaluations = (
+        []
+        if smoke_test
+        else [
+            HumanoidVerseIsaacTrackingEvaluationConfig(
+                name="HumanoidVerseIsaacTrackingEvaluationConfig",
+                generate_videos=False,
+                videos_dir="videos",
+                video_name_prefix=f"{robot_profile}_agent",
+                name_in_logs="humanoidverse_tracking_eval",
+                env=None,
+                num_envs=actual_num_envs,
+                n_episodes_per_motion=1,
+            )
+        ]
+    )
 
     cfg = TrainConfig(
         name='TrainConfig',
@@ -619,7 +702,7 @@ def train_bfm_zero():
                     },
                     allow_mismatching_keys=True
                 ),
-                inference_batch_size=500000,
+                inference_batch_size=actual_inference_batch_size,
                 seq_length=8,
                 actor_std=0.05,
                 amp=False,
@@ -639,13 +722,13 @@ def train_bfm_zero():
                 actor_pessimism_penalty=0.5,
                 stddev_clip=0.3,
                 q_loss_coef=0.0,
-                batch_size=1024,
+                batch_size=actual_batch_size,
                 discount=0.98,
                 use_mix_rollout=True,
                 update_z_every_step=100,
-                z_buffer_size=8192,
+                z_buffer_size=actual_z_buffer_size,
                 rollout_expert_trajectories=True,
-                rollout_expert_trajectories_length=250,
+                rollout_expert_trajectories_length=actual_rollout_expert_trajectories_length,
                 rollout_expert_trajectories_percentage=0.5,
                 lr_discriminator=1e-05,
                 lr_critic=0.0003,
@@ -664,23 +747,22 @@ def train_bfm_zero():
             aux_rewards=['penalty_torques', 'penalty_action_rate', 'limits_dof_pos', 'limits_torque', 'penalty_undesired_contact', 'penalty_feet_ori', 'penalty_ankle_roll', 'penalty_slippage'],
             aux_rewards_scaling={'penalty_action_rate': -0.1, 'penalty_feet_ori': -0.4, 'penalty_ankle_roll': -4.0, 'limits_dof_pos': -10.0, 'penalty_slippage': -2.0, 'penalty_undesired_contact': -1.0, 'penalty_torques': 0.0, 'limits_torque': 0.0},
             cudagraphs=False,
-            compile=True
+            compile=not smoke_test
         ),
         motions='',
         motions_root='',
         env=HumanoidVerseIsaacConfig(
             name='humanoidverse_isaac',
             device='cuda:0',
-            # TODO this needs to be updated to point to a path with lafan dataset chunked into 10s clips
-            lafan_tail_path='humanoidverse/data/lafan_29dof_10s-clipped.pkl',
+            motion_path=str(resolved_motion_path),
             enable_cameras=False,
             camera_render_save_dir='isaac_videos',
             max_episode_length_s=None,
             disable_obs_noise=False,
-            disable_domain_randomization=False,
-            relative_config_path='exp/bfm_zero/bfm_zero',
+            disable_domain_randomization=disable_domain_randomization or smoke_test,
+            relative_config_path=profile["config"],
             include_last_action=True,
-            hydra_overrides=['robot=g1/g1_29dof_hard_waist', 'robot.control.action_scale=0.25', 'robot.control.action_clip_value=5.0', 'robot.control.normalize_action_to=5.0', 'env.config.lie_down_init=True', 'env.config.lie_down_init_prob=0.3'],
+            hydra_overrides=profile["hydra_overrides"],
             context_length=None,
             include_dr_info=False,
             included_dr_obs_names=None,
@@ -689,41 +771,39 @@ def train_bfm_zero():
             make_config_g1env_compatible=False,
             root_height_obs=True
         ),
-        work_dir='results/bfmzero-isaac',
+        work_dir=actual_work_dir,
         seed=4728,
-        online_parallel_envs=1024,
-        log_every_updates=384000,
-        num_env_steps=384000000,
-        update_agent_every=1024,
-        num_seed_steps=10240,
-        num_agent_updates=16,
-        checkpoint_every_steps=9600000,
-        checkpoint_buffer=True,
-        prioritization=True,
+        online_parallel_envs=actual_num_envs,
+        log_every_updates=actual_num_envs * 16 if smoke_test else 384000,
+        num_env_steps=actual_num_env_steps,
+        update_agent_every=actual_num_envs if smoke_test else 1024,
+        num_seed_steps=actual_num_envs * 4 if smoke_test else 10240,
+        num_agent_updates=1 if smoke_test else 16,
+        checkpoint_every_steps=actual_num_env_steps if smoke_test else 9600000,
+        checkpoint_buffer=not smoke_test,
+        prioritization=prioritization,
         prioritization_min_val=0.5,
         prioritization_max_val=2.0,
         prioritization_scale=2.0,
         prioritization_mode='exp',
         use_trajectory_buffer=True,
-        buffer_size=5120000,
+        buffer_size=actual_buffer_size,
         use_wandb=False,
         wandb_ename='yitangl',  # your wandb entity (username/team), empty = default from wandb login
         wandb_gname='bfmzero-isaac',  # run group
         wandb_pname='bfmzero-isaac',  # your wandb project name
         load_isaac_expert_data=True,
-        buffer_device='cuda',
+        buffer_device=actual_buffer_device,
         disable_tqdm=True,
-        evaluations=[HumanoidVerseIsaacTrackingEvaluationConfig(name='HumanoidVerseIsaacTrackingEvaluationConfig', generate_videos=False, videos_dir='videos', video_name_prefix='unknown_agent', name_in_logs='humanoidverse_tracking_eval', env=None, num_envs=1024, n_episodes_per_motion=1)],
-        eval_every_steps=9600000,
-        tags={},
+        evaluations=evaluations,
+        eval_every_steps=actual_num_env_steps + actual_num_envs if smoke_test else 9600000,
+        tags={"robot": robot_profile, "motion_path": str(resolved_motion_path)},
     )
     workspace = cfg.build()
     workspace.train()
 
 
 if __name__ == "__main__":
-    # This is the bare minimum CLI interface to launch experiments, but ideally you should
-    # launch your experiments from Python code (e.g., see under "scripts")
-    train_bfm_zero()
+    tyro.cli(train_bfm_zero)
 
 # uv run --no-cache -m humanoidverse.meta_online_entry_point

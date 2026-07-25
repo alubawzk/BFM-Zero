@@ -1,39 +1,35 @@
+import copy
 import os
 import os.path as osp
-import torch 
-from collections import defaultdict
-
-import numpy as np
-from humanoidverse.utils.torch_utils import (
-    quaternion_to_matrix,
-    wxyz_to_xyzw,
-    axis_angle_to_quaternion,
-    matrix_to_quaternion,
-    quat_mul_norm,
-    quat_identity_like,
-    quat_inverse,
-    quat_angle_axis
-
-)
-from scipy.spatial.transform import Rotation as sRot
 import xml.etree.ElementTree as ETree
-from easydict import EasyDict
-import scipy.ndimage.filters as filters
-from lxml.etree import XMLParser, parse, ElementTree, Element, SubElement
-from lxml import etree
+from collections import OrderedDict, defaultdict
 from io import BytesIO
-import copy
-from collections import OrderedDict
-import hydra
-from omegaconf import DictConfig
-from stl import mesh
-# import logging
-import open3d as o3d
-
-from loguru import logger
 from pathlib import Path
 
+import hydra
+import numpy as np
+
+# import logging
+import open3d as o3d
+import torch
+from easydict import EasyDict
+from loguru import logger
+from lxml.etree import XMLParser, parse
+from omegaconf import DictConfig
 from rich.progress import track
+from scipy.ndimage import gaussian_filter1d
+from scipy.spatial.transform import Rotation as sRot
+
+from humanoidverse.utils.torch_utils import (
+    axis_angle_to_quaternion,
+    matrix_to_quaternion,
+    quat_angle_axis,
+    quat_identity_like,
+    quat_inverse,
+    quat_mul_norm,
+    quaternion_to_matrix,
+    wxyz_to_xyzw,
+)
 
 # Configure logging
 # logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -48,15 +44,16 @@ class Humanoid_Batch:
         self.mjcf_file = self.asset_root / self.asset_file
         
         parser = XMLParser(remove_blank_text=True)
-        tree = parse(BytesIO(open(self.mjcf_file, "rb").read()), parser=parser,)
-        self.dof_axis = []
+        with open(self.mjcf_file, "rb") as mjcf_file:
+            tree = parse(BytesIO(mjcf_file.read()), parser=parser,)
 
-        joints = sorted([j.attrib['name'] for j in tree.getroot().find("worldbody").findall('.//joint')])
-        motors = sorted([m.attrib['name'] for m in tree.getroot().find("actuator").getchildren()])
+        xml_joints = tree.getroot().find("worldbody").findall(".//joint")
+        joint_by_name = {j.attrib["name"]: j for j in xml_joints if "name" in j.attrib}
+        motor_joints = [m.attrib['joint'] for m in tree.getroot().find("actuator").getchildren()]
         
-        assert len(motors) > 0, "No motors found in the mjcf file"
+        assert len(motor_joints) > 0, "No motors found in the mjcf file"
         
-        self.num_dof = len(motors) 
+        self.num_dof = len(motor_joints)
         self.num_extend_dof = self.num_dof
         
         self.mjcf_data = mjcf_data = self.from_mjcf(self.mjcf_file)
@@ -67,27 +64,35 @@ class Humanoid_Batch:
         self._offsets = mjcf_data['local_translation'][None, ].to(device)
         
         self._local_rotation = mjcf_data['local_rotation'][None, ].to(device)
-        self.actuated_joints_idx = np.array([self.body_names.index(k) for k, v in mjcf_data['body_to_joint'].items()])
-        
-        
-        for m in motors:
-            if not m in joints:
-                print(m)
-        
-        if "type" in tree.getroot().find("worldbody").findall('.//joint')[0].attrib and tree.getroot().find("worldbody").findall('.//joint')[0].attrib['type'] == "free":
-            for j in tree.getroot().find("worldbody").findall('.//joint')[1:]:
-                self.dof_axis.append([int(i) for i in j.attrib['axis'].split(" ")])
-            self.has_freejoint = True
-        elif not "type" in tree.getroot().find("worldbody").findall('.//joint')[0].attrib:
-            for j in tree.getroot().find("worldbody").findall('.//joint'):
-                self.dof_axis.append([int(i) for i in j.attrib['axis'].split(" ")])
-            self.has_freejoint = True
-        else:
-            for j in tree.getroot().find("worldbody").findall('.//joint')[6:]:
-                self.dof_axis.append([int(i) for i in j.attrib['axis'].split(" ")])
-            self.has_freejoint = False
-        
-        self.dof_axis = torch.tensor(self.dof_axis)
+        actuated_body_joints = [
+            (body_name, joint_name)
+            for body_name, joint_name in mjcf_data["body_to_joint"].items()
+            if joint_name in motor_joints
+        ]
+        self.actuated_joints_idx = np.array(
+            [self.body_names.index(body_name) for body_name, _ in actuated_body_joints]
+        )
+        body_joint_order = [joint_name for _, joint_name in actuated_body_joints]
+        if motor_joints != body_joint_order:
+            raise ValueError(
+                "MJCF actuator order must match articulated body traversal order: "
+                f"actuators={motor_joints}, body_joints={body_joint_order}"
+            )
+        missing_motor_joints = [name for name in motor_joints if name not in joint_by_name]
+        if missing_motor_joints:
+            raise ValueError(f"MJCF actuators reference missing joints: {missing_motor_joints}")
+
+        dof_axis = []
+        for joint_name in motor_joints:
+            axis = joint_by_name[joint_name].attrib.get("axis")
+            if axis is None:
+                raise ValueError(f"MJCF motor joint must define an axis: {joint_name}")
+            axis_values = np.fromstring(axis, dtype=float, sep=" ")
+            if axis_values.shape != (3,):
+                raise ValueError(f"MJCF motor joint axis must contain 3 values: {joint_name}={axis!r}")
+            dof_axis.append(axis_values)
+        self.dof_axis = torch.tensor(np.asarray(dof_axis), dtype=torch.float32)
+        self.has_freejoint = any(j.attrib.get("type") == "free" for j in xml_joints)
 
         for extend_config in cfg.extend_config:
             self.body_names_augment += [extend_config.joint_name]
@@ -115,8 +120,6 @@ class Humanoid_Batch:
         xml_body_root = xml_world_body.find("body")
         if xml_body_root is None:
             raise ValueError("MJCF parsed incorrectly please verify it.")
-            
-        xml_joint_root = xml_body_root.find("joint")
         
         node_names = []
         parent_indices = []
@@ -142,7 +145,7 @@ class Humanoid_Batch:
                 all_joints = all_joints[6:]
             
             for joint in all_joints:
-                if not joint.attrib.get("range") is None: 
+                if joint.attrib.get("range") is not None:
                     joints_range.append(np.fromstring(joint.attrib.get("range"), dtype=float, sep=" "))
                 else:
                     if not joint.attrib.get("type") == "free":
@@ -170,13 +173,20 @@ class Humanoid_Batch:
         
     def fk_batch(self, pose, trans, convert_to_mat=True, return_full = False, dt=1/30):
         device, dtype = pose.device, pose.dtype
-        pose_input = pose.clone()
         B, seq_len = pose.shape[:2]
         
         pose = pose[..., :len(self._parents), :] # G1 fitted joints might have extra joints
         
         if self.num_bodies_augment > 0 and pose.shape[2] < self.num_bodies + self.num_bodies_augment: 
-            pose = torch.cat([pose, torch.zeros(B, seq_len, self.num_bodies_augment - pose.shape[2], pose.shape[3]).to(device)], dim = 2)
+            padding = torch.zeros(
+                B,
+                seq_len,
+                self.num_bodies_augment - pose.shape[2],
+                pose.shape[3],
+                device=device,
+                dtype=dtype,
+            )
+            pose = torch.cat([pose, padding], dim = 2)
             
             
         if convert_to_mat:
@@ -187,7 +197,6 @@ class Humanoid_Batch:
             
         if pose_mat.shape != 5:
             pose_mat = pose_mat.reshape(B, seq_len, -1, 3, 3)
-        J = pose_mat.shape[2] - 1  # Exclude root
         wbody_pos, wbody_mat = self.forward_kinematics_batch(pose_mat[:, :, 1:], pose_mat[:, :, 0:1], trans)
         
         return_dict = EasyDict()
@@ -251,21 +260,30 @@ class Humanoid_Batch:
         rotations_world = []
 
         expanded_offsets = (self._offsets[:, None].expand(B, seq_len, J, 3).to(device).type(dtype))
+        local_rotation_mat = self._local_rotation_mat.to(device=device, dtype=dtype)
         # print(expanded_offsets.shape, J)
 
         
         for i in range(J):
-            if self._parents[i] == -1:
+            parent = int(self._parents[i])
+            if parent == -1:
                 positions_world.append(root_positions)
                 rotations_world.append(root_rotations)
             else:
                 try:
-                    jpos = (torch.matmul(rotations_world[self._parents[i]][:, :, 0], expanded_offsets[:, :, i, :, None]).squeeze(-1) + positions_world[self._parents[i]])
-                    rot_mat = torch.matmul(rotations_world[self._parents[i]], torch.matmul(self._local_rotation_mat[:,  (i):(i + 1)], rotations[:, :, (i - 1):i, :]))
+                    jpos = (
+                        torch.matmul(rotations_world[parent][:, :, 0], expanded_offsets[:, :, i, :, None]).squeeze(-1)
+                        + positions_world[parent]
+                    )
+                    rot_mat = torch.matmul(
+                        rotations_world[parent],
+                        torch.matmul(local_rotation_mat[:, (i):(i + 1)], rotations[:, :, (i - 1):i, :]),
+                    )
                 except Exception as e:
                     logger.error(f"Error at joint index {i}")
-                    logger.error(f"Parent index: {self._parents[i]}")
+                    logger.error(f"Parent index: {parent}")
                     logger.error(f"Error details: {str(e)}")
+                    raise
                 # rot_mat = torch.matmul(rotations_world[self._parents[i]], rotations[:, :, (i - 1):i, :])
                 # print(rotations[:, :, (i - 1):i, :].shape, self._local_rotation_mat.shape)
                 
@@ -280,7 +298,7 @@ class Humanoid_Batch:
     def _compute_velocity(p, time_delta, guassian_filter=True):
         velocity = np.gradient(p.numpy(), axis=-3) / time_delta
         if guassian_filter:
-            velocity = torch.from_numpy(filters.gaussian_filter1d(velocity, 2, axis=-3, mode="nearest")).to(p)
+            velocity = torch.from_numpy(gaussian_filter1d(velocity, 2, axis=-3, mode="nearest")).to(p)
         else:
             velocity = torch.from_numpy(velocity).to(p)
         
@@ -294,7 +312,7 @@ class Humanoid_Batch:
         diff_angle, diff_axis = quat_angle_axis(diff_quat_data, w_last=True)
         angular_velocity = diff_axis * diff_angle.unsqueeze(-1) / time_delta
         if guassian_filter:
-            angular_velocity = torch.from_numpy(filters.gaussian_filter1d(angular_velocity.numpy(), 2, axis=-3, mode="nearest"),)
+            angular_velocity = torch.from_numpy(gaussian_filter1d(angular_velocity.numpy(), 2, axis=-3, mode="nearest"),)
         return angular_velocity
     
     def load_mesh(self):
@@ -318,10 +336,6 @@ class Humanoid_Batch:
 
         geoms = xml_world_body.findall(".//geom")
 
-        all_joints = xml_world_body.findall(".//joint")
-        all_motors = tree.findall(".//motor")
-        all_bodies = xml_world_body.findall(".//body")
-
         def find_parent(root, child):
             for parent in root.iter():
                 for elem in parent:
@@ -330,7 +344,6 @@ class Humanoid_Batch:
             return None
 
         mesh_dict = {}
-        mesh_parent_dict = {}
 
         for mesh_file_node in track(all_mesh, description="Loading Meshes ..."):
             mesh_name = mesh_file_node.attrib["name"]
@@ -381,7 +394,6 @@ class Humanoid_Batch:
         for geom in geoms:
             if 'mesh' not in geom.attrib:
                 continue
-            parent_name = geom.attrib['mesh']
 
             k = self.mesh_to_body[geom].attrib['name']
             mesh_names = self.body_to_mesh[k]

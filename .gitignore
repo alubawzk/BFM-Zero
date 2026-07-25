@@ -1,3 +1,11 @@
 # Generated checkpoint weights are stored outside Git. The current Mini3
 # checkpoint exceeds GitHub LFS's 2 GiB per-file limit on Free/Pro plans.
 model/checkpoint/**/*.safetensors
+
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+results/
+_wandb/
+wandb/
