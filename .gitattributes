@@ -1,9 +1,2 @@
-# Git LFS: track large files for push
-humanoidverse/data/**/*.pkl filter=lfs diff=lfs merge=lfs -text
-
-humanoidverse/data/lafan_29dof.pkl filter=lfs diff=lfs merge=lfs -text
-humanoidverse/data/lafan_29dof_10s-clipped.pkl filter=lfs diff=lfs merge=lfs -text
-humanoidverse/data/robots/**/*.STL filter=lfs diff=lfs merge=lfs -text
-
-# Exported policies exceed GitHub's regular Git object limit.
-model/**/*.onnx filter=lfs diff=lfs merge=lfs -text
+# This repository intentionally does not use Git LFS.
+# Keep datasets, checkpoints, exported policies, and generated media outside Git.

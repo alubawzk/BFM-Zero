@@ -1,6 +1,13 @@
-# Generated checkpoint weights are stored outside Git. The current Mini3
-# checkpoint exceeds GitHub LFS's 2 GiB per-file limit on Free/Pro plans.
-model/checkpoint/**/*.safetensors
+# Large/generated artifacts are stored outside Git.
+model/
+resources/
+example_motion/
+BFM-Zero.pdf
+humanoidverse/data/**/*.pkl
+*.onnx
+*.safetensors
+*.mp4
+*.gif
 
 __pycache__/
 *.py[cod]
