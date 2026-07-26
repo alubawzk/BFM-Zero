@@ -29,7 +29,6 @@ import numpy as np
 import pydantic
 import torch  # better to use scoped import if we use processes
 import tyro
-import wandb
 from packaging.version import Version
 from torch.utils._pytree import tree_map
 from tqdm import tqdm
@@ -106,6 +105,10 @@ class TrainConfig(BaseConfig):
     wandb_pname: str | None = None
     wandb_run_name: str | None = None
 
+    # TensorBoard
+    use_tensorboard: bool = False
+    tensorboard_log_dir: str | None = None
+
     # misc
     load_isaac_expert_data: bool = True
     buffer_device: str = "cpu"
@@ -175,6 +178,11 @@ def create_agent_or_load_checkpoint(work_dir: Path, cfg: TrainConfig, agent_buil
 
 
 def init_wandb(cfg: TrainConfig):
+    try:
+        import wandb
+    except ImportError as exc:
+        raise RuntimeError("W&B logging was requested with --use-wandb, but wandb is not installed.") from exc
+
     exp_name = "BFM-Zero"
     wandb_name = cfg.wandb_run_name or f"{exp_name}-{cfg.tags.get('robot', 'robot')}-{Path(cfg.work_dir).name}"
     wandb_config = json.loads(cfg.model_dump_json())
@@ -188,6 +196,44 @@ def init_wandb(cfg: TrainConfig):
         config=wandb_config,
         dir=str(wandb_dir),
     )
+    return wandb
+
+
+def init_tensorboard(cfg: TrainConfig):
+    try:
+        from torch.utils.tensorboard import SummaryWriter
+    except ImportError as exc:
+        raise RuntimeError("TensorBoard logging was requested with --use-tensorboard, but tensorboard is not installed.") from exc
+
+    log_dir = Path(cfg.tensorboard_log_dir).expanduser() if cfg.tensorboard_log_dir else Path(cfg.work_dir) / "tensorboard"
+    log_dir.mkdir(exist_ok=True, parents=True)
+    writer = SummaryWriter(log_dir=str(log_dir))
+    print(f"TensorBoard logdir: {log_dir}")
+    return writer
+
+
+def _as_scalar(value):
+    if isinstance(value, torch.Tensor):
+        if value.numel() != 1:
+            return None
+        return float(value.detach().cpu().item())
+    if isinstance(value, np.ndarray):
+        if value.size != 1:
+            return None
+        return float(value.reshape(-1)[0])
+    if isinstance(value, np.generic):
+        return float(value.item())
+    if isinstance(value, (int, float)):
+        return float(value)
+    return None
+
+
+def log_tensorboard_scalars(writer, prefix: str, values: dict, step: int) -> None:
+    for key, value in values.items():
+        scalar = _as_scalar(value)
+        if scalar is not None:
+            writer.add_scalar(f"{prefix}/{key}", scalar, step)
+    writer.flush()
 
 
 class Workspace:
@@ -231,6 +277,8 @@ class Workspace:
         print(f"Workdir: {self.cfg.work_dir}")
         self.work_dir = Path(self.cfg.work_dir)
         self.work_dir.mkdir(exist_ok=True, parents=True)
+        self._wandb = None
+        self._tensorboard = None
 
         if isinstance(cfg.env, HumanoidVerseIsaacConfig):
             with open(self.work_dir / "config.yaml", "w") as file:
@@ -254,7 +302,9 @@ class Workspace:
         self.eval_loggers = {name: CSVLogger(filename=self.work_dir / f"{name}.csv") for name in self.evaluations.keys()}
 
         if self.cfg.use_wandb:
-            init_wandb(self.cfg)
+            self._wandb = init_wandb(self.cfg)
+        if self.cfg.use_tensorboard:
+            self._tensorboard = init_tensorboard(self.cfg)
 
         with (self.work_dir / "config.json").open("w") as f:
             f.write(self.cfg.model_dump_json(indent=4))
@@ -529,11 +579,13 @@ class Workspace:
                     m_dict[k] = np.round(tmp.mean().item(), 6)
                 m_dict["duration [minutes]"] = (time.time() - start_time) / 60
                 m_dict["FPS"] = (1 if t == 0 else self.cfg.log_every_updates) / (time.time() - fps_start_time)
-                if self.cfg.use_wandb:
-                    wandb.log(
+                if self._wandb is not None:
+                    self._wandb.log(
                         {f"train/{k}": v for k, v in m_dict.items()},
                         step=t,
                     )
+                if self._tensorboard is not None:
+                    log_tensorboard_scalars(self._tensorboard, "train", m_dict, t)
                 print(m_dict)
                 total_metrics = None
                 fps_start_time = time.time()
@@ -547,6 +599,8 @@ class Workspace:
             done = np.logical_or(new_terminated.ravel(), new_truncated.ravel())
             info = new_info
         train_env.close()
+        if self._tensorboard is not None:
+            self._tensorboard.close()
 
     def eval(self, t, replay_buffer):
         print(f"Starting evaluation at time {t}")
@@ -576,11 +630,13 @@ class Workspace:
                     logger=logger,
                 )
             # For wandb dict, put it on wandb
-            if self.cfg.use_wandb and wandb_dict is not None:
-                wandb.log(
+            if self._wandb is not None and wandb_dict is not None:
+                self._wandb.log(
                     {f"eval/{evaluation_name}/{k}": v for k, v in wandb_dict.items()},
                     step=t,
                 )
+            if self._tensorboard is not None and wandb_dict is not None:
+                log_tensorboard_scalars(self._tensorboard, f"eval/{evaluation_name}", wandb_dict, t)
 
             evaluation_results[evaluation_name] = evaluation_metrics
 
@@ -615,6 +671,8 @@ def train_bfm_zero(
     wandb_project: str = "bfmzero-isaac",
     wandb_group: str | None = None,
     wandb_run_name: str | None = None,
+    use_tensorboard: bool = False,
+    tensorboard_log_dir: str | None = None,
 ):
     """Train BFM-Zero with a robot-specific Hydra profile.
 
@@ -810,6 +868,8 @@ def train_bfm_zero(
         wandb_gname=actual_wandb_group,  # run group
         wandb_pname=wandb_project,  # your wandb project name
         wandb_run_name=actual_wandb_run_name,
+        use_tensorboard=use_tensorboard,
+        tensorboard_log_dir=tensorboard_log_dir,
         load_isaac_expert_data=True,
         buffer_device=actual_buffer_device,
         disable_tqdm=True,

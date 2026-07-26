@@ -33,12 +33,12 @@ dependencies = [
     "rich>=14.0.0",
     "safetensors>=0.5.3",
     "tensordict>=0.8.3",
+    "tensorboard>=2.19.0",
     "termcolor>=3.0.1",
     # CUDA 12.8 is required for Blackwell GPUs such as RTX 50-series (sm_120).
     "torch==2.7.0",
     "torchvision==0.22.0",
     "tyro>=0.9.18",
-    "wandb>=0.12.21",
     "xxhash>=3.5.0",
 ]
 

@@ -8,6 +8,8 @@ set -euo pipefail
 #
 # Common overrides:
 #   SKIP_CUDA_CHECK=1 bash set_up.sh
+#   UV_HTTP_TIMEOUT=600 bash set_up.sh
+#   OFFLINE_UV_SYNC=1 bash set_up.sh
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "${REPO_ROOT}"
@@ -15,8 +17,11 @@ cd "${REPO_ROOT}"
 export OMP_NUM_THREADS="${OMP_NUM_THREADS:-1}"
 export PYTHONUNBUFFERED="${PYTHONUNBUFFERED:-1}"
 export MPLCONFIGDIR="${MPLCONFIGDIR:-${REPO_ROOT}/.cache/matplotlib}"
+export UV_HTTP_TIMEOUT="${UV_HTTP_TIMEOUT:-300}"
+export UV_CONCURRENT_DOWNLOADS="${UV_CONCURRENT_DOWNLOADS:-2}"
 
 SKIP_CUDA_CHECK="${SKIP_CUDA_CHECK:-0}"
+OFFLINE_UV_SYNC="${OFFLINE_UV_SYNC:-0}"
 
 mkdir -p "${MPLCONFIGDIR}"
 
@@ -28,7 +33,11 @@ if ! command -v uv >/dev/null 2>&1; then
 fi
 
 echo "[1/3] Syncing Python environment with uv..."
-uv sync --frozen
+uv_sync_args=(sync --frozen)
+if [[ "${OFFLINE_UV_SYNC}" == "1" ]]; then
+  uv_sync_args+=(--offline)
+fi
+uv "${uv_sync_args[@]}"
 
 echo "[2/3] Verifying Mini3 motion data..."
 uv run --frozen python - <<'PY'
@@ -70,3 +79,5 @@ fi
 
 echo "Setup complete. Start training with:"
 echo "  bash mini3_train.sh"
+echo "View TensorBoard with:"
+echo "  uv run --frozen tensorboard --logdir results/bfmzero-mini3-isaac/tensorboard --bind_all"
