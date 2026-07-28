@@ -352,21 +352,15 @@ class Workspace:
         print("Allocating buffers")
         replay_buffer = {}
         checkpoint_dir = self.work_dir / CHECKPOINT_DIR_NAME
-        if (checkpoint_dir / "buffers/train").exists():
-            print("Loading checkpointed buffer")
+
+        def make_train_buffer():
             if self.cfg.use_trajectory_buffer:
-                replay_buffer["train"] = TrajectoryDictBufferMultiDim.load(checkpoint_dir / "buffers/train", device=self.cfg.buffer_device)
-            else:
-                replay_buffer["train"] = DictBuffer.load(checkpoint_dir / "buffers/train", device=self.cfg.buffer_device)
-            print(f"Loaded buffer of size {len(replay_buffer['train'])}")
-        else:
-            if self.cfg.use_trajectory_buffer:
-                output_key_t = ["observation", "action", "z", "terminated", "truncated", "step_count", "reward"]
+                output_key_t = ["observation", "clean_state", "action", "z", "terminated", "truncated", "step_count", "reward"]
                 # TODO this interface should be more elegant (how to inform buffer what keys are coming in / need to be sampled?)
-                if isinstance(self.cfg.agent, (FBcprAuxAgentConfig)):
+                if isinstance(self.cfg.agent, FBcprAuxAgentConfig):
                     output_key_t.append("aux_rewards")
 
-                replay_buffer["train"] = TrajectoryDictBufferMultiDim(
+                return TrajectoryDictBufferMultiDim(
                     capacity=self.cfg.buffer_size // self.cfg.online_parallel_envs,  # make sure to divide by num_envs
                     device=self.cfg.buffer_device,
                     n_dim=2,
@@ -374,8 +368,24 @@ class Workspace:
                     output_key_t=output_key_t,  # TODO(team): fix this. in principle we could avoid to sample qpos, qvel for training but we need them for reward evaluation
                     output_key_tp1=["observation", "terminated"],
                 )
+            return DictBuffer(capacity=self.cfg.buffer_size, device=self.cfg.buffer_device)
+
+        if (checkpoint_dir / "buffers/train").exists():
+            print("Loading checkpointed buffer")
+            if self.cfg.use_trajectory_buffer:
+                replay_buffer["train"] = TrajectoryDictBufferMultiDim.load(checkpoint_dir / "buffers/train", device=self.cfg.buffer_device)
             else:
-                replay_buffer["train"] = DictBuffer(capacity=self.cfg.buffer_size, device=self.cfg.buffer_device)
+                replay_buffer["train"] = DictBuffer.load(checkpoint_dir / "buffers/train", device=self.cfg.buffer_device)
+            if "clean_state" not in replay_buffer["train"].storage:
+                print(
+                    "Checkpointed replay buffer has no clean_state. Starting with an empty replay buffer "
+                    "so the discriminator never consumes noisy policy observations."
+                )
+                replay_buffer["train"] = make_train_buffer()
+            else:
+                print(f"Loaded buffer of size {len(replay_buffer['train'])}")
+        else:
+            replay_buffer["train"] = make_train_buffer()
         if self.training_with_expert_data:
             replay_buffer["expert_slicer"] = expert_buffer
 
@@ -503,6 +513,7 @@ class Workspace:
                 if self.cfg.use_trajectory_buffer:
                     data = {
                         "observation": tree_map(lambda x: x[None, ...], obs),
+                        "clean_state": info["clean_state"][None, ...],
                         "action": action[None, ...],
                         "terminated": terminated[None, ..., None],
                         "truncated": truncated[None, ..., None],
@@ -532,6 +543,7 @@ class Workspace:
 
                     data = {
                         "observation": tree_map(lambda x: x[indexes], obs),
+                        "clean_state": info["clean_state"][indexes],
                         "action": action[indexes],
                         "step_count": step_count[indexes],
                         "reward": new_reward[indexes].reshape(-1, 1),

@@ -381,6 +381,7 @@ class HumanoidVerseVectorEnv(VectorEnv):
         target_states = target_states or (self._default_pose_target_reset if reset_to_default_pose else None)
         _, info = self.base_env.reset_all(target_states=target_states)
         observation = self._get_robot_observation(to_numpy=to_numpy)
+        clean_state = self._get_clean_policy_state(to_numpy=to_numpy)
         qpos, qvel = self._get_qpos_qvel(to_numpy=to_numpy)
         # add only observation to the history
         # observation is now 1 step ahead
@@ -388,7 +389,7 @@ class HumanoidVerseVectorEnv(VectorEnv):
             self._update_history(torch.arange(self.num_envs, device=self.device), observation, None)
             observation["history"] = {"observation": [], "action": []}
         self.env_to_reset = []
-        info = {"qpos": qpos, "qvel": qvel}
+        info = {"qpos": qpos, "qvel": qvel, "clean_state": clean_state}
         return observation, info
 
     def _get_qpos_qvel(self, to_numpy: bool = True):
@@ -463,6 +464,26 @@ class HumanoidVerseVectorEnv(VectorEnv):
 
         return observation
 
+    def _get_clean_policy_state(self, to_numpy: bool = True):
+        """Return the noise-free policy state consumed by the discriminator."""
+        raw_obs = self._env.obs_buf_dict_raw["clean_policy_obs"]
+        clean_state = torch.cat(
+            [
+                raw_obs["dof_pos"],
+                raw_obs["dof_vel"],
+                raw_obs["projected_gravity"],
+                raw_obs["base_ang_vel"],
+            ],
+            dim=-1,
+        )
+        expected_state_dim = 2 * int(self._env.config.robot.actions_dim) + 6
+        if clean_state.shape[-1] != expected_state_dim:
+            raise ValueError(f"Clean policy state has dim {clean_state.shape[-1]}, expected {expected_state_dim}")
+
+        if to_numpy:
+            clean_state = clean_state.cpu().numpy()
+        return clean_state
+
     def _get_g1env_observation(self, to_numpy: bool = True):
         """Deprecated compatibility alias for older checkpoints and callers."""
         return self._get_robot_observation(to_numpy=to_numpy)
@@ -496,6 +517,7 @@ class HumanoidVerseVectorEnv(VectorEnv):
 
         # update observation and history
         observation = self._get_robot_observation(to_numpy=to_numpy)
+        clean_state = self._get_clean_policy_state(to_numpy=to_numpy)
         observation = self._add_history_to_observation(observation, to_numpy=to_numpy)
         self._update_history(env_to_reset, observation, None)
         if len(env_to_reset) > 0 and self.history_handler is not None:
@@ -508,6 +530,7 @@ class HumanoidVerseVectorEnv(VectorEnv):
             truncated = truncated.cpu().numpy()
         new_info["qpos"] = qpos
         new_info["qvel"] = qvel
+        new_info["clean_state"] = clean_state
         return observation, reward, terminated, truncated, new_info
 
     def close(self):

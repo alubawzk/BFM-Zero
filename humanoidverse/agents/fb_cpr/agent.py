@@ -18,6 +18,23 @@ from ..pytree_utils import tree_get_batch_size
 from .model import FBcprModel, FBcprModelConfig
 
 
+def replace_state_with_clean_state(
+    policy_obs: dict[str, torch.Tensor],
+    clean_state: torch.Tensor,
+) -> dict[str, torch.Tensor]:
+    """Return discriminator observations with the noisy policy state replaced."""
+    if "state" not in policy_obs:
+        raise KeyError("Policy observation has no 'state' entry for the discriminator.")
+    if policy_obs["state"].shape != clean_state.shape:
+        raise ValueError(
+            f"Clean policy state shape {clean_state.shape} does not match noisy state shape {policy_obs['state'].shape}."
+        )
+
+    discriminator_obs = policy_obs.copy()
+    discriminator_obs["state"] = clean_state
+    return discriminator_obs
+
+
 class FBcprAgentTrainConfig(FBAgentTrainConfig):
     lr_discriminator: float = 1e-4
     lr_critic: float = 1e-4
@@ -176,6 +193,7 @@ class FBcprAgent(FBAgent):
             train_batch["action"].to(self.device),
             tree_map(lambda x: x.to(self.device), train_batch["next"]["observation"]),
         )
+        clean_train_state = train_batch["clean_state"].to(self.device)
         discount = self.cfg.train.discount * ~train_batch["next"]["terminated"].to(self.device)
         expert_obs, expert_next_obs = (
             tree_map(lambda x: x.to(self.device), expert_batch["observation"]),
@@ -194,6 +212,9 @@ class FBcprAgent(FBAgent):
                 self._model._obs_normalizer(expert_obs),
                 self._model._obs_normalizer(expert_next_obs),
             )
+            clean_train_state = self._model._obs_normalizer({"state": clean_train_state})["state"]
+
+        train_discriminator_obs = replace_state_with_clean_state(train_obs, clean_train_state)
 
         torch.compiler.cudagraph_mark_step_begin()
         expert_z = self.encode_expert(next_obs=expert_next_obs)
@@ -204,7 +225,7 @@ class FBcprAgent(FBAgent):
         metrics = self.update_discriminator(
             expert_obs=expert_obs,
             expert_z=expert_z,
-            train_obs=train_obs,
+            train_obs=train_discriminator_obs,
             train_z=train_z,
             grad_penalty=grad_penalty,
         )
@@ -238,6 +259,7 @@ class FBcprAgent(FBAgent):
                 discount=discount,
                 next_obs=train_next_obs,
                 z=train_z,
+                discriminator_obs=train_discriminator_obs,
             )
         )
         metrics.update(
@@ -371,12 +393,13 @@ class FBcprAgent(FBAgent):
         discount: torch.Tensor,
         next_obs: torch.Tensor | dict[str, torch.Tensor],
         z: torch.Tensor,
+        discriminator_obs: torch.Tensor | dict[str, torch.Tensor],
     ) -> Dict[str, torch.Tensor]:
         with autocast(device_type=self.device, dtype=self._model.amp_dtype, enabled=self.cfg.model.amp):
             num_parallel = self.cfg.model.archi.critic.num_parallel
             # compute target critic
             with torch.no_grad():
-                reward = self._model._discriminator.compute_reward(obs=obs, z=z)
+                reward = self._model._discriminator.compute_reward(obs=discriminator_obs, z=z)
                 dist = self._model._actor(next_obs, z, self._model.cfg.actor_std)
                 next_action = dist.sample(clip=self.cfg.train.stddev_clip)
                 next_Qs = self._model._target_critic(next_obs, z, next_action)  # num_parallel x batch x 1

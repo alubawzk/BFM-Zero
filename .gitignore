@@ -16,3 +16,4 @@ __pycache__/
 results/
 _wandb/
 wandb/
+.transfer/

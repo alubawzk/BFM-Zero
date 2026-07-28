@@ -15,9 +15,24 @@ obs:
       max_local_self,
     ]
 
+    # The discriminator compares policy samples against clean expert motion
+    # samples. Keep a noise-free copy of only the fields it consumes.
+    clean_policy_obs: [
+      base_ang_vel,
+      projected_gravity,
+      dof_pos,
+      dof_vel,
+      max_local_self,
+    ]
+
     critic_obs: [
       max_local_self
     ]
+
+  no_noise_obs_keys: [
+    critic_obs,
+    clean_policy_obs,
+  ]
 
   obs_auxiliary: # define those coumpounds in obs_dict, for example, you can define different long/short history with different length
     history_actor: {

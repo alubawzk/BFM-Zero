@@ -7,9 +7,11 @@ from pathlib import Path
 
 import joblib
 import numpy as np
+import torch
 from hydra import compose, initialize_config_dir
 from omegaconf import OmegaConf
 
+from humanoidverse.agents.fb_cpr.agent import replace_state_with_clean_state
 from humanoidverse.utils.motion_lib.motion_lib_robot import MotionLibRobot
 from humanoidverse.utils.motion_lib.torch_humanoid_batch import Humanoid_Batch
 from humanoidverse.utils.robot_config import indices_by_name, validate_robot_config
@@ -35,6 +37,25 @@ class Mini3TrainingConfigTest(unittest.TestCase):
         self.assertEqual(schema["num_bodies"], 24)
         self.assertEqual(schema["state_dim"], 48)
         self.assertEqual(schema["action_dim"], 21)
+
+    def test_discriminator_policy_observation_is_noise_free(self) -> None:
+        self.assertEqual(
+            list(self.config.obs.obs_dict.clean_policy_obs),
+            ["base_ang_vel", "projected_gravity", "dof_pos", "dof_vel", "max_local_self"],
+        )
+        self.assertIn("clean_policy_obs", self.config.obs.no_noise_obs_keys)
+
+        noisy_state = torch.ones(2, 48)
+        clean_state = torch.zeros(2, 48)
+        policy_obs = {
+            "state": noisy_state,
+            "privileged_state": torch.randn(2, 358),
+        }
+        discriminator_obs = replace_state_with_clean_state(policy_obs, clean_state)
+
+        self.assertIs(discriminator_obs["state"], clean_state)
+        self.assertIs(discriminator_obs["privileged_state"], policy_obs["privileged_state"])
+        self.assertIs(policy_obs["state"], noisy_state)
 
     def test_asset_names_and_order(self) -> None:
         urdf_root = ET.parse(MINI3_URDF).getroot()

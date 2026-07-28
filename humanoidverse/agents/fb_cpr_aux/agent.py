@@ -13,7 +13,7 @@ from torch.amp import autocast
 from torch.utils._pytree import tree_map
 
 from ..base import BaseConfig
-from ..fb_cpr.agent import FBcprAgent, FBcprAgentTrainConfig
+from ..fb_cpr.agent import FBcprAgent, FBcprAgentTrainConfig, replace_state_with_clean_state
 from ..nn_models import _soft_update_params, eval_mode
 from .model import FBcprAuxModelConfig
 
@@ -89,6 +89,7 @@ class FBcprAuxAgent(FBcprAgent):
             train_batch["action"].to(self.device),
             tree_map(lambda x: x.to(self.device), train_batch["next"]["observation"]),
         )
+        clean_train_state = train_batch["clean_state"].to(self.device)
         discount = self.cfg.train.discount * ~train_batch["next"]["terminated"].to(self.device)
         expert_obs, expert_next_obs = (
             tree_map(lambda x: x.to(self.device), expert_batch["observation"]),
@@ -107,6 +108,9 @@ class FBcprAuxAgent(FBcprAgent):
                 self._model._obs_normalizer(expert_obs),
                 self._model._obs_normalizer(expert_next_obs),
             )
+            clean_train_state = self._model._obs_normalizer({"state": clean_train_state})["state"]
+
+        train_discriminator_obs = replace_state_with_clean_state(train_obs, clean_train_state)
 
         torch.compiler.cudagraph_mark_step_begin()
         expert_z = self.encode_expert(next_obs=expert_next_obs)
@@ -117,7 +121,7 @@ class FBcprAuxAgent(FBcprAgent):
         metrics = self.update_discriminator(
             expert_obs=expert_obs,
             expert_z=expert_z,
-            train_obs=train_obs,
+            train_obs=train_discriminator_obs,
             train_z=train_z,
             grad_penalty=grad_penalty,
         )
@@ -151,6 +155,7 @@ class FBcprAuxAgent(FBcprAgent):
                 discount=discount,
                 next_obs=train_next_obs,
                 z=train_z,
+                discriminator_obs=train_discriminator_obs,
             )
         )
         # compute scalar auxiliary reward as a weighted sum of the auxiliary rewards
