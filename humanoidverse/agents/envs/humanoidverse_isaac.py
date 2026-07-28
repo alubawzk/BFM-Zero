@@ -379,7 +379,7 @@ class HumanoidVerseVectorEnv(VectorEnv):
         if reset_to_default_pose and target_states is not None:
             raise ValueError("Cannot specify both reset_to_default_pose and target_states.")
         target_states = target_states or (self._default_pose_target_reset if reset_to_default_pose else None)
-        _, info = self.base_env.reset_all(target_states=target_states)
+        _, info = self.base_env.reset(target_states=target_states)
         observation = self._get_robot_observation(to_numpy=to_numpy)
         clean_state = self._get_clean_policy_state(to_numpy=to_numpy)
         qpos, qvel = self._get_qpos_qvel(to_numpy=to_numpy)
@@ -389,7 +389,7 @@ class HumanoidVerseVectorEnv(VectorEnv):
             self._update_history(torch.arange(self.num_envs, device=self.device), observation, None)
             observation["history"] = {"observation": [], "action": []}
         self.env_to_reset = []
-        info = {"qpos": qpos, "qvel": qvel, "clean_state": clean_state}
+        info.update({"qpos": qpos, "qvel": qvel, "clean_state": clean_state})
         return observation, info
 
     def _get_qpos_qvel(self, to_numpy: bool = True):
@@ -568,7 +568,12 @@ class HumanoidVerseVectorEnv(VectorEnv):
 _ISAAC_SIM_INITIALIZED = False
 
 
-def instantiate_isaac_sim(num_envs: int, enable_cameras: bool = False, headless: bool = True):
+def instantiate_isaac_sim(
+    num_envs: int,
+    enable_cameras: bool = False,
+    headless: bool = True,
+    device: str = "cuda:0",
+):
     global _ISAAC_SIM_INITIALIZED
     if _ISAAC_SIM_INITIALIZED:
         return
@@ -587,6 +592,7 @@ def instantiate_isaac_sim(num_envs: int, enable_cameras: bool = False, headless:
     args_cli.num_envs = num_envs
     args_cli.enable_cameras = enable_cameras
     args_cli.headless = headless
+    args_cli.device = device
 
     dest_path = Path(isaaclab.__file__) / "apps"
     current_file_dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -801,7 +807,12 @@ class HumanoidVerseIsaacConfig(BaseConfig):
         simulator_type = cfg.simulator["_target_"].split(".")[-1]
         if simulator_type == "IsaacSim":
             validate_cuda_architecture(self.device)
-            instantiate_isaac_sim(num_envs, enable_cameras=self.enable_cameras, headless=cfg.env.config.headless)
+            instantiate_isaac_sim(
+                num_envs,
+                enable_cameras=self.enable_cameras,
+                headless=cfg.env.config.headless,
+                device=self.device,
+            )
         isaac_env = LeggedRobotMotions(cfg.env.config, device=self.device)
 
         env = HumanoidVerseVectorEnv(

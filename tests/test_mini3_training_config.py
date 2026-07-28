@@ -11,6 +11,7 @@ import torch
 from hydra import compose, initialize_config_dir
 from omegaconf import OmegaConf
 
+from humanoidverse.agents.envs.humanoidverse_isaac import HumanoidVerseVectorEnv
 from humanoidverse.agents.fb_cpr.agent import replace_state_with_clean_state
 from humanoidverse.utils.motion_lib.motion_lib_robot import MotionLibRobot
 from humanoidverse.utils.motion_lib.torch_humanoid_batch import Humanoid_Batch
@@ -56,6 +57,39 @@ class Mini3TrainingConfigTest(unittest.TestCase):
         self.assertIs(discriminator_obs["state"], clean_state)
         self.assertIs(discriminator_obs["privileged_state"], policy_obs["privileged_state"])
         self.assertIs(policy_obs["state"], noisy_state)
+
+    def test_vector_env_reset_uses_two_value_reset_contract(self) -> None:
+        class DummyBaseEnv:
+            def __init__(self) -> None:
+                self.target_states = None
+
+            def reset(self, target_states=None):
+                self.target_states = target_states
+                return {"raw": torch.zeros(2, 1)}, {"reset_succeeded": True}
+
+            def close(self):
+                return None
+
+        class DummyWrappedEnv:
+            def __init__(self, base_env) -> None:
+                self.unwrapped = base_env
+
+        base_env = DummyBaseEnv()
+        wrapper = HumanoidVerseVectorEnv.__new__(HumanoidVerseVectorEnv)
+        wrapper._env = DummyWrappedEnv(base_env)
+        wrapper.history_handler = None
+        wrapper.num_envs = 2
+        wrapper._get_robot_observation = lambda to_numpy=True: {"state": np.zeros((2, 48), dtype=np.float32)}
+        wrapper._get_clean_policy_state = lambda to_numpy=True: np.zeros((2, 48), dtype=np.float32)
+        wrapper._get_qpos_qvel = lambda to_numpy=True: (
+            np.zeros((2, 28), dtype=np.float32),
+            np.zeros((2, 27), dtype=np.float32),
+        )
+
+        observation, info = wrapper.reset()
+
+        self.assertEqual(observation["state"].shape, (2, 48))
+        self.assertTrue(info["reset_succeeded"])
 
     def test_asset_names_and_order(self) -> None:
         urdf_root = ET.parse(MINI3_URDF).getroot()

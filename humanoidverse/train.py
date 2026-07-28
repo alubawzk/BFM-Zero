@@ -672,10 +672,13 @@ class Workspace:
 
 def train_bfm_zero(
     robot_profile: tp.Literal["g1", "mini3"] = "g1",
+    device: str = "cuda:0",
     motion_path: str | None = None,
     work_dir: str | None = None,
     online_parallel_envs: int | None = None,
     num_env_steps: int | None = None,
+    buffer_size: int | None = None,
+    buffer_device: tp.Literal["cpu", "cuda"] = "cuda",
     smoke_test: bool = False,
     disable_domain_randomization: bool = False,
     use_wandb: bool = False,
@@ -734,12 +737,14 @@ def train_bfm_zero(
 
     actual_num_envs = online_parallel_envs if online_parallel_envs is not None else (8 if smoke_test else 1024)
     actual_num_env_steps = num_env_steps if num_env_steps is not None else (actual_num_envs * 64 if smoke_test else 384_000_000)
+    if buffer_size is not None and buffer_size < actual_num_envs:
+        raise ValueError(f"buffer_size={buffer_size} must be at least online_parallel_envs={actual_num_envs}")
     actual_work_dir = work_dir or (f"{profile['work_dir']}-smoke" if smoke_test else profile["work_dir"])
     actual_wandb_group = wandb_group or f"bfmzero-{robot_profile}-isaac"
     actual_wandb_run_name = wandb_run_name or f"{robot_profile}-{Path(actual_work_dir).name}"
     actual_batch_size = 64 if smoke_test else 1024
-    actual_buffer_size = actual_num_envs * 64 if smoke_test else 5_120_000
-    actual_buffer_device = "cpu" if smoke_test else "cuda"
+    actual_buffer_size = actual_num_envs * 64 if smoke_test else (5_120_000 if buffer_size is None else buffer_size)
+    actual_buffer_device = "cpu" if smoke_test else buffer_device
     actual_inference_batch_size = 8192 if smoke_test else 500000
     actual_z_buffer_size = 512 if smoke_test else 8192
     actual_rollout_expert_trajectories_length = 16 if smoke_test else 250
@@ -840,7 +845,7 @@ def train_bfm_zero(
         motions_root='',
         env=HumanoidVerseIsaacConfig(
             name='humanoidverse_isaac',
-            device='cuda:0',
+            device=device,
             motion_path=str(resolved_motion_path),
             enable_cameras=False,
             camera_render_save_dir='isaac_videos',
