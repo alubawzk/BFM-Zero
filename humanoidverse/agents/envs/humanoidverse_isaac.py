@@ -21,7 +21,7 @@ from torch.utils._pytree import tree_map
 import humanoidverse
 from humanoidverse.envs.env_utils.history_handler import HistoryHandler as HVHistoryHandler
 from humanoidverse.envs.legged_robot_motions.legged_robot_motions import LeggedRobotMotions, compute_humanoid_observations_max
-from humanoidverse.utils.helpers import pre_process_config
+from humanoidverse.utils.helpers import build_reference_policy_state, pre_process_config
 from humanoidverse.utils.robot_config import validate_robot_config
 from humanoidverse.utils.torch_utils import quat_rotate_inverse
 
@@ -77,27 +77,17 @@ def load_expert_trajectories_from_motion_lib(env, agent_cfg, device="cpu", add_h
         base_quat = ref_body_rots[:, 0]
         ref_dof_pos = motion_res["dof_pos"] - env.default_dof_pos[0]
         ref_dof_vel = motion_res["dof_vel"]
-        ref_ang_vel = ref_body_angular_vels[:, 0]
         projected_gravity = quat_rotate_inverse(base_quat, env.gravity_vec[0:1].repeat(max_local_self_obs.shape[0], 1), w_last=True)
+        state, data = build_reference_policy_state(
+            ref_dof_pos=ref_dof_pos,
+            ref_dof_vel=ref_dof_vel,
+            projected_gravity=projected_gravity,
+            base_quat=base_quat,
+            root_ang_vel_world=ref_body_angular_vels[:, 0],
+            obs_scales=env.config.obs.obs_scales,
+        )
         # NOTE we multiply by zero to align with mujoco data
         bogus_actions = ref_dof_pos * 0  # bogus actions
-
-        state = torch.cat(
-            [
-                ref_dof_pos,
-                ref_dof_vel,
-                projected_gravity,
-                ref_ang_vel,
-            ],
-            dim=-1,
-        )
-
-        data = {
-            "base_ang_vel": ref_ang_vel,
-            "projected_gravity": projected_gravity,
-            "dof_pos": ref_dof_pos,
-            "dof_vel": ref_dof_vel,
-        }
 
         ### compute history_actor
         # TODO: speed this up

@@ -18,9 +18,9 @@
 2. expert 缺少 `history_actor`、policy 包含 `history_actor` 时，WGAN gradient penalty 可以正常计算；
 3. 使用缩小后的网络配置成功执行了一次完整 `FBcprAuxAgent.update()`。
 
-因此，当前主要问题不是 tensor shape 无法拼接，而是 expert 和 policy observation 的物理语义没有完全对齐。其中最重要的是根角速度的坐标系、缩放和噪声处理不一致，这可能为判别器提供错误的分类捷径。
+因此，问题不是 tensor shape 无法拼接，而是 expert 和 policy observation 的物理语义曾经没有完全对齐。其中最重要的是根角速度的坐标系、缩放和噪声处理不一致，这会为判别器提供错误的分类捷径。
 
-本次修改已经解决其中的 observation noise 不一致：判别器现在使用无噪声的 policy `state`，actor、F/B 和 critic 仍使用原有带噪 observation。根角速度的坐标系与缩放不一致仍需单独修复。
+目前已经修复 observation noise、根角速度坐标系和 observation scale 三项不一致：判别器使用无噪声的 policy `state`；expert 根角速度先从世界坐标转换到机体局部坐标，再应用与 policy 相同的 `base_ang_vel: 0.25` scale。actor、F/B 和 critic 仍使用原有带噪 observation。
 
 ## 2. 判别器输入维度核对
 
@@ -49,17 +49,16 @@ state = torch.cat(
 )
 ```
 
-Expert observation 在 `load_expert_trajectories_from_motion_lib()` 中使用相同字段顺序：
+Expert observation 在 `load_expert_trajectories_from_motion_lib()` 中通过共享函数使用相同字段顺序和 scale：
 
 ```python
-state = torch.cat(
-    [
-        ref_dof_pos,
-        ref_dof_vel,
-        projected_gravity,
-        ref_ang_vel,
-    ],
-    dim=-1,
+state, components = build_reference_policy_state(
+    ref_dof_pos=ref_dof_pos,
+    ref_dof_vel=ref_dof_vel,
+    projected_gravity=projected_gravity,
+    base_quat=base_quat,
+    root_ang_vel_world=ref_body_angular_vels[:, 0],
+    obs_scales=env.config.obs.obs_scales,
 )
 ```
 
@@ -95,7 +94,7 @@ Expert 不含 `history_actor` 不会造成判别器报错，原因有两个：
 
 WGAN gradient penalty 遍历 expert observation 中已有的字段。Policy 包含 expert 的 `state`、`privileged_state` 和 `last_action`，因此插值时不存在缺少字段的问题。`last_action` 不被判别器使用，对它的梯度为 `None`，随后会被过滤。
 
-## 3. 高风险问题：expert/policy 根角速度语义不一致
+## 3. 已修复的高风险问题：expert/policy 根角速度语义不一致
 
 ### 3.1 Policy 使用局部坐标系
 
@@ -151,32 +150,32 @@ noise_scales:
 机体局部坐标角速度 × 0.25，无 observation noise
 ```
 
-### 3.3 Expert 使用全局角速度，且未缩放
+### 3.3 修复前 Expert 使用全局角速度，且未缩放
 
-Expert observation 当前直接使用 motion library 给出的全局角速度：
+修复前的 expert observation 直接使用 motion library 给出的全局角速度：
 
 ```python
 ref_ang_vel = ref_body_angular_vels[:, 0]
 ```
 
-motion library 中的 `body_ang_vel_t` 来源于 `global_angular_velocity`。这里没有执行 `quat_rotate_inverse()`，也没有应用 `obs_scales.base_ang_vel=0.25`。
+motion library 中的 `body_ang_vel_t` 来源于 `global_angular_velocity`。旧实现没有执行 `quat_rotate_inverse()`，也没有应用 `obs_scales.base_ang_vel=0.25`。
 
-所以判别器看到的 expert `base_ang_vel` 是：
+所以旧实现中判别器看到的 expert `base_ang_vel` 是：
 
 ```text
 世界坐标角速度，无 observation noise，缩放系数为 1.0
 ```
 
-### 3.4 影响
+### 3.4 修复结果
 
-当前两侧实际为：
+现在 expert 和 policy 判别器输入统一为：
 
 ```text
 Policy discriminator input: local angular velocity × 0.25，不带噪声
-Expert: global angular velocity × 1.0，不带噪声
+Expert: local angular velocity × 0.25，不带噪声
 ```
 
-这不会引发维度报错，但可能产生以下问题：
+旧实现虽然不会引发维度报错，但可能产生以下问题：
 
 - 判别器通过角速度尺度直接识别 expert/policy；
 - 判别器通过坐标系差异直接识别 expert/policy；
@@ -184,11 +183,11 @@ Expert: global angular velocity × 1.0，不带噪声
 - expert trajectory 经 backward encoder 得到的 latent 可能与 policy observation 分布不一致；
 - tracking evaluation 中构造目标 latent 时也会继承相同问题。
 
-BatchNorm 只能基于 policy running statistics 做数值归一化，不能修复全局/局部坐标系不同的问题。
+共享构造函数已经在 expert buffer、Isaac tracking evaluation 和通用 backward observation 路径中生效，因此 G1 和 Mini3 都使用同一语义。物理 root state 初始化仍保留世界坐标、未缩放的原始角速度，不受 observation 转换影响。
 
-### 3.5 建议修复
+旧 checkpoint、replay buffer 和判别器已经在旧语义下训练，修复后不应续训，应使用新的 work directory 从头训练。
 
-至少应将 expert 根角速度转换为与 policy 相同的局部坐标：
+### 3.5 已采用的修复
 
 ```python
 ref_ang_vel = quat_rotate_inverse(
@@ -204,7 +203,7 @@ ref_ang_vel = quat_rotate_inverse(
 ref_ang_vel = ref_ang_vel * env.config.obs.obs_scales.base_ang_vel
 ```
 
-更稳妥的实现方式是抽出共享 observation 构造函数，让 policy、expert loader 和 tracking evaluation 使用同一套：
+实现中已抽出 `build_reference_policy_state()` 共享 observation 构造函数，让 expert loader 和 tracking evaluation 使用同一套：
 
 - 坐标系变换；
 - default pose subtraction；
@@ -213,11 +212,11 @@ ref_ang_vel = ref_ang_vel * env.config.obs.obs_scales.base_ang_vel
 - dtype；
 - feature dimension 检查。
 
-对于 observation noise，需要明确训练意图：
+对于 observation noise，当前采用的训练意图为：
 
 - 当前已经采用“判别器比较无噪声物理状态”的方案，同时向判别器提供无噪声 policy/expert observation；
-- 如果希望判别器在噪声下训练，应向 expert 应用同分布噪声；
-- 不建议只给 policy 添加噪声，否则判别器可能学习数据来源而不是行为质量。
+- actor、F/B 和 critic 保持原有带噪 policy observation；
+- 不只给判别器的 policy 一侧添加噪声，避免判别器学习数据来源而不是行为质量。
 
 ### 3.6 已实现的 clean policy observation 数据流
 
@@ -425,7 +424,7 @@ discriminator policy logits mean/std
 
 ## 10. 推荐修复顺序
 
-1. 对齐 expert/policy `base_ang_vel` 的坐标系和 scale；
+1. 已完成：对齐 expert/policy `base_ang_vel` 的坐标系和 scale；
 2. 已完成：判别器使用无噪声 policy/expert observation；
 3. 对齐 `default_dof_pos_offset` 的 reference convention；
 4. 修复 `max_local_self` 的 357/358 静态维度；
@@ -439,6 +438,7 @@ discriminator policy logits mean/std
 ```text
 humanoidverse/train.py
 humanoidverse/agents/envs/humanoidverse_isaac.py
+humanoidverse/agents/evaluations/humanoidverse_isaac.py
 humanoidverse/agents/fb_cpr/agent.py
 humanoidverse/agents/fb_cpr_aux/agent.py
 humanoidverse/agents/fb_cpr_aux/model.py
@@ -446,9 +446,11 @@ humanoidverse/agents/nn_models.py
 humanoidverse/agents/normalizers.py
 humanoidverse/envs/legged_base_task/legged_robot_base.py
 humanoidverse/envs/legged_robot_motions/legged_robot_motions.py
+humanoidverse/utils/helpers.py
 humanoidverse/config/obs/bfm_zero_obs.yaml
 humanoidverse/config/domain_rand/domain_rand.yaml
 humanoidverse/config/robot/mini3/mini3_21dof.yaml
+tests/test_mini3_training_config.py
 ```
 
 ## 12. 审查范围说明
@@ -460,5 +462,6 @@ humanoidverse/config/robot/mini3/mini3_21dof.yaml
 - discriminator forward 合成测试；
 - WGAN gradient penalty 合成测试；
 - 缩小网络下的完整 `FBcprAuxAgent.update()` 合成测试。
+- G1/Mini3 observation scale 和世界坐标到机体局部坐标转换回归测试。
 
 由于当前审查环境无法访问 CUDA/Isaac Sim，没有在本地完成完整 Isaac Sim end-to-end 训练。已有服务器日志能够证明 Mini3 环境、77 条 motion、1024 个并行环境和首次 evaluation 可以启动，但这不能替代长时间训练稳定性与学习效果验证。

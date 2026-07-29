@@ -13,6 +13,7 @@ from omegaconf import OmegaConf
 
 from humanoidverse.agents.envs.humanoidverse_isaac import HumanoidVerseVectorEnv
 from humanoidverse.agents.fb_cpr.agent import replace_state_with_clean_state
+from humanoidverse.utils.helpers import build_reference_policy_state
 from humanoidverse.utils.motion_lib.motion_lib_robot import MotionLibRobot
 from humanoidverse.utils.motion_lib.torch_humanoid_batch import Humanoid_Batch
 from humanoidverse.utils.robot_config import indices_by_name, validate_robot_config
@@ -30,6 +31,10 @@ class Mini3TrainingConfigTest(unittest.TestCase):
     def setUpClass(cls) -> None:
         with initialize_config_dir(version_base=None, config_dir=str(CONFIG_DIR)):
             cls.config = compose(config_name="exp/bfm_zero/bfm_zero_mini3")
+            cls.g1_config = compose(
+                config_name="exp/bfm_zero/bfm_zero",
+                overrides=["robot=g1/g1_29dof_hard_waist"],
+            )
 
     def test_robot_schema(self) -> None:
         schema = validate_robot_config(self.config.robot)
@@ -57,6 +62,33 @@ class Mini3TrainingConfigTest(unittest.TestCase):
         self.assertIs(discriminator_obs["state"], clean_state)
         self.assertIs(discriminator_obs["privileged_state"], policy_obs["privileged_state"])
         self.assertIs(policy_obs["state"], noisy_state)
+
+    def test_g1_and_mini3_expert_angular_velocity_matches_policy_semantics(self) -> None:
+        self.assertEqual(float(self.config.obs.obs_scales.base_ang_vel), 0.25)
+        self.assertEqual(float(self.g1_config.obs.obs_scales.base_ang_vel), 0.25)
+
+        half_sqrt_two = 2**-0.5
+        base_quat = torch.tensor([[0.0, 0.0, half_sqrt_two, half_sqrt_two]])
+        root_ang_vel_world = torch.tensor([[1.0, 0.0, 0.0]])
+        state, components = build_reference_policy_state(
+            ref_dof_pos=torch.ones(1, 2),
+            ref_dof_vel=torch.ones(1, 2),
+            projected_gravity=torch.tensor([[0.0, 0.0, -1.0]]),
+            base_quat=base_quat,
+            root_ang_vel_world=root_ang_vel_world,
+            obs_scales={
+                "dof_pos": 2.0,
+                "dof_vel": 3.0,
+                "projected_gravity": 4.0,
+                "base_ang_vel": 0.25,
+            },
+        )
+
+        torch.testing.assert_close(components["dof_pos"], torch.full((1, 2), 2.0))
+        torch.testing.assert_close(components["dof_vel"], torch.full((1, 2), 3.0))
+        torch.testing.assert_close(components["projected_gravity"], torch.tensor([[0.0, 0.0, -4.0]]))
+        torch.testing.assert_close(components["base_ang_vel"], torch.tensor([[0.0, -0.25, 0.0]]), atol=1e-6, rtol=0)
+        self.assertEqual(state.shape, (1, 10))
 
     def test_vector_env_reset_uses_two_value_reset_contract(self) -> None:
         class DummyBaseEnv:

@@ -154,6 +154,42 @@ class PolicyExporterLSTM(torch.nn.Module):
         traced_script_module.save(path)
 
 
+def build_reference_policy_state(
+    ref_dof_pos: torch.Tensor,
+    ref_dof_vel: torch.Tensor,
+    projected_gravity: torch.Tensor,
+    base_quat: torch.Tensor,
+    root_ang_vel_world: torch.Tensor,
+    obs_scales: Any,
+) -> tuple[torch.Tensor, Dict[str, torch.Tensor]]:
+    """Build a clean expert state with the same frame and scales as policy observations."""
+    from humanoidverse.utils.torch_utils import quat_rotate_inverse
+
+    if base_quat.shape[:-1] != root_ang_vel_world.shape[:-1] or base_quat.shape[-1] != 4 or root_ang_vel_world.shape[-1] != 3:
+        raise ValueError(
+            f"Incompatible root rotation/velocity shapes: base_quat={base_quat.shape}, "
+            f"root_ang_vel_world={root_ang_vel_world.shape}"
+        )
+
+    components = {
+        "dof_pos": ref_dof_pos * float(obs_scales["dof_pos"]),
+        "dof_vel": ref_dof_vel * float(obs_scales["dof_vel"]),
+        "projected_gravity": projected_gravity * float(obs_scales["projected_gravity"]),
+        "base_ang_vel": quat_rotate_inverse(base_quat, root_ang_vel_world, w_last=True)
+        * float(obs_scales["base_ang_vel"]),
+    }
+    state = torch.cat(
+        [
+            components["dof_pos"],
+            components["dof_vel"],
+            components["projected_gravity"],
+            components["base_ang_vel"],
+        ],
+        dim=-1,
+    )
+    return state, components
+
+
 def get_backward_observation(env, motion_id, use_root_height_obs: bool = False, velocity_multiplier: float = 1.0) -> torch.Tensor:
     from humanoidverse.utils.torch_utils import quat_rotate_inverse
     from humanoidverse.envs.legged_robot_motions.legged_robot_motions import compute_humanoid_observations_max, compute_humanoid_observations_max_with_contact
@@ -195,15 +231,32 @@ def get_backward_observation(env, motion_id, use_root_height_obs: bool = False, 
 
     if env.config.obs.use_obs_filter:
         base_quat = ref_body_rots[:, 0]  # root orientation
-        ref_ang_vel = ref_body_angular_vels[:, 0]
         projected_gravity = quat_rotate_inverse(
             base_quat,
             env.gravity_vec[0:1].repeat(max_local_self_obs.shape[0], 1),
             w_last=True
         )
+        state, policy_components = build_reference_policy_state(
+            ref_dof_pos=ref_dof_pos,
+            ref_dof_vel=ref_dof_vel,
+            projected_gravity=projected_gravity,
+            base_quat=base_quat,
+            root_ang_vel_world=ref_body_angular_vels[:, 0],
+            obs_scales=env.config.obs.obs_scales,
+        )
+        ref_ang_vel = policy_components["base_ang_vel"]
         bogus_actions = ref_dof_pos
 
-        bogus_history_actor = torch.cat([bogus_actions, ref_ang_vel, ref_dof_pos, ref_dof_vel, projected_gravity], dim=-1).repeat(1, 4)
+        bogus_history_actor = torch.cat(
+            [
+                bogus_actions,
+                ref_ang_vel,
+                policy_components["dof_pos"],
+                policy_components["dof_vel"],
+                policy_components["projected_gravity"],
+            ],
+            dim=-1,
+        ).repeat(1, 4)
         ref_dict = {
             "actions": bogus_actions,
             "ref_ang_vel": ref_ang_vel,
@@ -212,16 +265,12 @@ def get_backward_observation(env, motion_id, use_root_height_obs: bool = False, 
             "dof_pos": motion_state["dof_pos"],
             "fake_history": bogus_history_actor,
             "max_local_self_obs": max_local_self_obs,
-            "projected_gravity": projected_gravity,
+            "projected_gravity": policy_components["projected_gravity"],
             "ref_body_pos": ref_body_pos,
             "ref_body_rots": ref_body_rots,
             "ref_body_vels": ref_body_vels,
             "ref_body_angular_vels": ref_body_angular_vels
         }
-        state = torch.cat([ref_dof_pos,
-                    ref_dof_vel,
-                    projected_gravity,
-                    ref_ang_vel], dim=-1)
         last_action = bogus_actions
         # TODO get obs from raw obs instead of the obs
         bfmzero_obs = {

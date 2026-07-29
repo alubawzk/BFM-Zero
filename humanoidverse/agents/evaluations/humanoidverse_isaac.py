@@ -13,6 +13,8 @@ import torch
 from torch.utils._pytree import tree_map
 from tqdm import tqdm
 
+from humanoidverse.utils.helpers import build_reference_policy_state
+
 from ..envs.humanoidverse_isaac import HumanoidVerseIsaacConfig, HumanoidVerseVectorEnv
 from .base import BaseEvalConfig, extract_model
 
@@ -131,16 +133,33 @@ def get_backward_observation(
     max_local_self_obs = torch.cat([v for v in obs_dict.values()], dim=-1)
 
     base_quat = ref_body_rots[:, 0]
-    ref_ang_vel = ref_body_angular_vels[:, 0]
     projected_gravity = quat_rotate_inverse(
         base_quat,
         env.gravity_vec[0:1].repeat(max_local_self_obs.shape[0], 1),
         w_last=True,
     )
+    state, policy_components = build_reference_policy_state(
+        ref_dof_pos=ref_dof_pos,
+        ref_dof_vel=ref_dof_vel,
+        projected_gravity=projected_gravity,
+        base_quat=base_quat,
+        root_ang_vel_world=ref_body_angular_vels[:, 0],
+        obs_scales=env.config.obs.obs_scales,
+    )
+    ref_ang_vel = policy_components["base_ang_vel"]
     bogus_actions = ref_dof_pos
 
     if env.config.obs.use_obs_filter:
-        bogus_history_actor = torch.cat([bogus_actions, ref_ang_vel, ref_dof_pos, ref_dof_vel, projected_gravity], dim=-1).repeat(1, 4)
+        bogus_history_actor = torch.cat(
+            [
+                bogus_actions,
+                ref_ang_vel,
+                policy_components["dof_pos"],
+                policy_components["dof_vel"],
+                policy_components["projected_gravity"],
+            ],
+            dim=-1,
+        ).repeat(1, 4)
         # obs = torch.cat([bogus_actions, ref_ang_vel, ref_dof_pos, ref_dof_vel, bogus_history_actor, max_local_self_obs, projected_gravity], dim=-1)
         ref_dict = {
             "actions": bogus_actions,
@@ -151,7 +170,7 @@ def get_backward_observation(
             "dof_vel": motion_state["dof_vel"],
             "fake_history": bogus_history_actor,
             "max_local_self_obs": max_local_self_obs,
-            "projected_gravity": projected_gravity,
+            "projected_gravity": policy_components["projected_gravity"],
             "ref_body_pos": ref_body_pos,
             "ref_body_rots": ref_body_rots,
             "ref_body_vels": ref_body_vels,
@@ -166,16 +185,6 @@ def get_backward_observation(
         ref_dict = {
             "max_local_self_obs": max_local_self_obs,
         }
-
-    state = torch.cat(
-        [
-            ref_dof_pos,
-            ref_dof_vel,
-            projected_gravity,
-            ref_ang_vel,
-        ],
-        dim=-1,
-    )
 
     observation = {
         "state": state,
