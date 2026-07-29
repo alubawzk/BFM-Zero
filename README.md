@@ -31,6 +31,24 @@ Code will be released in stages:
 - [ ] **Minimal training code (RTX 4090 support)**
 
 # BFM-Zero Training
+nohup bash -lc '
+  cd /home/wzk/BFM-Zero
+  export PYTHONUNBUFFERED=1
+  CUDA_VISIBLE_DEVICES=0
+
+  exec uv run --frozen python -m humanoidverse.train \
+    --robot-profile mini3 \
+    --device cuda:0 \
+    --work-dir results/bfmzero-mini3-clean-disc \
+    --online-parallel-envs 512 \
+    --num-env-steps 384000000 \
+    --buffer-size 1500000 \
+    --buffer-device cpu \
+    --use-tensorboard \
+    --tensorboard-log-dir results/bfmzero-mini3-clean-disc/tensorboard
+' > /home/wzk/BFM-Zero/mini3_clean_disc.log 2>&1 < /dev/null &
+
+echo "PID=$!"
 
 Humanoidverse training for BFM-Zero with Isaac Sim or MuJoCo.
 

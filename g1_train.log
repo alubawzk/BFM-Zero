@@ -1,0 +1,490 @@
+warning: The `tool.uv.dev-dependencies` field (used in `pyproject.toml`) is deprecated and will be removed in a future release; use `dependency-groups.dev` instead
+/home/wzk/BFM-Zero/.venv/lib/python3.10/site-packages/wandb/sdk/internal/internal_api.py:13: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  from pkg_resources import parse_version
+/home/wzk/BFM-Zero/.venv/lib/python3.10/site-packages/hydra/_internal/defaults_list.py:251: UserWarning: In 'exp/bfm_zero/bfm_zero': Defaults list is missing `_self_`. See https://hydra.cc/docs/1.2/upgrades/1.0_to_1.1/default_composition_order for more information
+  warnings.warn(msg, UserWarning)
+Robot schema: name=g1_29dof_fakehand dofs=29 bodies=30 state_dim=64 action_dim=29
+2026-07-28 11:51:29.629 | INFO     | humanoidverse.utils.helpers:pre_process_config:49 - obs_dims: {'base_lin_vel': 3, 'base_ang_vel': 3, 'projected_gravity': 3, 'dof_pos': 29, 'dof_vel': 29, 'actions': 29, 'max_local_self': 462}
+2026-07-28 11:51:29.631 | INFO     | humanoidverse.utils.helpers:pre_process_config:60 - auxiliary_obs_dims: {'history_actor': 372}
+2026-07-28 11:51:29.631 | INFO     | humanoidverse.utils.helpers:pre_process_config:67 - actor_obs: base_ang_vel has dim: 3
+2026-07-28 11:51:29.632 | INFO     | humanoidverse.utils.helpers:pre_process_config:67 - actor_obs: projected_gravity has dim: 3
+2026-07-28 11:51:29.633 | INFO     | humanoidverse.utils.helpers:pre_process_config:67 - actor_obs: dof_pos has dim: 29
+2026-07-28 11:51:29.633 | INFO     | humanoidverse.utils.helpers:pre_process_config:67 - actor_obs: dof_vel has dim: 29
+2026-07-28 11:51:29.634 | INFO     | humanoidverse.utils.helpers:pre_process_config:67 - actor_obs: actions has dim: 29
+2026-07-28 11:51:29.634 | INFO     | humanoidverse.utils.helpers:pre_process_config:70 - actor_obs: history_actor has dim: 372
+2026-07-28 11:51:29.635 | INFO     | humanoidverse.utils.helpers:pre_process_config:67 - actor_obs: max_local_self has dim: 462
+2026-07-28 11:51:29.635 | INFO     | humanoidverse.utils.helpers:pre_process_config:67 - critic_obs: max_local_self has dim: 462
+2026-07-28 11:51:29.636 | INFO     | humanoidverse.utils.helpers:pre_process_config:76 - algo_obs_dim_dict: {'actor_obs': 927, 'critic_obs': 462}
+[WARN][AppLauncher]: There are no arguments attached to the ArgumentParser object. If you have your own arguments, please load your own arguments before calling the `AppLauncher.add_app_launcher_args` method. This allows the method to check the validity of the arguments and perform checks for argument names.
+[INFO][AppLauncher]: Loading experience file: /home/wzk/BFM-Zero/.venv/lib/python3.10/site-packages/isaaclab/apps/isaaclab.python.headless.kit
+[Warning] [simulation_app.simulation_app] Modules: ['omni.kit_app'] were loaded before SimulationApp was started and might not be loaded correctly.
+[Warning] [simulation_app.simulation_app] Please check to make sure no extra omniverse or pxr modules are imported before the call to SimulationApp(...)
+Loading user config located at: '/home/wzk/BFM-Zero/.venv/lib/python3.10/site-packages/omni/data/Kit/Isaac-Sim/4.5/user.config.json'
+[Info] [carb] Logging to file: /home/wzk/BFM-Zero/.venv/lib/python3.10/site-packages/omni/logs/Kit/Isaac-Sim/4.5/kit_20260728_115129.log
+2026-07-28 03:51:29 [0ms] [Warning] [omni.kit.app.plugin] No crash reporter present, dumps uploading isn't available.
+2026-07-28 03:51:29 [158ms] [Warning] [omni.usd_config.extension] Enable omni.materialx.libs extension to use MaterialX
+2026-07-28 03:51:30 [275ms] [Error] [omni.core.ITypeFactory] Circular dependency detected! Interface: omni::platforminfo::ICpuInfo requested. But plugin with an interface: /home/wzk/BFM-Zero/.venv/lib/python3.10/site-packages/omni/kernel/plugins/libomni.platforminfo.plugin.so is already in resolving state.
+2026-07-28 03:51:30 [275ms] [Error] [carb] [Plugin: gpu.foundation.plugin] Dependency: [omni::platforminfo::ICpuInfo v1.0] failed to be resolved.
+2026-07-28 03:51:30 [362ms] [Warning] [omni.platforminfo.plugin] failed to open the default display.  Can't verify X Server version.
+2026-07-28 03:51:30 [362ms] [Warning] [omni.platforminfo.plugin] failed to load XRAndR.
+2026-07-28 03:51:30 [571ms] [Warning] [omni.datastore] OmniHub is inaccessible
+2026-07-28 03:51:30 [606ms] [Warning] [omni.isaac.dynamic_control] omni.isaac.dynamic_control is deprecated as of Isaac Sim 4.5. No action is needed from end-users.
+2026-07-28 03:51:31 [1,912ms] [Warning] [carb.cudainterop.plugin] CUDA_VISIBLE_DEVICES environment variable is set.
+2026-07-28 03:51:31 [1,912ms] [Warning] [carb.cudainterop.plugin] Note CUDA device enumeration and Omniverse device enumeration are different.
+2026-07-28 03:51:31 [1,912ms] [Warning] [carb.cudainterop.plugin] Setting CUDA_VISIBLE_DEVICES can lead to undesired behavior or crashes.
+2026-07-28 03:51:31 [1,914ms] [Warning] [gpu.foundation.plugin] Skipping NVIDIA GPU due CUDA being in bad state: NVIDIA GeForce RTX 4090
+2026-07-28 03:51:31 [1,914ms] [Warning] [gpu.foundation.plugin] Please restart your system if CUDA is known to work in your system.
+2026-07-28 03:51:31 [1,915ms] [Warning] [gpu.foundation.plugin] Skipping NVIDIA GPU due CUDA being in bad state: NVIDIA GeForce RTX 4090
+2026-07-28 03:51:31 [1,915ms] [Warning] [gpu.foundation.plugin] Please restart your system if CUDA is known to work in your system.
+2026-07-28 03:51:31 [1,916ms] [Warning] [gpu.foundation.plugin] Skipping NVIDIA GPU due CUDA being in bad state: NVIDIA GeForce RTX 4090
+2026-07-28 03:51:31 [1,916ms] [Warning] [gpu.foundation.plugin] Please restart your system if CUDA is known to work in your system.
+2026-07-28 03:51:31 [1,918ms] [Warning] [gpu.foundation.plugin] Skipping NVIDIA GPU due CUDA being in bad state: NVIDIA GeForce RTX 4090
+2026-07-28 03:51:31 [1,918ms] [Warning] [gpu.foundation.plugin] Please restart your system if CUDA is known to work in your system.
+2026-07-28 03:51:31 [1,919ms] [Warning] [gpu.foundation.plugin] Skipping NVIDIA GPU due CUDA being in bad state: NVIDIA GeForce RTX 4090
+2026-07-28 03:51:31 [1,919ms] [Warning] [gpu.foundation.plugin] Please restart your system if CUDA is known to work in your system.
+2026-07-28 03:51:31 [1,920ms] [Warning] [gpu.foundation.plugin] Skipping NVIDIA GPU due CUDA being in bad state: NVIDIA GeForce RTX 4090
+2026-07-28 03:51:31 [1,920ms] [Warning] [gpu.foundation.plugin] Please restart your system if CUDA is known to work in your system.
+2026-07-28 03:51:31 [1,921ms] [Warning] [gpu.foundation.plugin] Skipping NVIDIA GPU due CUDA being in bad state: NVIDIA GeForce RTX 4090
+2026-07-28 03:51:31 [1,921ms] [Warning] [gpu.foundation.plugin] Please restart your system if CUDA is known to work in your system.
+2026-07-28 03:51:31 [1,921ms] [Warning] [gpu.foundation.plugin] Skipping NVIDIA GPU due CUDA being in bad state: NVIDIA GeForce RTX 4090
+2026-07-28 03:51:31 [1,921ms] [Warning] [gpu.foundation.plugin] Please restart your system if CUDA is known to work in your system.
+2026-07-28 03:51:31 [1,921ms] [Warning] [gpu.foundation.plugin] Skipping NVIDIA GPU due CUDA being in bad state: NVIDIA GeForce RTX 4090
+2026-07-28 03:51:31 [1,921ms] [Warning] [gpu.foundation.plugin] Please restart your system if CUDA is known to work in your system.
+2026-07-28 03:51:31 [1,921ms] [Warning] [gpu.foundation.plugin] Skipping NVIDIA GPU due CUDA being in bad state: NVIDIA GeForce RTX 4090
+2026-07-28 03:51:31 [1,921ms] [Warning] [gpu.foundation.plugin] Please restart your system if CUDA is known to work in your system.
+2026-07-28 03:51:31 [1,921ms] [Warning] [gpu.foundation.plugin] Skipping NVIDIA GPU due CUDA being in bad state: NVIDIA GeForce RTX 4090
+2026-07-28 03:51:31 [1,921ms] [Warning] [gpu.foundation.plugin] Please restart your system if CUDA is known to work in your system.
+2026-07-28 03:51:31 [1,921ms] [Warning] [gpu.foundation.plugin] Skipping NVIDIA GPU due CUDA being in bad state: NVIDIA GeForce RTX 4090
+2026-07-28 03:51:31 [1,921ms] [Warning] [gpu.foundation.plugin] Please restart your system if CUDA is known to work in your system.
+2026-07-28 03:51:31 [1,921ms] [Warning] [gpu.foundation.plugin] Skipping NVIDIA GPU due CUDA being in bad state: NVIDIA GeForce RTX 4090
+2026-07-28 03:51:31 [1,922ms] [Warning] [gpu.foundation.plugin] Please restart your system if CUDA is known to work in your system.
+2026-07-28 03:51:31 [1,922ms] [Warning] [gpu.foundation.plugin] Skipping NVIDIA GPU due CUDA being in bad state: NVIDIA GeForce RTX 4090
+2026-07-28 03:51:31 [1,922ms] [Warning] [gpu.foundation.plugin] Please restart your system if CUDA is known to work in your system.
+
+|---------------------------------------------------------------------------------------------|
+| Driver Version: 580.126.09    | Graphics API: Vulkan
+|=============================================================================================|
+| GPU | Name                             | Active | LDA | GPU Memory | Vendor-ID | LUID       |
+|     |                                  |        |     |            | Device-ID | UUID       |
+|     |                                  |        |     |            | Bus-ID    |            |
+|---------------------------------------------------------------------------------------------|
+| 0   | NVIDIA GeForce RTX 4090          |        |     | 78826   MB | 10de      | 0          |
+|     |                                  |        |     |            | 2684      | b17aaba3.. |
+|     |                                  |        |     |            | 8         |            |
+|---------------------------------------------------------------------------------------------|
+| 1   | NVIDIA GeForce RTX 4090          |        |     | 78826   MB | 10de      | 0          |
+|     |                                  |        |     |            | 2684      | 68f466eb.. |
+|     |                                  |        |     |            | c         |            |
+|---------------------------------------------------------------------------------------------|
+| 2   | NVIDIA GeForce RTX 4090          |        |     | 78826   MB | 10de      | 0          |
+|     |                                  |        |     |            | 2684      | b78226f0.. |
+|     |                                  |        |     |            | 89        |            |
+|---------------------------------------------------------------------------------------------|
+| 3   | NVIDIA GeForce RTX 4090          |        |     | 78826   MB | 10de      | 0          |
+|     |                                  |        |     |            | 2684      | f06f9e3a.. |
+|     |                                  |        |     |            | 8a        |            |
+|---------------------------------------------------------------------------------------------|
+| 4   | NVIDIA GeForce RTX 4090          |        |     | 78826   MB | 10de      | 0          |
+|     |                                  |        |     |            | 2684      | ca3ace87.. |
+|     |                                  |        |     |            | 8         |            |
+|---------------------------------------------------------------------------------------------|
+| 5   | NVIDIA GeForce RTX 4090          |        |     | 78826   MB | 10de      | 0          |
+|     |                                  |        |     |            | 2684      | 1268b594.. |
+|     |                                  |        |     |            | c         |            |
+|---------------------------------------------------------------------------------------------|
+| 6   | NVIDIA GeForce RTX 4090          |        |     | 78826   MB | 10de      | 0          |
+|     |                                  |        |     |            | 2684      | bc3c3a1a.. |
+|     |                                  |        |     |            | 8c        |            |
+|---------------------------------------------------------------------------------------------|
+| 7   | NVIDIA GeForce RTX 4090          | Yes: 0 |     | 78826   MB | 10de      | 0          |
+|     |                                  |        |     |            | 2684      | 5342f46d.. |
+|     |                                  |        |     |            | 8d        |            |
+|=============================================================================================|
+| OS: 22.04.5 LTS (Jammy Jellyfish) ubuntu, Version: 22.04.5, Kernel: 5.15.0-179-generic
+| Processor: Intel(R) Xeon(R) Gold 6462C
+| Cores: 64 | Logical Cores: 128
+|---------------------------------------------------------------------------------------------|
+| Total Memory (MB): 1030663 | Free Memory: 982338
+| Total Page/Swap (MB): 0 | Free Page/Swap: 0
+|---------------------------------------------------------------------------------------------|
+2026-07-28 03:51:32 [2,501ms] [Warning] [gpu.foundation.plugin] ECC is enabled on physical device 7
+2026-07-28 03:51:32 [2,527ms] [Warning] [omni.kvdb.plugin] Disabling key-value database because another kit process is locking it
+2026-07-28 11:51:32.491 | INFO     | humanoidverse.simulator.isaacsim.isaacsim:__init__:76 - IsaacSim initialized.
+2026-07-28 11:51:32.491 | INFO     | humanoidverse.simulator.isaacsim.isaacsim:__init__:78 - [INFO]: Base environment:
+2026-07-28 11:51:32.491 | INFO     | humanoidverse.simulator.isaacsim.isaacsim:__init__:79 - 	Environment device    : cuda:0
+2026-07-28 11:51:32.491 | INFO     | humanoidverse.simulator.isaacsim.isaacsim:__init__:80 - 	Physics step-size     : 0.005
+2026-07-28 11:51:32.492 | INFO     | humanoidverse.simulator.isaacsim.isaacsim:__init__:81 - 	Rendering step-size   : 0.005
+key: hip_pitch, kp: 99.09843, kd: 6.3088
+key: hip_roll, kp: 99.09843, kd: 6.3088
+key: hip_yaw, kp: 40.17924, kd: 2.55789
+key: knee, kp: 99.09843, kd: 6.3088
+key: ankle_pitch, kp: 28.50125, kd: 1.81445
+key: ankle_roll, kp: 28.50125, kd: 1.81445
+key: hip_pitch, kp: 99.09843, kd: 6.3088
+key: hip_roll, kp: 99.09843, kd: 6.3088
+key: hip_yaw, kp: 40.17924, kd: 2.55789
+key: knee, kp: 99.09843, kd: 6.3088
+key: ankle_pitch, kp: 28.50125, kd: 1.81445
+key: ankle_roll, kp: 28.50125, kd: 1.81445
+key: waist_yaw, kp: 300, kd: 5
+key: waist_roll, kp: 300, kd: 5
+key: waist_pitch, kp: 300, kd: 5
+key: shoulder_pitch, kp: 14.25062, kd: 0.90722
+key: shoulder_roll, kp: 14.25062, kd: 0.90722
+key: shoulder_yaw, kp: 14.25062, kd: 0.90722
+key: elbow, kp: 14.25062, kd: 0.90722
+key: wrist_roll, kp: 14.25062, kd: 0.90722
+key: wrist_pitch, kp: 16.77833, kd: 1.06814
+key: wrist_yaw, kp: 16.77833, kd: 1.06814
+key: shoulder_pitch, kp: 14.25062, kd: 0.90722
+key: shoulder_roll, kp: 14.25062, kd: 0.90722
+key: shoulder_yaw, kp: 14.25062, kd: 0.90722
+key: elbow, kp: 14.25062, kd: 0.90722
+key: wrist_roll, kp: 14.25062, kd: 0.90722
+key: wrist_pitch, kp: 16.77833, kd: 1.06814
+key: wrist_yaw, kp: 16.77833, kd: 1.06814
+2026-07-28 03:51:34 [5,158ms] [Warning] [omni.usd] Warning: in GetNodeDiscoveryResults at line 136 of /builds/omniverse/usd-ci/USD/pxr/usd/usdShade/shaderDefUtils.cpp -- Unable to resolve info:sourceAsset </UsdPreviewSurface.info:mdl:sourceAsset> with value @UsdPreviewSurface.mdl@.
+
+2026-07-28 03:51:34 [5,158ms] [Warning] [omni.usd] Warning: in GetNodeDiscoveryResults at line 136 of /builds/omniverse/usd-ci/USD/pxr/usd/usdShade/shaderDefUtils.cpp -- Unable to resolve info:sourceAsset </UsdUVTexture.info:mdl:sourceAsset> with value @UsdPreviewSurface.mdl@.
+
+2026-07-28 03:51:34 [5,158ms] [Warning] [omni.usd] Warning: in GetNodeDiscoveryResults at line 136 of /builds/omniverse/usd-ci/USD/pxr/usd/usdShade/shaderDefUtils.cpp -- Unable to resolve info:sourceAsset </UsdPrimvarReader_float.info:mdl:sourceAsset> with value @UsdPreviewSurface.mdl@.
+
+2026-07-28 03:51:34 [5,158ms] [Warning] [omni.usd] Warning: in GetNodeDiscoveryResults at line 136 of /builds/omniverse/usd-ci/USD/pxr/usd/usdShade/shaderDefUtils.cpp -- Unable to resolve info:sourceAsset </UsdPrimvarReader_float2.info:mdl:sourceAsset> with value @UsdPreviewSurface.mdl@.
+
+2026-07-28 03:51:34 [5,158ms] [Warning] [omni.usd] Warning: in GetNodeDiscoveryResults at line 136 of /builds/omniverse/usd-ci/USD/pxr/usd/usdShade/shaderDefUtils.cpp -- Unable to resolve info:sourceAsset </UsdPrimvarReader_float3.info:mdl:sourceAsset> with value @UsdPreviewSurface.mdl@.
+
+2026-07-28 03:51:34 [5,158ms] [Warning] [omni.usd] Warning: in GetNodeDiscoveryResults at line 136 of /builds/omniverse/usd-ci/USD/pxr/usd/usdShade/shaderDefUtils.cpp -- Unable to resolve info:sourceAsset </UsdPrimvarReader_float4.info:mdl:sourceAsset> with value @UsdPreviewSurface.mdl@.
+
+2026-07-28 03:51:34 [5,158ms] [Warning] [omni.usd] Warning: in GetNodeDiscoveryResults at line 136 of /builds/omniverse/usd-ci/USD/pxr/usd/usdShade/shaderDefUtils.cpp -- Unable to resolve info:sourceAsset </UsdPrimvarReader_int.info:mdl:sourceAsset> with value @UsdPreviewSurface.mdl@.
+
+2026-07-28 03:51:34 [5,158ms] [Warning] [omni.usd] Warning: in GetNodeDiscoveryResults at line 136 of /builds/omniverse/usd-ci/USD/pxr/usd/usdShade/shaderDefUtils.cpp -- Unable to resolve info:sourceAsset </UsdPrimvarReader_string.info:mdl:sourceAsset> with value @UsdPreviewSurface.mdl@.
+
+2026-07-28 03:51:34 [5,158ms] [Warning] [omni.usd] Warning: in GetNodeDiscoveryResults at line 136 of /builds/omniverse/usd-ci/USD/pxr/usd/usdShade/shaderDefUtils.cpp -- Unable to resolve info:sourceAsset </UsdPrimvarReader_normal.info:mdl:sourceAsset> with value @UsdPreviewSurface.mdl@.
+
+2026-07-28 03:51:34 [5,158ms] [Warning] [omni.usd] Warning: in GetNodeDiscoveryResults at line 136 of /builds/omniverse/usd-ci/USD/pxr/usd/usdShade/shaderDefUtils.cpp -- Unable to resolve info:sourceAsset </UsdPrimvarReader_point.info:mdl:sourceAsset> with value @UsdPreviewSurface.mdl@.
+
+2026-07-28 03:51:34 [5,158ms] [Warning] [omni.usd] Warning: in GetNodeDiscoveryResults at line 136 of /builds/omniverse/usd-ci/USD/pxr/usd/usdShade/shaderDefUtils.cpp -- Unable to resolve info:sourceAsset </UsdPrimvarReader_vector.info:mdl:sourceAsset> with value @UsdPreviewSurface.mdl@.
+
+2026-07-28 03:51:34 [5,159ms] [Warning] [omni.usd] Warning: in GetNodeDiscoveryResults at line 136 of /builds/omniverse/usd-ci/USD/pxr/usd/usdShade/shaderDefUtils.cpp -- Unable to resolve info:sourceAsset </UsdPrimvarReader_matrix.info:mdl:sourceAsset> with value @UsdPreviewSurface.mdl@.
+
+2026-07-28 03:51:34 [5,159ms] [Warning] [omni.usd] Warning: in GetNodeDiscoveryResults at line 136 of /builds/omniverse/usd-ci/USD/pxr/usd/usdShade/shaderDefUtils.cpp -- Unable to resolve info:sourceAsset </UsdTransform2d.info:mdl:sourceAsset> with value @UsdPreviewSurface.mdl@.
+
+[INFO]: Time taken for scene creation : 2.442082 seconds
+[INFO]: Scene manager:  <class InteractiveScene>
+	Number of environments: 512
+	Environment spacing   : 5.0
+	Source prim name      : /World/envs/env_0
+	Global prim paths     : ['/World/ground']
+	Replicate physics     : True
+2026-07-28 11:51:34.935 | INFO     | humanoidverse.simulator.isaacsim.isaacsim:__init__:110 - Starting the simulation. This may take a few seconds. Please wait...
+[INFO]: Time taken for simulation start : 1.324238 seconds
+[INFO] Event Manager:  <EventManager> contains 2 active terms.
++---------------------------------------+
+| Active Event Terms in Mode: 'startup' |
++---------+-----------------------------+
+|  Index  | Name                        |
++---------+-----------------------------+
+|    0    | scale_body_mass             |
+|    1    | random_joint_friction       |
+|    2    | random_base_com             |
++---------+-----------------------------+
++--------------------------------------------------+
+| Active Event Terms in Mode: 'on_push_by_setting_velocity' |
++----------------+---------------------------------+
+|     Index      | Name                            |
++----------------+---------------------------------+
+|       0        | push_robots                     |
++----------------+---------------------------------+
+
+2026-07-28 11:51:36.324 | INFO     | humanoidverse.simulator.isaacsim.isaacsim:__init__:228 - Completed setting up the environment...
+2026-07-28 11:51:36.480 | WARNING  | humanoidverse.simulator.isaacsim.isaacsim:load_assets:520 - The order of the joint_names in the robot_config does not match the order of the joint_ids in IsaacSim.
+/home/wzk/BFM-Zero/.venv/lib/python3.10/site-packages/torch/functional.py:554: UserWarning: torch.meshgrid: in an upcoming release, it will be required to pass the indexing argument. (Triggered internally at /pytorch/aten/src/ATen/native/TensorShape.cpp:4314.)
+  return _VF.meshgrid(tensors, **kwargs)  # type: ignore[attr-defined]
+2026-07-28 11:51:36.698 | DEBUG    | humanoidverse.envs.legged_base_task.legged_robot_base:_init_buffers:85 - PD gain of joint left_hip_pitch_joint were defined, setting them to 99.09842681884766 and 6.308800220489502
+2026-07-28 11:51:36.700 | DEBUG    | humanoidverse.envs.legged_base_task.legged_robot_base:_init_buffers:85 - PD gain of joint left_hip_roll_joint were defined, setting them to 99.09842681884766 and 6.308800220489502
+2026-07-28 11:51:36.701 | DEBUG    | humanoidverse.envs.legged_base_task.legged_robot_base:_init_buffers:85 - PD gain of joint left_hip_yaw_joint were defined, setting them to 40.17924118041992 and 2.557889938354492
+2026-07-28 11:51:36.702 | DEBUG    | humanoidverse.envs.legged_base_task.legged_robot_base:_init_buffers:85 - PD gain of joint left_knee_joint were defined, setting them to 99.09842681884766 and 6.308800220489502
+2026-07-28 11:51:36.703 | DEBUG    | humanoidverse.envs.legged_base_task.legged_robot_base:_init_buffers:85 - PD gain of joint left_ankle_pitch_joint were defined, setting them to 28.501249313354492 and 1.8144500255584717
+2026-07-28 11:51:36.704 | DEBUG    | humanoidverse.envs.legged_base_task.legged_robot_base:_init_buffers:85 - PD gain of joint left_ankle_roll_joint were defined, setting them to 28.501249313354492 and 1.8144500255584717
+2026-07-28 11:51:36.705 | DEBUG    | humanoidverse.envs.legged_base_task.legged_robot_base:_init_buffers:85 - PD gain of joint right_hip_pitch_joint were defined, setting them to 99.09842681884766 and 6.308800220489502
+2026-07-28 11:51:36.706 | DEBUG    | humanoidverse.envs.legged_base_task.legged_robot_base:_init_buffers:85 - PD gain of joint right_hip_roll_joint were defined, setting them to 99.09842681884766 and 6.308800220489502
+2026-07-28 11:51:36.706 | DEBUG    | humanoidverse.envs.legged_base_task.legged_robot_base:_init_buffers:85 - PD gain of joint right_hip_yaw_joint were defined, setting them to 40.17924118041992 and 2.557889938354492
+2026-07-28 11:51:36.707 | DEBUG    | humanoidverse.envs.legged_base_task.legged_robot_base:_init_buffers:85 - PD gain of joint right_knee_joint were defined, setting them to 99.09842681884766 and 6.308800220489502
+2026-07-28 11:51:36.708 | DEBUG    | humanoidverse.envs.legged_base_task.legged_robot_base:_init_buffers:85 - PD gain of joint right_ankle_pitch_joint were defined, setting them to 28.501249313354492 and 1.8144500255584717
+2026-07-28 11:51:36.709 | DEBUG    | humanoidverse.envs.legged_base_task.legged_robot_base:_init_buffers:85 - PD gain of joint right_ankle_roll_joint were defined, setting them to 28.501249313354492 and 1.8144500255584717
+2026-07-28 11:51:36.710 | DEBUG    | humanoidverse.envs.legged_base_task.legged_robot_base:_init_buffers:85 - PD gain of joint waist_yaw_joint were defined, setting them to 300.0 and 5.0
+2026-07-28 11:51:36.711 | DEBUG    | humanoidverse.envs.legged_base_task.legged_robot_base:_init_buffers:85 - PD gain of joint waist_roll_joint were defined, setting them to 300.0 and 5.0
+2026-07-28 11:51:36.712 | DEBUG    | humanoidverse.envs.legged_base_task.legged_robot_base:_init_buffers:85 - PD gain of joint waist_pitch_joint were defined, setting them to 300.0 and 5.0
+2026-07-28 11:51:36.713 | DEBUG    | humanoidverse.envs.legged_base_task.legged_robot_base:_init_buffers:85 - PD gain of joint left_shoulder_pitch_joint were defined, setting them to 14.250619888305664 and 0.9072200059890747
+2026-07-28 11:51:36.715 | DEBUG    | humanoidverse.envs.legged_base_task.legged_robot_base:_init_buffers:85 - PD gain of joint left_shoulder_roll_joint were defined, setting them to 14.250619888305664 and 0.9072200059890747
+2026-07-28 11:51:36.716 | DEBUG    | humanoidverse.envs.legged_base_task.legged_robot_base:_init_buffers:85 - PD gain of joint left_shoulder_yaw_joint were defined, setting them to 14.250619888305664 and 0.9072200059890747
+2026-07-28 11:51:36.717 | DEBUG    | humanoidverse.envs.legged_base_task.legged_robot_base:_init_buffers:85 - PD gain of joint left_elbow_joint were defined, setting them to 14.250619888305664 and 0.9072200059890747
+2026-07-28 11:51:36.718 | DEBUG    | humanoidverse.envs.legged_base_task.legged_robot_base:_init_buffers:85 - PD gain of joint left_wrist_roll_joint were defined, setting them to 14.250619888305664 and 0.9072200059890747
+2026-07-28 11:51:36.719 | DEBUG    | humanoidverse.envs.legged_base_task.legged_robot_base:_init_buffers:85 - PD gain of joint left_wrist_pitch_joint were defined, setting them to 16.778329849243164 and 1.0681400299072266
+2026-07-28 11:51:36.720 | DEBUG    | humanoidverse.envs.legged_base_task.legged_robot_base:_init_buffers:85 - PD gain of joint left_wrist_yaw_joint were defined, setting them to 16.778329849243164 and 1.0681400299072266
+2026-07-28 11:51:36.721 | DEBUG    | humanoidverse.envs.legged_base_task.legged_robot_base:_init_buffers:85 - PD gain of joint right_shoulder_pitch_joint were defined, setting them to 14.250619888305664 and 0.9072200059890747
+2026-07-28 11:51:36.721 | DEBUG    | humanoidverse.envs.legged_base_task.legged_robot_base:_init_buffers:85 - PD gain of joint right_shoulder_roll_joint were defined, setting them to 14.250619888305664 and 0.9072200059890747
+2026-07-28 11:51:36.722 | DEBUG    | humanoidverse.envs.legged_base_task.legged_robot_base:_init_buffers:85 - PD gain of joint right_shoulder_yaw_joint were defined, setting them to 14.250619888305664 and 0.9072200059890747
+2026-07-28 11:51:36.723 | DEBUG    | humanoidverse.envs.legged_base_task.legged_robot_base:_init_buffers:85 - PD gain of joint right_elbow_joint were defined, setting them to 14.250619888305664 and 0.9072200059890747
+2026-07-28 11:51:36.724 | DEBUG    | humanoidverse.envs.legged_base_task.legged_robot_base:_init_buffers:85 - PD gain of joint right_wrist_roll_joint were defined, setting them to 14.250619888305664 and 0.9072200059890747
+2026-07-28 11:51:36.725 | DEBUG    | humanoidverse.envs.legged_base_task.legged_robot_base:_init_buffers:85 - PD gain of joint right_wrist_pitch_joint were defined, setting them to 16.778329849243164 and 1.0681400299072266
+2026-07-28 11:51:36.726 | DEBUG    | humanoidverse.envs.legged_base_task.legged_robot_base:_init_buffers:85 - PD gain of joint right_wrist_yaw_joint were defined, setting them to 16.778329849243164 and 1.0681400299072266
+2026-07-28 11:51:36.738 | INFO     | humanoidverse.envs.legged_base_task.legged_robot_base:_prepare_reward_function:147 - Zhengyi set reward on 20250320
+2026-07-28 11:51:36.739 | INFO     | humanoidverse.envs.legged_base_task.legged_robot_base:_prepare_reward_function:152 - Scale: penalty_torques = -1e-06
+2026-07-28 11:51:36.739 | INFO     | humanoidverse.envs.legged_base_task.legged_robot_base:_prepare_reward_function:152 - Scale: penalty_undesired_contact = -1
+2026-07-28 11:51:36.739 | INFO     | humanoidverse.envs.legged_base_task.legged_robot_base:_prepare_reward_function:152 - Scale: penalty_action_rate = -0.5
+2026-07-28 11:51:36.739 | INFO     | humanoidverse.envs.legged_base_task.legged_robot_base:_prepare_reward_function:152 - Scale: penalty_ankle_roll = -0.5
+2026-07-28 11:51:36.739 | INFO     | humanoidverse.envs.legged_base_task.legged_robot_base:_prepare_reward_function:152 - Scale: penalty_feet_ori = -0.1
+2026-07-28 11:51:36.739 | INFO     | humanoidverse.envs.legged_base_task.legged_robot_base:_prepare_reward_function:152 - Scale: feet_heading_alignment = -0.1
+2026-07-28 11:51:36.739 | INFO     | humanoidverse.envs.legged_base_task.legged_robot_base:_prepare_reward_function:152 - Scale: penalty_slippage = -1.0
+2026-07-28 11:51:36.739 | INFO     | humanoidverse.envs.legged_base_task.legged_robot_base:_prepare_reward_function:152 - Scale: limits_dof_pos = -10.0
+2026-07-28 11:51:36.739 | INFO     | humanoidverse.envs.legged_base_task.legged_robot_base:_prepare_reward_function:152 - Scale: limits_dof_vel = -5.0
+2026-07-28 11:51:36.739 | INFO     | humanoidverse.envs.legged_base_task.legged_robot_base:_prepare_reward_function:152 - Scale: limits_torque = -5.0
+2026-07-28 11:51:36.740 | INFO     | humanoidverse.envs.legged_base_task.legged_robot_base:_prepare_reward_function:163 - Use Reward Penalty: True
+2026-07-28 11:51:36.740 | INFO     | humanoidverse.envs.legged_base_task.legged_robot_base:_prepare_reward_function:165 - Penalty Reward Names: ['penalty_torques', 'penalty_action_rate', 'limits_dof_pos', 'limits_torque', 'penalty_slippage', 'penalty_undesired_contact', 'penalty_ankle_roll', 'penalty_feet_ori']
+2026-07-28 11:51:36.740 | INFO     | humanoidverse.envs.legged_base_task.legged_robot_base:_prepare_reward_function:166 - Penalty Reward Initial Scale: 0.1
+2026-07-28 11:51:36.743 | INFO     | humanoidverse.envs.env_utils.history_handler:__init__:25 - History Handler Initialized
+2026-07-28 11:51:36.743 | INFO     | humanoidverse.envs.env_utils.history_handler:__init__:27 - Key: base_ang_vel, Value: 4
+2026-07-28 11:51:36.743 | INFO     | humanoidverse.envs.env_utils.history_handler:__init__:27 - Key: projected_gravity, Value: 4
+2026-07-28 11:51:36.743 | INFO     | humanoidverse.envs.env_utils.history_handler:__init__:27 - Key: dof_pos, Value: 4
+2026-07-28 11:51:36.743 | INFO     | humanoidverse.envs.env_utils.history_handler:__init__:27 - Key: dof_vel, Value: 4
+2026-07-28 11:51:36.743 | INFO     | humanoidverse.envs.env_utils.history_handler:__init__:27 - Key: actions, Value: 4
+2026-07-28 11:51:36.744 | INFO     | humanoidverse.utils.motion_lib.motion_lib_base:__init__:53 - Loaded skeleton from /home/wzk/BFM-Zero/humanoidverse/data/robots/g1/g1_29dof.xml
+2026-07-28 11:51:36.744 | INFO     | humanoidverse.utils.motion_lib.motion_lib_base:__init__:54 - Loading motion data from /home/wzk/BFM-Zero/humanoidverse/data/lafan_29dof_10s-clipped.pkl...
+2026-07-28 11:51:36.986 | INFO     | humanoidverse.utils.motion_lib.motion_lib_base:load_data:92 - Loaded 862 motions
+Loading Meshes ... ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100% 0:00:00
+Loading Geoms... ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100% 0:00:00
+2026-07-28 11:51:37.384 | INFO     | humanoidverse.utils.motion_lib.motion_lib_base:load_motions:387 - Loading 512 motions...
+2026-07-28 11:51:37.386 | INFO     | humanoidverse.utils.motion_lib.motion_lib_base:load_motions:388 - Sampling motion: tensor([319, 127, 330, 232, 524, 604, 798, 861, 297, 405], device='cuda:0'), ....
+2026-07-28 11:51:37.386 | INFO     | humanoidverse.utils.motion_lib.motion_lib_base:load_motions:389 - Current motion keys: ['walk3_subject4_clip9', 'run1_subject5_clip4', 'walk3_subject4_clip20', 'sprint1_subject4_clip23', 'run1_subject2_clip10', 'walk3_subject1_clip17', 'fight1_subject2_clip8', 'fightAndSports1_subject4_clip23', 'walk2_subject1_clip10', 'fight1_subject5_clip18'], ....
+Loading motions... ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100% 0:00:04
+Gathering results... ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━   
+Processing motions... ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100% 0:00:00
+2026-07-28 11:51:42.488 | INFO     | humanoidverse.utils.motion_lib.motion_lib_base:load_motions:487 - Loaded 512 motions with a total length of 5102.924s and 153600 frames.
+Resolved spaces: state=64, action=29, privileged_state=463
+Workdir: results/bfmzero-g1-gpu7
+compile True
+compiling with mode 'reduce-overhead'
+cudagraphs False
+wandb: Currently logged in as: ricardo_wzk (ricardo_wzk-soochow-university). Use `wandb login --relogin` to force relogin
+/home/wzk/BFM-Zero/.venv/lib/python3.10/site-packages/wandb/util.py:247: DeprecationWarning: The `Scope.user` setter is deprecated in favor of `Scope.set_user()`.
+  scope.user = {"email": s.email}
+/home/wzk/BFM-Zero/.venv/lib/python3.10/site-packages/wandb/sdk/internal/internal_api.py:13: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  from pkg_resources import parse_version
+/home/wzk/BFM-Zero/.venv/lib/python3.10/site-packages/wandb/util.py:247: DeprecationWarning: The `Scope.user` setter is deprecated in favor of `Scope.set_user()`.
+  scope.user = {"email": s.email}
+wandb: wandb version 0.28.1 is available!  To upgrade, please run:
+wandb:  $ pip install wandb --upgrade
+wandb: Tracking run with wandb version 0.12.21
+wandb: Run data is saved locally in results/bfmzero-g1-gpu7/_wandb/wandb/run-20260728_115147-o5r2qjl2
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run g1-gpu7
+wandb: ⭐️ View project at https://wandb.ai/ricardo_wzk-soochow-university/bfmzero-g1
+wandb: 🚀 View run at https://wandb.ai/ricardo_wzk-soochow-university/bfmzero-g1/runs/o5r2qjl2
+2026-07-28 11:51:54.029 | INFO     | humanoidverse.utils.motion_lib.motion_lib_base:load_motions:387 - Loading 862 motions...
+2026-07-28 11:51:54.029 | INFO     | humanoidverse.utils.motion_lib.motion_lib_base:load_motions:388 - Sampling motion: tensor([0, 1, 2, 3, 4, 5, 6, 7, 8, 9], device='cuda:0'), ....
+2026-07-28 11:51:54.029 | INFO     | humanoidverse.utils.motion_lib.motion_lib_base:load_motions:389 - Current motion keys: ['fallAndGetUp1_subject4_clip0', 'fallAndGetUp1_subject4_clip1', 'fallAndGetUp1_subject4_clip2', 'fallAndGetUp1_subject4_clip3', 'fallAndGetUp1_subject4_clip4', 'fallAndGetUp1_subject4_clip5', 'fallAndGetUp1_subject4_clip6', 'fallAndGetUp1_subject4_clip7', 'fallAndGetUp1_subject4_clip8', 'fallAndGetUp1_subject4_clip9'], ....
+[?25lLoading motions... ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100% 0:00:07
+[?25h
+[?25lGathering results... ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━   
+[?25h
+[?25lProcessing motions... ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100% 0:00:00
+[?25h
+2026-07-28 11:52:02.808 | INFO     | humanoidverse.utils.motion_lib.motion_lib_base:load_motions:487 - Loaded 862 motions with a total length of 8591.303s and 258600 frames.
+2026-07-28 11:52:03.277 | INFO     | humanoidverse.envs.env_utils.history_handler:__init__:25 - History Handler Initialized
+2026-07-28 11:52:03.277 | INFO     | humanoidverse.envs.env_utils.history_handler:__init__:27 - Key: base_ang_vel, Value: 4
+2026-07-28 11:52:03.277 | INFO     | humanoidverse.envs.env_utils.history_handler:__init__:27 - Key: projected_gravity, Value: 4
+2026-07-28 11:52:03.277 | INFO     | humanoidverse.envs.env_utils.history_handler:__init__:27 - Key: dof_pos, Value: 4
+2026-07-28 11:52:03.277 | INFO     | humanoidverse.envs.env_utils.history_handler:__init__:27 - Key: dof_vel, Value: 4
+2026-07-28 11:52:03.277 | INFO     | humanoidverse.envs.env_utils.history_handler:__init__:27 - Key: actions, Value: 4
+Creating the training environment
+Allocating buffers
+Starting training
+Starting evaluation at time 0
+/home/wzk/BFM-Zero/humanoidverse/agents/evaluations/humanoidverse_isaac.py:495: UserWarning: To copy construct from a tensor, it is recommended to use sourceTensor.detach().clone() or sourceTensor.detach().clone().requires_grad_(True), rather than torch.tensor(sourceTensor).
+  tracking_target = torch.tensor(ep["tracking_target"]["state"][:, :pose_dim], dtype=torch.float32)
+/home/wzk/BFM-Zero/humanoidverse/agents/evaluations/humanoidverse_isaac.py:495: UserWarning: To copy construct from a tensor, it is recommended to use sourceTensor.detach().clone() or sourceTensor.detach().clone().requires_grad_(True), rather than torch.tensor(sourceTensor).
+  tracking_target = torch.tensor(ep["tracking_target"]["state"][:, :pose_dim], dtype=torch.float32)
+All motions already loaded!!! No need to resample.
+All motions already loaded!!! No need to resample.
+/home/wzk/BFM-Zero/.venv/lib/python3.10/site-packages/torch/autograd/graph.py:824: UserWarning: Attempting to run cuBLAS, but there was no current CUDA context! Attempting to set the primary context... (Triggered internally at /pytorch/aten/src/ATen/cuda/CublasHandlePool.cpp:181.)
+  return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+W0728 11:53:59.131000 2585044 .venv/lib/python3.10/site-packages/torch/_logging/_internal.py:1130] [6/0] Profiler function <class 'torch.autograd.profiler.record_function'> will be ignored
+Traceback (most recent call last):
+  File "/home/wzk/BFM-Zero/.python-runtime/lib/python3.10/runpy.py", line 196, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/home/wzk/BFM-Zero/.python-runtime/lib/python3.10/runpy.py", line 86, in _run_code
+    exec(code, run_globals)
+  File "/home/wzk/BFM-Zero/humanoidverse/train.py", line 825, in <module>
+    tyro.cli(train_bfm_zero)
+  File "/home/wzk/BFM-Zero/.venv/lib/python3.10/site-packages/tyro/_cli.py", line 230, in cli
+    return run_with_args_from_cli()
+  File "/home/wzk/BFM-Zero/humanoidverse/train.py", line 821, in train_bfm_zero
+    workspace.train()
+  File "/home/wzk/BFM-Zero/humanoidverse/train.py", line 277, in train
+    self.train_online()
+  File "/home/wzk/BFM-Zero/humanoidverse/train.py", line 516, in train_online
+    metrics = self.agent.update(replay_buffer, t)
+  File "/home/wzk/BFM-Zero/humanoidverse/agents/fb_cpr_aux/agent.py", line 180, in update
+    self.update_actor(
+  File "/home/wzk/BFM-Zero/.venv/lib/python3.10/site-packages/torch/_dynamo/eval_frame.py", line 655, in _fn
+    return fn(*args, **kwargs)
+  File "/home/wzk/BFM-Zero/humanoidverse/agents/fb_cpr_aux/agent.py", line 285, in update_actor
+    self.actor_optimizer.zero_grad(set_to_none=True)
+  File "/home/wzk/BFM-Zero/humanoidverse/agents/fb_cpr_aux/agent.py", line 286, in torch_dynamo_resume_in_update_actor_at_285
+    actor_loss.backward()
+  File "/home/wzk/BFM-Zero/.venv/lib/python3.10/site-packages/torch/_tensor.py", line 648, in backward
+    torch.autograd.backward(
+  File "/home/wzk/BFM-Zero/.venv/lib/python3.10/site-packages/torch/autograd/__init__.py", line 353, in backward
+    _engine_run_backward(
+  File "/home/wzk/BFM-Zero/.venv/lib/python3.10/site-packages/torch/autograd/graph.py", line 824, in _engine_run_backward
+    return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+  File "/home/wzk/BFM-Zero/.venv/lib/python3.10/site-packages/torch/autograd/function.py", line 307, in apply
+    return user_fn(self, *args)
+  File "/home/wzk/BFM-Zero/.venv/lib/python3.10/site-packages/torch/_functorch/_aot_autograd/runtime_wrappers.py", line 2111, in backward
+    return impl_fn()
+  File "/home/wzk/BFM-Zero/.venv/lib/python3.10/site-packages/torch/_functorch/_aot_autograd/runtime_wrappers.py", line 2097, in impl_fn
+    out = CompiledFunction._backward_impl(ctx, all_args)
+  File "/home/wzk/BFM-Zero/.venv/lib/python3.10/site-packages/torch/_functorch/_aot_autograd/runtime_wrappers.py", line 2217, in _backward_impl
+    out = call_func_at_runtime_with_args(
+  File "/home/wzk/BFM-Zero/.venv/lib/python3.10/site-packages/torch/_functorch/_aot_autograd/utils.py", line 126, in call_func_at_runtime_with_args
+    out = normalize_as_list(f(args))
+  File "/home/wzk/BFM-Zero/.venv/lib/python3.10/site-packages/torch/_dynamo/eval_frame.py", line 838, in _fn
+    return fn(*args, **kwargs)
+  File "/home/wzk/BFM-Zero/.venv/lib/python3.10/site-packages/torch/_inductor/output_code.py", line 460, in __call__
+    return self.current_callable(inputs)
+  File "/home/wzk/BFM-Zero/.venv/lib/python3.10/site-packages/torch/_inductor/compile_fx.py", line 1372, in run
+    return compiled_fn(new_inputs)
+  File "/home/wzk/BFM-Zero/.venv/lib/python3.10/site-packages/torch/_inductor/cudagraph_trees.py", line 387, in deferred_cudagraphify
+    fn, out = cudagraphify(model, inputs, new_static_input_idxs, *args, **kwargs)
+  File "/home/wzk/BFM-Zero/.venv/lib/python3.10/site-packages/torch/_inductor/cudagraph_trees.py", line 448, in cudagraphify
+    return manager.add_function(
+  File "/home/wzk/BFM-Zero/.venv/lib/python3.10/site-packages/torch/_inductor/cudagraph_trees.py", line 2308, in add_function
+    return fn, fn(inputs)
+  File "/home/wzk/BFM-Zero/.venv/lib/python3.10/site-packages/torch/_inductor/cudagraph_trees.py", line 1997, in run
+    out = self._run(new_inputs, function_id)
+  File "/home/wzk/BFM-Zero/.venv/lib/python3.10/site-packages/torch/_inductor/cudagraph_trees.py", line 2104, in _run
+    out = self.run_eager(new_inputs, function_id)
+  File "/home/wzk/BFM-Zero/.venv/lib/python3.10/site-packages/torch/_inductor/cudagraph_trees.py", line 2269, in run_eager
+    return node.run(new_inputs)
+  File "/home/wzk/BFM-Zero/.venv/lib/python3.10/site-packages/torch/_inductor/cudagraph_trees.py", line 668, in run
+    out = self.wrapped_function.model(new_inputs)
+  File "/tmp/torchinductor_root/v2/cv2c46klvykbhwfh4fbtqfmbgqss4bala7trbgvpvu4iqmexddeo.py", line 5806, in call
+    buf461 = empty_strided_cuda((2, 2048, 2048), (4194304, 2048, 1), torch.float32)
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 32.00 MiB. GPU 0 has a total capacity of 44.39 GiB of which 20.88 MiB is free. Including non-PyTorch memory, this process has 44.33 GiB memory in use. Of the allocated memory 38.15 GiB is allocated by PyTorch, with 1.09 GiB allocated in private pools (e.g., CUDA Graphs), and 108.80 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
+Traceback (most recent call last):
+  File "/home/wzk/BFM-Zero/.python-runtime/lib/python3.10/runpy.py", line 196, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/home/wzk/BFM-Zero/.python-runtime/lib/python3.10/runpy.py", line 86, in _run_code
+    exec(code, run_globals)
+  File "/home/wzk/BFM-Zero/humanoidverse/train.py", line 825, in <module>
+    tyro.cli(train_bfm_zero)
+  File "/home/wzk/BFM-Zero/.venv/lib/python3.10/site-packages/tyro/_cli.py", line 230, in cli
+    return run_with_args_from_cli()
+  File "/home/wzk/BFM-Zero/humanoidverse/train.py", line 821, in train_bfm_zero
+    workspace.train()
+  File "/home/wzk/BFM-Zero/humanoidverse/train.py", line 277, in train
+    self.train_online()
+  File "/home/wzk/BFM-Zero/humanoidverse/train.py", line 516, in train_online
+    metrics = self.agent.update(replay_buffer, t)
+  File "/home/wzk/BFM-Zero/humanoidverse/agents/fb_cpr_aux/agent.py", line 180, in update
+    self.update_actor(
+  File "/home/wzk/BFM-Zero/.venv/lib/python3.10/site-packages/torch/_dynamo/eval_frame.py", line 655, in _fn
+    return fn(*args, **kwargs)
+  File "/home/wzk/BFM-Zero/humanoidverse/agents/fb_cpr_aux/agent.py", line 285, in update_actor
+    self.actor_optimizer.zero_grad(set_to_none=True)
+  File "/home/wzk/BFM-Zero/humanoidverse/agents/fb_cpr_aux/agent.py", line 286, in torch_dynamo_resume_in_update_actor_at_285
+    actor_loss.backward()
+  File "/home/wzk/BFM-Zero/.venv/lib/python3.10/site-packages/torch/_tensor.py", line 648, in backward
+    torch.autograd.backward(
+  File "/home/wzk/BFM-Zero/.venv/lib/python3.10/site-packages/torch/autograd/__init__.py", line 353, in backward
+    _engine_run_backward(
+  File "/home/wzk/BFM-Zero/.venv/lib/python3.10/site-packages/torch/autograd/graph.py", line 824, in _engine_run_backward
+    return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+  File "/home/wzk/BFM-Zero/.venv/lib/python3.10/site-packages/torch/autograd/function.py", line 307, in apply
+    return user_fn(self, *args)
+  File "/home/wzk/BFM-Zero/.venv/lib/python3.10/site-packages/torch/_functorch/_aot_autograd/runtime_wrappers.py", line 2111, in backward
+    return impl_fn()
+  File "/home/wzk/BFM-Zero/.venv/lib/python3.10/site-packages/torch/_functorch/_aot_autograd/runtime_wrappers.py", line 2097, in impl_fn
+    out = CompiledFunction._backward_impl(ctx, all_args)
+  File "/home/wzk/BFM-Zero/.venv/lib/python3.10/site-packages/torch/_functorch/_aot_autograd/runtime_wrappers.py", line 2217, in _backward_impl
+    out = call_func_at_runtime_with_args(
+  File "/home/wzk/BFM-Zero/.venv/lib/python3.10/site-packages/torch/_functorch/_aot_autograd/utils.py", line 126, in call_func_at_runtime_with_args
+    out = normalize_as_list(f(args))
+  File "/home/wzk/BFM-Zero/.venv/lib/python3.10/site-packages/torch/_dynamo/eval_frame.py", line 838, in _fn
+    return fn(*args, **kwargs)
+  File "/home/wzk/BFM-Zero/.venv/lib/python3.10/site-packages/torch/_inductor/output_code.py", line 460, in __call__
+    return self.current_callable(inputs)
+  File "/home/wzk/BFM-Zero/.venv/lib/python3.10/site-packages/torch/_inductor/compile_fx.py", line 1372, in run
+    return compiled_fn(new_inputs)
+  File "/home/wzk/BFM-Zero/.venv/lib/python3.10/site-packages/torch/_inductor/cudagraph_trees.py", line 387, in deferred_cudagraphify
+    fn, out = cudagraphify(model, inputs, new_static_input_idxs, *args, **kwargs)
+  File "/home/wzk/BFM-Zero/.venv/lib/python3.10/site-packages/torch/_inductor/cudagraph_trees.py", line 448, in cudagraphify
+    return manager.add_function(
+  File "/home/wzk/BFM-Zero/.venv/lib/python3.10/site-packages/torch/_inductor/cudagraph_trees.py", line 2308, in add_function
+    return fn, fn(inputs)
+  File "/home/wzk/BFM-Zero/.venv/lib/python3.10/site-packages/torch/_inductor/cudagraph_trees.py", line 1997, in run
+    out = self._run(new_inputs, function_id)
+  File "/home/wzk/BFM-Zero/.venv/lib/python3.10/site-packages/torch/_inductor/cudagraph_trees.py", line 2104, in _run
+    out = self.run_eager(new_inputs, function_id)
+  File "/home/wzk/BFM-Zero/.venv/lib/python3.10/site-packages/torch/_inductor/cudagraph_trees.py", line 2269, in run_eager
+    return node.run(new_inputs)
+  File "/home/wzk/BFM-Zero/.venv/lib/python3.10/site-packages/torch/_inductor/cudagraph_trees.py", line 668, in run
+    out = self.wrapped_function.model(new_inputs)
+  File "/tmp/torchinductor_root/v2/cv2c46klvykbhwfh4fbtqfmbgqss4bala7trbgvpvu4iqmexddeo.py", line 5806, in call
+    buf461 = empty_strided_cuda((2, 2048, 2048), (4194304, 2048, 1), torch.float32)
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 32.00 MiB. GPU 0 has a total capacity of 44.39 GiB of which 20.88 MiB is free. Including non-PyTorch memory, this process has 44.33 GiB memory in use. Of the allocated memory 38.15 GiB is allocated by PyTorch, with 1.09 GiB allocated in private pools (e.g., CUDA Graphs), and 108.80 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
+wandb: Waiting for W&B process to finish... (failed 1). Press Control-C to abort syncing.
+wandb: - 0.001 MB of 0.001 MB uploaded (0.000 MB deduped)wandb: \ 0.001 MB of 0.001 MB uploaded (0.000 MB deduped)wandb: | 0.001 MB of 0.001 MB uploaded (0.000 MB deduped)wandb: / 0.001 MB of 0.021 MB uploaded (0.000 MB deduped)wandb: - 0.001 MB of 0.028 MB uploaded (0.000 MB deduped)wandb: \ 0.001 MB of 0.028 MB uploaded (0.000 MB deduped)wandb: | 0.001 MB of 0.028 MB uploaded (0.000 MB deduped)wandb: / 0.001 MB of 0.028 MB uploaded (0.000 MB deduped)wandb: - 0.001 MB of 0.028 MB uploaded (0.000 MB deduped)wandb: \ 0.001 MB of 0.028 MB uploaded (0.000 MB deduped)wandb: | 0.001 MB of 0.028 MB uploaded (0.000 MB deduped)wandb: / 0.001 MB of 0.028 MB uploaded (0.000 MB deduped)wandb: - 0.001 MB of 0.028 MB uploaded (0.000 MB deduped)wandb: \ 0.001 MB of 0.028 MB uploaded (0.000 MB deduped)wandb: | 0.001 MB of 0.028 MB uploaded (0.000 MB deduped)wandb: / 0.001 MB of 0.028 MB uploaded (0.000 MB deduped)wandb: - 0.002 MB of 0.028 MB uploaded (0.000 MB deduped)wandb: \ 0.010 MB of 0.028 MB uploaded (0.000 MB deduped)wandb: | 0.015 MB of 0.028 MB uploaded (0.000 MB deduped)wandb: / 0.028 MB of 0.028 MB uploaded (0.000 MB deduped)wandb: - 0.028 MB of 0.028 MB uploaded (0.000 MB deduped)wandb: \ 0.028 MB of 0.028 MB uploaded (0.000 MB deduped)wandb: | 0.028 MB of 0.028 MB uploaded (0.000 MB deduped)wandb: / 0.028 MB of 0.028 MB uploaded (0.000 MB deduped)wandb: - 0.028 MB of 0.028 MB uploaded (0.000 MB deduped)wandb: \ 0.028 MB of 0.028 MB uploaded (0.000 MB deduped)wandb: | 0.028 MB of 0.028 MB uploaded (0.000 MB deduped)wandb: / 0.028 MB of 0.028 MB uploaded (0.000 MB deduped)wandb: - 0.028 MB of 0.028 MB uploaded (0.000 MB deduped)wandb: \ 0.028 MB of 0.028 MB uploaded (0.000 MB deduped)wandb:                                                                                
+wandb: 
+wandb: Run history:
+wandb:              eval/humanoidverse_tracking_eval/accel_dist ▁
+wandb:          eval/humanoidverse_tracking_eval/accel_dist#std ▁
+wandb:                eval/humanoidverse_tracking_eval/distance ▁
+wandb:            eval/humanoidverse_tracking_eval/distance#std ▁
+wandb:                     eval/humanoidverse_tracking_eval/emd ▁
+wandb:                 eval/humanoidverse_tracking_eval/emd#std ▁
+wandb:               eval/humanoidverse_tracking_eval/motion_id ▁
+wandb:           eval/humanoidverse_tracking_eval/motion_id#std ▁
+wandb:                 eval/humanoidverse_tracking_eval/mpjpe_l ▁
+wandb:             eval/humanoidverse_tracking_eval/mpjpe_l#std ▁
+wandb:      eval/humanoidverse_tracking_eval/obs_state_distance ▁
+wandb:  eval/humanoidverse_tracking_eval/obs_state_distance#std ▁
+wandb:           eval/humanoidverse_tracking_eval/obs_state_emd ▁
+wandb:       eval/humanoidverse_tracking_eval/obs_state_emd#std ▁
+wandb:     eval/humanoidverse_tracking_eval/obs_state_proximity ▁
+wandb: eval/humanoidverse_tracking_eval/obs_state_proximity#std ▁
+wandb:               eval/humanoidverse_tracking_eval/proximity ▁
+wandb:           eval/humanoidverse_tracking_eval/proximity#std ▁
+wandb:                eval/humanoidverse_tracking_eval/vel_dist ▁
+wandb:            eval/humanoidverse_tracking_eval/vel_dist#std ▁
+wandb: 
+wandb: Run summary:
+wandb:              eval/humanoidverse_tracking_eval/accel_dist 731.48388
+wandb:          eval/humanoidverse_tracking_eval/accel_dist#std 91.16946
+wandb:                eval/humanoidverse_tracking_eval/distance 3.02938
+wandb:            eval/humanoidverse_tracking_eval/distance#std 0.36366
+wandb:                     eval/humanoidverse_tracking_eval/emd 2.69274
+wandb:                 eval/humanoidverse_tracking_eval/emd#std 0.36414
+wandb:               eval/humanoidverse_tracking_eval/motion_id 430.5
+wandb:           eval/humanoidverse_tracking_eval/motion_id#std 248.8378
+wandb:                 eval/humanoidverse_tracking_eval/mpjpe_l 3029.37636
+wandb:             eval/humanoidverse_tracking_eval/mpjpe_l#std 363.66453
+wandb:      eval/humanoidverse_tracking_eval/obs_state_distance 3.02933
+wandb:  eval/humanoidverse_tracking_eval/obs_state_distance#std 0.36369
+wandb:           eval/humanoidverse_tracking_eval/obs_state_emd 2.69259
+wandb:       eval/humanoidverse_tracking_eval/obs_state_emd#std 0.36431
+wandb:     eval/humanoidverse_tracking_eval/obs_state_proximity 0.49717
+wandb: eval/humanoidverse_tracking_eval/obs_state_proximity#std 0.1469
+wandb:               eval/humanoidverse_tracking_eval/proximity 0.49706
+wandb:           eval/humanoidverse_tracking_eval/proximity#std 0.14691
+wandb:                eval/humanoidverse_tracking_eval/vel_dist 4260.73131
+wandb:            eval/humanoidverse_tracking_eval/vel_dist#std 523.23321
+wandb: 
+wandb: Synced g1-gpu7: https://wandb.ai/ricardo_wzk-soochow-university/bfmzero-g1/runs/o5r2qjl2
+wandb: Synced 5 W&B file(s), 0 media file(s), 0 artifact file(s) and 0 other file(s)
+wandb: Find logs at: results/bfmzero-g1-gpu7/_wandb/wandb/run-20260728_115147-o5r2qjl2/logs
+2026-07-28 03:54:50 [201,009ms] [Warning] [omni.fabric.plugin] gFabricState->gUsdStageToSimStageWithHistoryMap had 1 outstanding SimStageWithHistory(s) at shutdown
+2026-07-28 03:54:50 [201,158ms] [Warning] [carb] Recursive unloadAllPlugins() detected!
+/home/wzk/BFM-Zero/.python-runtime/lib/python3.10/multiprocessing/resource_tracker.py:224: UserWarning: resource_tracker: There appear to be 6 leaked semaphore objects to clean up at shutdown
+  warnings.warn('resource_tracker: There appear to be %d '

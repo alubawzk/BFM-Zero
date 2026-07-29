@@ -1,0 +1,401 @@
+Starting Mini3 training...
+WANDB_ENTITY=ricardo_wzk-soochow-university
+WANDB_MODE=online
+WANDB_PROJECT=bfmzero-mini3
+WANDB_GROUP=mini3-isaacsim
+WANDB_RUN_NAME=mini3-20260728-110623
+WORK_DIR=results/bfmzero-mini3-gpu4
+ONLINE_PARALLEL_ENVS=1024
+NUM_ENV_STEPS=384000000
+warning: The `tool.uv.dev-dependencies` field (used in `pyproject.toml`) is deprecated and will be removed in a future release; use `dependency-groups.dev` instead
+/home/wzk/BFM-Zero/.venv/lib/python3.10/site-packages/wandb/sdk/internal/internal_api.py:13: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  from pkg_resources import parse_version
+Robot schema: name=mini3 dofs=21 bodies=24 state_dim=48 action_dim=21
+2026-07-28 11:06:27.248 | INFO     | humanoidverse.utils.helpers:pre_process_config:49 - obs_dims: {'base_lin_vel': 3, 'base_ang_vel': 3, 'projected_gravity': 3, 'dof_pos': 21, 'dof_vel': 21, 'actions': 21, 'max_local_self': 357}
+2026-07-28 11:06:27.250 | INFO     | humanoidverse.utils.helpers:pre_process_config:60 - auxiliary_obs_dims: {'history_actor': 276}
+2026-07-28 11:06:27.251 | INFO     | humanoidverse.utils.helpers:pre_process_config:67 - actor_obs: base_ang_vel has dim: 3
+2026-07-28 11:06:27.251 | INFO     | humanoidverse.utils.helpers:pre_process_config:67 - actor_obs: projected_gravity has dim: 3
+2026-07-28 11:06:27.252 | INFO     | humanoidverse.utils.helpers:pre_process_config:67 - actor_obs: dof_pos has dim: 21
+2026-07-28 11:06:27.253 | INFO     | humanoidverse.utils.helpers:pre_process_config:67 - actor_obs: dof_vel has dim: 21
+2026-07-28 11:06:27.253 | INFO     | humanoidverse.utils.helpers:pre_process_config:67 - actor_obs: actions has dim: 21
+2026-07-28 11:06:27.253 | INFO     | humanoidverse.utils.helpers:pre_process_config:70 - actor_obs: history_actor has dim: 276
+2026-07-28 11:06:27.254 | INFO     | humanoidverse.utils.helpers:pre_process_config:67 - actor_obs: max_local_self has dim: 357
+2026-07-28 11:06:27.255 | INFO     | humanoidverse.utils.helpers:pre_process_config:67 - critic_obs: max_local_self has dim: 357
+2026-07-28 11:06:27.255 | INFO     | humanoidverse.utils.helpers:pre_process_config:76 - algo_obs_dim_dict: {'actor_obs': 702, 'critic_obs': 357}
+[WARN][AppLauncher]: There are no arguments attached to the ArgumentParser object. If you have your own arguments, please load your own arguments before calling the `AppLauncher.add_app_launcher_args` method. This allows the method to check the validity of the arguments and perform checks for argument names.
+[INFO][AppLauncher]: Loading experience file: /home/wzk/BFM-Zero/.venv/lib/python3.10/site-packages/isaaclab/apps/isaaclab.python.headless.kit
+[Warning] [simulation_app.simulation_app] Modules: ['omni.kit_app'] were loaded before SimulationApp was started and might not be loaded correctly.
+[Warning] [simulation_app.simulation_app] Please check to make sure no extra omniverse or pxr modules are imported before the call to SimulationApp(...)
+Loading user config located at: '/home/wzk/BFM-Zero/.venv/lib/python3.10/site-packages/omni/data/Kit/Isaac-Sim/4.5/user.config.json'
+[Info] [carb] Logging to file: /home/wzk/BFM-Zero/.venv/lib/python3.10/site-packages/omni/logs/Kit/Isaac-Sim/4.5/kit_20260728_110627.log
+2026-07-28 03:06:27 [0ms] [Warning] [omni.kit.app.plugin] No crash reporter present, dumps uploading isn't available.
+2026-07-28 03:06:27 [207ms] [Warning] [omni.usd_config.extension] Enable omni.materialx.libs extension to use MaterialX
+2026-07-28 03:06:27 [412ms] [Warning] [omni.platforminfo.plugin] failed to open the default display.  Can't verify X Server version.
+2026-07-28 03:06:27 [412ms] [Warning] [omni.platforminfo.plugin] failed to load XRAndR.
+2026-07-28 03:06:27 [618ms] [Warning] [omni.datastore] OmniHub is inaccessible
+2026-07-28 03:06:28 [654ms] [Warning] [omni.isaac.dynamic_control] omni.isaac.dynamic_control is deprecated as of Isaac Sim 4.5. No action is needed from end-users.
+2026-07-28 03:06:29 [2,013ms] [Warning] [carb.cudainterop.plugin] CUDA_VISIBLE_DEVICES environment variable is set.
+2026-07-28 03:06:29 [2,013ms] [Warning] [carb.cudainterop.plugin] Note CUDA device enumeration and Omniverse device enumeration are different.
+2026-07-28 03:06:29 [2,013ms] [Warning] [carb.cudainterop.plugin] Setting CUDA_VISIBLE_DEVICES can lead to undesired behavior or crashes.
+2026-07-28 03:06:29 [2,015ms] [Warning] [gpu.foundation.plugin] Skipping NVIDIA GPU due CUDA being in bad state: NVIDIA GeForce RTX 4090
+2026-07-28 03:06:29 [2,015ms] [Warning] [gpu.foundation.plugin] Please restart your system if CUDA is known to work in your system.
+2026-07-28 03:06:29 [2,016ms] [Warning] [gpu.foundation.plugin] Skipping NVIDIA GPU due CUDA being in bad state: NVIDIA GeForce RTX 4090
+2026-07-28 03:06:29 [2,016ms] [Warning] [gpu.foundation.plugin] Please restart your system if CUDA is known to work in your system.
+2026-07-28 03:06:29 [2,017ms] [Warning] [gpu.foundation.plugin] Skipping NVIDIA GPU due CUDA being in bad state: NVIDIA GeForce RTX 4090
+2026-07-28 03:06:29 [2,017ms] [Warning] [gpu.foundation.plugin] Please restart your system if CUDA is known to work in your system.
+2026-07-28 03:06:29 [2,017ms] [Warning] [gpu.foundation.plugin] Skipping NVIDIA GPU due CUDA being in bad state: NVIDIA GeForce RTX 4090
+2026-07-28 03:06:29 [2,017ms] [Warning] [gpu.foundation.plugin] Please restart your system if CUDA is known to work in your system.
+2026-07-28 03:06:29 [2,019ms] [Warning] [gpu.foundation.plugin] Skipping NVIDIA GPU due CUDA being in bad state: NVIDIA GeForce RTX 4090
+2026-07-28 03:06:29 [2,019ms] [Warning] [gpu.foundation.plugin] Please restart your system if CUDA is known to work in your system.
+2026-07-28 03:06:29 [2,020ms] [Warning] [gpu.foundation.plugin] Skipping NVIDIA GPU due CUDA being in bad state: NVIDIA GeForce RTX 4090
+2026-07-28 03:06:29 [2,020ms] [Warning] [gpu.foundation.plugin] Please restart your system if CUDA is known to work in your system.
+2026-07-28 03:06:29 [2,021ms] [Warning] [gpu.foundation.plugin] Skipping NVIDIA GPU due CUDA being in bad state: NVIDIA GeForce RTX 4090
+2026-07-28 03:06:29 [2,021ms] [Warning] [gpu.foundation.plugin] Please restart your system if CUDA is known to work in your system.
+2026-07-28 03:06:29 [2,021ms] [Warning] [gpu.foundation.plugin] Skipping NVIDIA GPU due CUDA being in bad state: NVIDIA GeForce RTX 4090
+2026-07-28 03:06:29 [2,021ms] [Warning] [gpu.foundation.plugin] Please restart your system if CUDA is known to work in your system.
+2026-07-28 03:06:29 [2,021ms] [Warning] [gpu.foundation.plugin] Skipping NVIDIA GPU due CUDA being in bad state: NVIDIA GeForce RTX 4090
+2026-07-28 03:06:29 [2,021ms] [Warning] [gpu.foundation.plugin] Please restart your system if CUDA is known to work in your system.
+2026-07-28 03:06:29 [2,021ms] [Warning] [gpu.foundation.plugin] Skipping NVIDIA GPU due CUDA being in bad state: NVIDIA GeForce RTX 4090
+2026-07-28 03:06:29 [2,021ms] [Warning] [gpu.foundation.plugin] Please restart your system if CUDA is known to work in your system.
+2026-07-28 03:06:29 [2,021ms] [Warning] [gpu.foundation.plugin] Skipping NVIDIA GPU due CUDA being in bad state: NVIDIA GeForce RTX 4090
+2026-07-28 03:06:29 [2,021ms] [Warning] [gpu.foundation.plugin] Please restart your system if CUDA is known to work in your system.
+2026-07-28 03:06:29 [2,021ms] [Warning] [gpu.foundation.plugin] Skipping NVIDIA GPU due CUDA being in bad state: NVIDIA GeForce RTX 4090
+2026-07-28 03:06:29 [2,021ms] [Warning] [gpu.foundation.plugin] Please restart your system if CUDA is known to work in your system.
+2026-07-28 03:06:29 [2,021ms] [Warning] [gpu.foundation.plugin] Skipping NVIDIA GPU due CUDA being in bad state: NVIDIA GeForce RTX 4090
+2026-07-28 03:06:29 [2,021ms] [Warning] [gpu.foundation.plugin] Please restart your system if CUDA is known to work in your system.
+2026-07-28 03:06:29 [2,021ms] [Warning] [gpu.foundation.plugin] Skipping NVIDIA GPU due CUDA being in bad state: NVIDIA GeForce RTX 4090
+2026-07-28 03:06:29 [2,021ms] [Warning] [gpu.foundation.plugin] Please restart your system if CUDA is known to work in your system.
+
+|---------------------------------------------------------------------------------------------|
+| Driver Version: 580.126.09    | Graphics API: Vulkan
+|=============================================================================================|
+| GPU | Name                             | Active | LDA | GPU Memory | Vendor-ID | LUID       |
+|     |                                  |        |     |            | Device-ID | UUID       |
+|     |                                  |        |     |            | Bus-ID    |            |
+|---------------------------------------------------------------------------------------------|
+| 0   | NVIDIA GeForce RTX 4090          |        |     | 78826   MB | 10de      | 0          |
+|     |                                  |        |     |            | 2684      | b17aaba3.. |
+|     |                                  |        |     |            | 8         |            |
+|---------------------------------------------------------------------------------------------|
+| 1   | NVIDIA GeForce RTX 4090          |        |     | 78826   MB | 10de      | 0          |
+|     |                                  |        |     |            | 2684      | 68f466eb.. |
+|     |                                  |        |     |            | c         |            |
+|---------------------------------------------------------------------------------------------|
+| 2   | NVIDIA GeForce RTX 4090          |        |     | 78826   MB | 10de      | 0          |
+|     |                                  |        |     |            | 2684      | b78226f0.. |
+|     |                                  |        |     |            | 89        |            |
+|---------------------------------------------------------------------------------------------|
+| 3   | NVIDIA GeForce RTX 4090          |        |     | 78826   MB | 10de      | 0          |
+|     |                                  |        |     |            | 2684      | f06f9e3a.. |
+|     |                                  |        |     |            | 8a        |            |
+|---------------------------------------------------------------------------------------------|
+| 4   | NVIDIA GeForce RTX 4090          | Yes: 0 |     | 78826   MB | 10de      | 0          |
+|     |                                  |        |     |            | 2684      | ca3ace87.. |
+|     |                                  |        |     |            | 8         |            |
+|---------------------------------------------------------------------------------------------|
+| 5   | NVIDIA GeForce RTX 4090          |        |     | 78826   MB | 10de      | 0          |
+|     |                                  |        |     |            | 2684      | 1268b594.. |
+|     |                                  |        |     |            | c         |            |
+|---------------------------------------------------------------------------------------------|
+| 6   | NVIDIA GeForce RTX 4090          |        |     | 78826   MB | 10de      | 0          |
+|     |                                  |        |     |            | 2684      | bc3c3a1a.. |
+|     |                                  |        |     |            | 8c        |            |
+|---------------------------------------------------------------------------------------------|
+| 7   | NVIDIA GeForce RTX 4090          |        |     | 78826   MB | 10de      | 0          |
+|     |                                  |        |     |            | 2684      | 5342f46d.. |
+|     |                                  |        |     |            | 8d        |            |
+|=============================================================================================|
+| OS: 22.04.5 LTS (Jammy Jellyfish) ubuntu, Version: 22.04.5, Kernel: 5.15.0-179-generic
+| Processor: Intel(R) Xeon(R) Gold 6462C
+| Cores: 64 | Logical Cores: 128
+|---------------------------------------------------------------------------------------------|
+| Total Memory (MB): 1030663 | Free Memory: 990915
+| Total Page/Swap (MB): 0 | Free Page/Swap: 0
+|---------------------------------------------------------------------------------------------|
+2026-07-28 03:06:30 [2,700ms] [Warning] [gpu.foundation.plugin] ECC is enabled on physical device 4
+2026-07-28 11:06:30.314 | INFO     | humanoidverse.simulator.isaacsim.isaacsim:__init__:76 - IsaacSim initialized.
+2026-07-28 11:06:30.315 | INFO     | humanoidverse.simulator.isaacsim.isaacsim:__init__:78 - [INFO]: Base environment:
+2026-07-28 11:06:30.315 | INFO     | humanoidverse.simulator.isaacsim.isaacsim:__init__:79 - 	Environment device    : cuda:0
+2026-07-28 11:06:30.315 | INFO     | humanoidverse.simulator.isaacsim.isaacsim:__init__:80 - 	Physics step-size     : 0.002
+2026-07-28 11:06:30.315 | INFO     | humanoidverse.simulator.isaacsim.isaacsim:__init__:81 - 	Rendering step-size   : 0.002
+2026-07-28 11:06:30.315 | WARNING  | humanoidverse.simulator.isaacsim.isaacsim:__init__:90 - The render interval (4) is smaller than the decimation (10). Multiple render calls will happen for each environment step.If this is not intended, set the render interval to be equal to the decimation.
+key: hip_pitch, kp: 60.0, kd: 4.5
+key: hip_roll, kp: 55.0, kd: 2.8
+key: hip_yaw, kp: 25.0, kd: 1.1
+key: knee, kp: 60.0, kd: 4.5
+key: ankle_pitch, kp: 50.0, kd: 1.2
+key: ankle_roll, kp: 45.0, kd: 1.2
+key: hip_pitch, kp: 60.0, kd: 4.5
+key: hip_roll, kp: 55.0, kd: 2.8
+key: hip_yaw, kp: 25.0, kd: 1.1
+key: knee, kp: 60.0, kd: 4.5
+key: ankle_pitch, kp: 50.0, kd: 1.2
+key: ankle_roll, kp: 45.0, kd: 1.2
+key: waist_yaw, kp: 65.0, kd: 3.0
+key: shoulder_pitch, kp: 30.0, kd: 1.0
+key: shoulder_roll, kp: 25.0, kd: 2.0
+key: shoulder_yaw, kp: 30.0, kd: 1.0
+key: elbow, kp: 20.0, kd: 1.0
+key: shoulder_pitch, kp: 30.0, kd: 1.0
+key: shoulder_roll, kp: 25.0, kd: 2.0
+key: shoulder_yaw, kp: 30.0, kd: 1.0
+key: elbow, kp: 20.0, kd: 1.0
+2026-07-28 03:06:30 [2,954ms] [Warning] [carb.windowing-glfw.plugin] GLFW initialization failed.
+2026-07-28 03:06:30 [2,954ms] [Warning] [carb] Failed to startup plugin carb.windowing-glfw.plugin (interfaces: [carb::windowing::IGLContext v1.0],[carb::windowing::IWindowing v1.5]) (impl: carb.windowing-glfw.plugin)
+2026-07-28 03:06:30 [2,958ms] [Error] [gpu.foundation.plugin] DriverShaderCacheManager::init() called without a shutdown()!
+2026-07-28 03:06:30 [3,046ms] [Warning] [gpu.foundation.plugin] Skipping NVIDIA GPU due CUDA being in bad state: NVIDIA GeForce RTX 4090
+2026-07-28 03:06:30 [3,046ms] [Warning] [gpu.foundation.plugin] Please restart your system if CUDA is known to work in your system.
+2026-07-28 03:06:30 [3,047ms] [Warning] [gpu.foundation.plugin] Skipping NVIDIA GPU due CUDA being in bad state: NVIDIA GeForce RTX 4090
+2026-07-28 03:06:30 [3,047ms] [Warning] [gpu.foundation.plugin] Please restart your system if CUDA is known to work in your system.
+2026-07-28 03:06:30 [3,048ms] [Warning] [gpu.foundation.plugin] Skipping NVIDIA GPU due CUDA being in bad state: NVIDIA GeForce RTX 4090
+2026-07-28 03:06:30 [3,048ms] [Warning] [gpu.foundation.plugin] Please restart your system if CUDA is known to work in your system.
+2026-07-28 03:06:30 [3,049ms] [Warning] [gpu.foundation.plugin] Skipping NVIDIA GPU due CUDA being in bad state: NVIDIA GeForce RTX 4090
+2026-07-28 03:06:30 [3,049ms] [Warning] [gpu.foundation.plugin] Please restart your system if CUDA is known to work in your system.
+2026-07-28 03:06:30 [3,050ms] [Warning] [gpu.foundation.plugin] Skipping NVIDIA GPU due CUDA being in bad state: NVIDIA GeForce RTX 4090
+2026-07-28 03:06:30 [3,050ms] [Warning] [gpu.foundation.plugin] Please restart your system if CUDA is known to work in your system.
+2026-07-28 03:06:30 [3,051ms] [Warning] [gpu.foundation.plugin] Skipping NVIDIA GPU due CUDA being in bad state: NVIDIA GeForce RTX 4090
+2026-07-28 03:06:30 [3,051ms] [Warning] [gpu.foundation.plugin] Please restart your system if CUDA is known to work in your system.
+2026-07-28 03:06:30 [3,052ms] [Warning] [gpu.foundation.plugin] Skipping NVIDIA GPU due CUDA being in bad state: NVIDIA GeForce RTX 4090
+2026-07-28 03:06:30 [3,052ms] [Warning] [gpu.foundation.plugin] Please restart your system if CUDA is known to work in your system.
+2026-07-28 03:06:30 [3,052ms] [Warning] [gpu.foundation.plugin] Skipping NVIDIA GPU due CUDA being in bad state: NVIDIA GeForce RTX 4090
+2026-07-28 03:06:30 [3,052ms] [Warning] [gpu.foundation.plugin] Please restart your system if CUDA is known to work in your system.
+2026-07-28 03:06:30 [3,052ms] [Warning] [gpu.foundation.plugin] Skipping NVIDIA GPU due CUDA being in bad state: NVIDIA GeForce RTX 4090
+2026-07-28 03:06:30 [3,052ms] [Warning] [gpu.foundation.plugin] Please restart your system if CUDA is known to work in your system.
+2026-07-28 03:06:30 [3,052ms] [Warning] [gpu.foundation.plugin] Skipping NVIDIA GPU due CUDA being in bad state: NVIDIA GeForce RTX 4090
+2026-07-28 03:06:30 [3,052ms] [Warning] [gpu.foundation.plugin] Please restart your system if CUDA is known to work in your system.
+2026-07-28 03:06:30 [3,052ms] [Warning] [gpu.foundation.plugin] Skipping NVIDIA GPU due CUDA being in bad state: NVIDIA GeForce RTX 4090
+2026-07-28 03:06:30 [3,052ms] [Warning] [gpu.foundation.plugin] Please restart your system if CUDA is known to work in your system.
+2026-07-28 03:06:30 [3,052ms] [Warning] [gpu.foundation.plugin] Skipping NVIDIA GPU due CUDA being in bad state: NVIDIA GeForce RTX 4090
+2026-07-28 03:06:30 [3,052ms] [Warning] [gpu.foundation.plugin] Please restart your system if CUDA is known to work in your system.
+2026-07-28 03:06:30 [3,052ms] [Warning] [gpu.foundation.plugin] Skipping NVIDIA GPU due CUDA being in bad state: NVIDIA GeForce RTX 4090
+2026-07-28 03:06:30 [3,052ms] [Warning] [gpu.foundation.plugin] Please restart your system if CUDA is known to work in your system.
+2026-07-28 03:06:30 [3,052ms] [Warning] [gpu.foundation.plugin] Skipping NVIDIA GPU due CUDA being in bad state: NVIDIA GeForce RTX 4090
+2026-07-28 03:06:30 [3,052ms] [Warning] [gpu.foundation.plugin] Please restart your system if CUDA is known to work in your system.
+
+|---------------------------------------------------------------------------------------------|
+| Driver Version: 580.126.09    | Graphics API: Vulkan
+|=============================================================================================|
+| GPU | Name                             | Active | LDA | GPU Memory | Vendor-ID | LUID       |
+|     |                                  |        |     |            | Device-ID | UUID       |
+|     |                                  |        |     |            | Bus-ID    |            |
+|---------------------------------------------------------------------------------------------|
+| 0   | NVIDIA GeForce RTX 4090          |        |     | 78826   MB | 10de      | 0          |
+|     |                                  |        |     |            | 2684      | b17aaba3.. |
+|     |                                  |        |     |            | 8         |            |
+|---------------------------------------------------------------------------------------------|
+| 1   | NVIDIA GeForce RTX 4090          |        |     | 78826   MB | 10de      | 0          |
+|     |                                  |        |     |            | 2684      | 68f466eb.. |
+|     |                                  |        |     |            | c         |            |
+|---------------------------------------------------------------------------------------------|
+| 2   | NVIDIA GeForce RTX 4090          |        |     | 78826   MB | 10de      | 0          |
+|     |                                  |        |     |            | 2684      | b78226f0.. |
+|     |                                  |        |     |            | 89        |            |
+|---------------------------------------------------------------------------------------------|
+| 3   | NVIDIA GeForce RTX 4090          |        |     | 78826   MB | 10de      | 0          |
+|     |                                  |        |     |            | 2684      | f06f9e3a.. |
+|     |                                  |        |     |            | 8a        |            |
+|---------------------------------------------------------------------------------------------|
+| 4   | NVIDIA GeForce RTX 4090          | Yes: 0 |     | 78826   MB | 10de      | 0          |
+|     |                                  |        |     |            | 2684      | ca3ace87.. |
+|     |                                  |        |     |            | 8         |            |
+|---------------------------------------------------------------------------------------------|
+| 5   | NVIDIA GeForce RTX 4090          |        |     | 78826   MB | 10de      | 0          |
+|     |                                  |        |     |            | 2684      | 1268b594.. |
+|     |                                  |        |     |            | c         |            |
+|---------------------------------------------------------------------------------------------|
+| 6   | NVIDIA GeForce RTX 4090          |        |     | 78826   MB | 10de      | 0          |
+|     |                                  |        |     |            | 2684      | bc3c3a1a.. |
+|     |                                  |        |     |            | 8c        |            |
+|---------------------------------------------------------------------------------------------|
+| 7   | NVIDIA GeForce RTX 4090          |        |     | 78826   MB | 10de      | 0          |
+|     |                                  |        |     |            | 2684      | 5342f46d.. |
+|     |                                  |        |     |            | 8d        |            |
+|=============================================================================================|
+| OS: 22.04.5 LTS (Jammy Jellyfish) ubuntu, Version: 22.04.5, Kernel: 5.15.0-179-generic
+| Processor: Intel(R) Xeon(R) Gold 6462C
+| Cores: 64 | Logical Cores: 128
+|---------------------------------------------------------------------------------------------|
+| Total Memory (MB): 1030663 | Free Memory: 990735
+| Total Page/Swap (MB): 0 | Free Page/Swap: 0
+|---------------------------------------------------------------------------------------------|
+2026-07-28 03:06:31 [4,005ms] [Warning] [gpu.foundation.plugin] ECC is enabled on physical device 4
+2026-07-28 03:06:31 [4,371ms] [Warning] [carb.windowing-glfw.plugin] GLFW initialization failed.
+2026-07-28 03:06:31 [4,371ms] [Warning] [carb] Failed to startup plugin carb.windowing-glfw.plugin (interfaces: [carb::windowing::IGLContext v1.0],[carb::windowing::IWindowing v1.5]) (impl: carb.windowing-glfw.plugin)
+2026-07-28 03:06:31 [4,385ms] [Warning] [carb.windowing-glfw.plugin] GLFW initialization failed.
+2026-07-28 03:06:31 [4,385ms] [Warning] [carb] Failed to startup plugin carb.windowing-glfw.plugin (interfaces: [carb::windowing::IGLContext v1.0],[carb::windowing::IWindowing v1.5]) (impl: carb.windowing-glfw.plugin)
+2026-07-28 03:06:31 [4,394ms] [Warning] [carb.windowing-glfw.plugin] GLFW initialization failed.
+2026-07-28 03:06:31 [4,394ms] [Warning] [carb] Failed to startup plugin carb.windowing-glfw.plugin (interfaces: [carb::windowing::IGLContext v1.0],[carb::windowing::IWindowing v1.5]) (impl: carb.windowing-glfw.plugin)
+2026-07-28 03:06:31 [4,402ms] [Warning] [carb.windowing-glfw.plugin] GLFW initialization failed.
+2026-07-28 03:06:31 [4,402ms] [Warning] [carb] Failed to startup plugin carb.windowing-glfw.plugin (interfaces: [carb::windowing::IGLContext v1.0],[carb::windowing::IWindowing v1.5]) (impl: carb.windowing-glfw.plugin)
+2026-07-28 03:06:31 [4,404ms] [Warning] [carb.windowing-glfw.plugin] GLFW initialization failed.
+2026-07-28 03:06:31 [4,404ms] [Warning] [carb] Failed to startup plugin carb.windowing-glfw.plugin (interfaces: [carb::windowing::IGLContext v1.0],[carb::windowing::IWindowing v1.5]) (impl: carb.windowing-glfw.plugin)
+2026-07-28 03:06:31 [4,406ms] [Warning] [carb.windowing-glfw.plugin] GLFW initialization failed.
+2026-07-28 03:06:31 [4,406ms] [Warning] [carb] Failed to startup plugin carb.windowing-glfw.plugin (interfaces: [carb::windowing::IGLContext v1.0],[carb::windowing::IWindowing v1.5]) (impl: carb.windowing-glfw.plugin)
+2026-07-28 03:06:32 [4,714ms] [Warning] [omni.graph.visualization.nodes._impl.extension] No Viewport Window to add omni.graph.visualization.nodes-2.1.1 scene to
+2026-07-28 03:06:37 [9,873ms] [Warning] [omni.usd] Warning: in GetNodeDiscoveryResults at line 136 of /builds/omniverse/usd-ci/USD/pxr/usd/usdShade/shaderDefUtils.cpp -- Unable to resolve info:sourceAsset </UsdPreviewSurface.info:mdl:sourceAsset> with value @UsdPreviewSurface.mdl@.
+
+2026-07-28 03:06:37 [9,873ms] [Warning] [omni.usd] Warning: in GetNodeDiscoveryResults at line 136 of /builds/omniverse/usd-ci/USD/pxr/usd/usdShade/shaderDefUtils.cpp -- Unable to resolve info:sourceAsset </UsdUVTexture.info:mdl:sourceAsset> with value @UsdPreviewSurface.mdl@.
+
+2026-07-28 03:06:37 [9,873ms] [Warning] [omni.usd] Warning: in GetNodeDiscoveryResults at line 136 of /builds/omniverse/usd-ci/USD/pxr/usd/usdShade/shaderDefUtils.cpp -- Unable to resolve info:sourceAsset </UsdPrimvarReader_float.info:mdl:sourceAsset> with value @UsdPreviewSurface.mdl@.
+
+2026-07-28 03:06:37 [9,873ms] [Warning] [omni.usd] Warning: in GetNodeDiscoveryResults at line 136 of /builds/omniverse/usd-ci/USD/pxr/usd/usdShade/shaderDefUtils.cpp -- Unable to resolve info:sourceAsset </UsdPrimvarReader_float2.info:mdl:sourceAsset> with value @UsdPreviewSurface.mdl@.
+
+2026-07-28 03:06:37 [9,873ms] [Warning] [omni.usd] Warning: in GetNodeDiscoveryResults at line 136 of /builds/omniverse/usd-ci/USD/pxr/usd/usdShade/shaderDefUtils.cpp -- Unable to resolve info:sourceAsset </UsdPrimvarReader_float3.info:mdl:sourceAsset> with value @UsdPreviewSurface.mdl@.
+
+2026-07-28 03:06:37 [9,873ms] [Warning] [omni.usd] Warning: in GetNodeDiscoveryResults at line 136 of /builds/omniverse/usd-ci/USD/pxr/usd/usdShade/shaderDefUtils.cpp -- Unable to resolve info:sourceAsset </UsdPrimvarReader_float4.info:mdl:sourceAsset> with value @UsdPreviewSurface.mdl@.
+
+2026-07-28 03:06:37 [9,873ms] [Warning] [omni.usd] Warning: in GetNodeDiscoveryResults at line 136 of /builds/omniverse/usd-ci/USD/pxr/usd/usdShade/shaderDefUtils.cpp -- Unable to resolve info:sourceAsset </UsdPrimvarReader_int.info:mdl:sourceAsset> with value @UsdPreviewSurface.mdl@.
+
+2026-07-28 03:06:37 [9,873ms] [Warning] [omni.usd] Warning: in GetNodeDiscoveryResults at line 136 of /builds/omniverse/usd-ci/USD/pxr/usd/usdShade/shaderDefUtils.cpp -- Unable to resolve info:sourceAsset </UsdPrimvarReader_string.info:mdl:sourceAsset> with value @UsdPreviewSurface.mdl@.
+
+2026-07-28 03:06:37 [9,873ms] [Warning] [omni.usd] Warning: in GetNodeDiscoveryResults at line 136 of /builds/omniverse/usd-ci/USD/pxr/usd/usdShade/shaderDefUtils.cpp -- Unable to resolve info:sourceAsset </UsdPrimvarReader_normal.info:mdl:sourceAsset> with value @UsdPreviewSurface.mdl@.
+
+2026-07-28 03:06:37 [9,873ms] [Warning] [omni.usd] Warning: in GetNodeDiscoveryResults at line 136 of /builds/omniverse/usd-ci/USD/pxr/usd/usdShade/shaderDefUtils.cpp -- Unable to resolve info:sourceAsset </UsdPrimvarReader_point.info:mdl:sourceAsset> with value @UsdPreviewSurface.mdl@.
+
+2026-07-28 03:06:37 [9,873ms] [Warning] [omni.usd] Warning: in GetNodeDiscoveryResults at line 136 of /builds/omniverse/usd-ci/USD/pxr/usd/usdShade/shaderDefUtils.cpp -- Unable to resolve info:sourceAsset </UsdPrimvarReader_vector.info:mdl:sourceAsset> with value @UsdPreviewSurface.mdl@.
+
+2026-07-28 03:06:37 [9,873ms] [Warning] [omni.usd] Warning: in GetNodeDiscoveryResults at line 136 of /builds/omniverse/usd-ci/USD/pxr/usd/usdShade/shaderDefUtils.cpp -- Unable to resolve info:sourceAsset </UsdPrimvarReader_matrix.info:mdl:sourceAsset> with value @UsdPreviewSurface.mdl@.
+
+2026-07-28 03:06:37 [9,874ms] [Warning] [omni.usd] Warning: in GetNodeDiscoveryResults at line 136 of /builds/omniverse/usd-ci/USD/pxr/usd/usdShade/shaderDefUtils.cpp -- Unable to resolve info:sourceAsset </UsdTransform2d.info:mdl:sourceAsset> with value @UsdPreviewSurface.mdl@.
+
+[INFO]: Time taken for scene creation : 6.951289 seconds
+[INFO]: Scene manager:  <class InteractiveScene>
+	Number of environments: 1024
+	Environment spacing   : 5.0
+	Source prim name      : /World/envs/env_0
+	Global prim paths     : ['/World/ground']
+	Replicate physics     : True
+2026-07-28 11:06:37.267 | INFO     | humanoidverse.simulator.isaacsim.isaacsim:__init__:110 - Starting the simulation. This may take a few seconds. Please wait...
+[INFO]: Time taken for simulation start : 1.525805 seconds
+[INFO] Event Manager:  <EventManager> contains 2 active terms.
++---------------------------------------+
+| Active Event Terms in Mode: 'startup' |
++---------+-----------------------------+
+|  Index  | Name                        |
++---------+-----------------------------+
+|    0    | scale_body_mass             |
+|    1    | random_joint_friction       |
+|    2    | random_base_com             |
++---------+-----------------------------+
++--------------------------------------------------+
+| Active Event Terms in Mode: 'on_push_by_setting_velocity' |
++----------------+---------------------------------+
+|     Index      | Name                            |
++----------------+---------------------------------+
+|       0        | push_robots                     |
++----------------+---------------------------------+
+
+2026-07-28 11:06:38.865 | INFO     | humanoidverse.simulator.isaacsim.isaacsim:__init__:228 - Completed setting up the environment...
+2026-07-28 11:06:39.052 | WARNING  | humanoidverse.simulator.isaacsim.isaacsim:load_assets:520 - The order of the joint_names in the robot_config does not match the order of the joint_ids in IsaacSim.
+/home/wzk/BFM-Zero/.venv/lib/python3.10/site-packages/torch/functional.py:554: UserWarning: torch.meshgrid: in an upcoming release, it will be required to pass the indexing argument. (Triggered internally at /pytorch/aten/src/ATen/native/TensorShape.cpp:4314.)
+  return _VF.meshgrid(tensors, **kwargs)  # type: ignore[attr-defined]
+2026-07-28 11:06:39.268 | DEBUG    | humanoidverse.envs.legged_base_task.legged_robot_base:_init_buffers:85 - PD gain of joint left_hip_pitch_joint were defined, setting them to 60.0 and 4.5
+2026-07-28 11:06:39.269 | DEBUG    | humanoidverse.envs.legged_base_task.legged_robot_base:_init_buffers:85 - PD gain of joint left_hip_roll_joint were defined, setting them to 55.0 and 2.799999952316284
+2026-07-28 11:06:39.270 | DEBUG    | humanoidverse.envs.legged_base_task.legged_robot_base:_init_buffers:85 - PD gain of joint left_hip_yaw_joint were defined, setting them to 25.0 and 1.100000023841858
+2026-07-28 11:06:39.271 | DEBUG    | humanoidverse.envs.legged_base_task.legged_robot_base:_init_buffers:85 - PD gain of joint left_knee_pitch_joint were defined, setting them to 60.0 and 4.5
+2026-07-28 11:06:39.272 | DEBUG    | humanoidverse.envs.legged_base_task.legged_robot_base:_init_buffers:85 - PD gain of joint left_ankle_pitch_joint were defined, setting them to 50.0 and 1.2000000476837158
+2026-07-28 11:06:39.273 | DEBUG    | humanoidverse.envs.legged_base_task.legged_robot_base:_init_buffers:85 - PD gain of joint left_ankle_roll_joint were defined, setting them to 45.0 and 1.2000000476837158
+2026-07-28 11:06:39.274 | DEBUG    | humanoidverse.envs.legged_base_task.legged_robot_base:_init_buffers:85 - PD gain of joint right_hip_pitch_joint were defined, setting them to 60.0 and 4.5
+2026-07-28 11:06:39.275 | DEBUG    | humanoidverse.envs.legged_base_task.legged_robot_base:_init_buffers:85 - PD gain of joint right_hip_roll_joint were defined, setting them to 55.0 and 2.799999952316284
+2026-07-28 11:06:39.276 | DEBUG    | humanoidverse.envs.legged_base_task.legged_robot_base:_init_buffers:85 - PD gain of joint right_hip_yaw_joint were defined, setting them to 25.0 and 1.100000023841858
+2026-07-28 11:06:39.277 | DEBUG    | humanoidverse.envs.legged_base_task.legged_robot_base:_init_buffers:85 - PD gain of joint right_knee_pitch_joint were defined, setting them to 60.0 and 4.5
+2026-07-28 11:06:39.278 | DEBUG    | humanoidverse.envs.legged_base_task.legged_robot_base:_init_buffers:85 - PD gain of joint right_ankle_pitch_joint were defined, setting them to 50.0 and 1.2000000476837158
+2026-07-28 11:06:39.279 | DEBUG    | humanoidverse.envs.legged_base_task.legged_robot_base:_init_buffers:85 - PD gain of joint right_ankle_roll_joint were defined, setting them to 45.0 and 1.2000000476837158
+2026-07-28 11:06:39.280 | DEBUG    | humanoidverse.envs.legged_base_task.legged_robot_base:_init_buffers:85 - PD gain of joint waist_yaw_joint were defined, setting them to 65.0 and 3.0
+2026-07-28 11:06:39.281 | DEBUG    | humanoidverse.envs.legged_base_task.legged_robot_base:_init_buffers:85 - PD gain of joint left_shoulder_pitch_joint were defined, setting them to 30.0 and 1.0
+2026-07-28 11:06:39.282 | DEBUG    | humanoidverse.envs.legged_base_task.legged_robot_base:_init_buffers:85 - PD gain of joint left_shoulder_roll_joint were defined, setting them to 25.0 and 2.0
+2026-07-28 11:06:39.283 | DEBUG    | humanoidverse.envs.legged_base_task.legged_robot_base:_init_buffers:85 - PD gain of joint left_shoulder_yaw_joint were defined, setting them to 30.0 and 1.0
+2026-07-28 11:06:39.284 | DEBUG    | humanoidverse.envs.legged_base_task.legged_robot_base:_init_buffers:85 - PD gain of joint left_elbow_pitch_joint were defined, setting them to 20.0 and 1.0
+2026-07-28 11:06:39.285 | DEBUG    | humanoidverse.envs.legged_base_task.legged_robot_base:_init_buffers:85 - PD gain of joint right_shoulder_pitch_joint were defined, setting them to 30.0 and 1.0
+2026-07-28 11:06:39.286 | DEBUG    | humanoidverse.envs.legged_base_task.legged_robot_base:_init_buffers:85 - PD gain of joint right_shoulder_roll_joint were defined, setting them to 25.0 and 2.0
+2026-07-28 11:06:39.287 | DEBUG    | humanoidverse.envs.legged_base_task.legged_robot_base:_init_buffers:85 - PD gain of joint right_shoulder_yaw_joint were defined, setting them to 30.0 and 1.0
+2026-07-28 11:06:39.288 | DEBUG    | humanoidverse.envs.legged_base_task.legged_robot_base:_init_buffers:85 - PD gain of joint right_elbow_pitch_joint were defined, setting them to 20.0 and 1.0
+2026-07-28 11:06:39.301 | INFO     | humanoidverse.envs.legged_base_task.legged_robot_base:_prepare_reward_function:147 - Zhengyi set reward on 20250320
+2026-07-28 11:06:39.301 | INFO     | humanoidverse.envs.legged_base_task.legged_robot_base:_prepare_reward_function:152 - Scale: penalty_torques = -1e-06
+2026-07-28 11:06:39.301 | INFO     | humanoidverse.envs.legged_base_task.legged_robot_base:_prepare_reward_function:152 - Scale: penalty_undesired_contact = -1
+2026-07-28 11:06:39.301 | INFO     | humanoidverse.envs.legged_base_task.legged_robot_base:_prepare_reward_function:152 - Scale: penalty_action_rate = -0.5
+2026-07-28 11:06:39.301 | INFO     | humanoidverse.envs.legged_base_task.legged_robot_base:_prepare_reward_function:152 - Scale: penalty_ankle_roll = -0.5
+2026-07-28 11:06:39.301 | INFO     | humanoidverse.envs.legged_base_task.legged_robot_base:_prepare_reward_function:152 - Scale: penalty_feet_ori = -0.1
+2026-07-28 11:06:39.301 | INFO     | humanoidverse.envs.legged_base_task.legged_robot_base:_prepare_reward_function:152 - Scale: feet_heading_alignment = -0.1
+2026-07-28 11:06:39.301 | INFO     | humanoidverse.envs.legged_base_task.legged_robot_base:_prepare_reward_function:152 - Scale: penalty_slippage = -1.0
+2026-07-28 11:06:39.302 | INFO     | humanoidverse.envs.legged_base_task.legged_robot_base:_prepare_reward_function:152 - Scale: limits_dof_pos = -10.0
+2026-07-28 11:06:39.302 | INFO     | humanoidverse.envs.legged_base_task.legged_robot_base:_prepare_reward_function:152 - Scale: limits_dof_vel = -5.0
+2026-07-28 11:06:39.302 | INFO     | humanoidverse.envs.legged_base_task.legged_robot_base:_prepare_reward_function:152 - Scale: limits_torque = -5.0
+2026-07-28 11:06:39.302 | INFO     | humanoidverse.envs.legged_base_task.legged_robot_base:_prepare_reward_function:163 - Use Reward Penalty: True
+2026-07-28 11:06:39.302 | INFO     | humanoidverse.envs.legged_base_task.legged_robot_base:_prepare_reward_function:165 - Penalty Reward Names: ['penalty_torques', 'penalty_action_rate', 'limits_dof_pos', 'limits_torque', 'penalty_slippage', 'penalty_undesired_contact', 'penalty_ankle_roll', 'penalty_feet_ori']
+2026-07-28 11:06:39.303 | INFO     | humanoidverse.envs.legged_base_task.legged_robot_base:_prepare_reward_function:166 - Penalty Reward Initial Scale: 0.1
+2026-07-28 11:06:39.305 | INFO     | humanoidverse.envs.env_utils.history_handler:__init__:25 - History Handler Initialized
+2026-07-28 11:06:39.305 | INFO     | humanoidverse.envs.env_utils.history_handler:__init__:27 - Key: base_ang_vel, Value: 4
+2026-07-28 11:06:39.305 | INFO     | humanoidverse.envs.env_utils.history_handler:__init__:27 - Key: projected_gravity, Value: 4
+2026-07-28 11:06:39.305 | INFO     | humanoidverse.envs.env_utils.history_handler:__init__:27 - Key: dof_pos, Value: 4
+2026-07-28 11:06:39.305 | INFO     | humanoidverse.envs.env_utils.history_handler:__init__:27 - Key: dof_vel, Value: 4
+2026-07-28 11:06:39.305 | INFO     | humanoidverse.envs.env_utils.history_handler:__init__:27 - Key: actions, Value: 4
+2026-07-28 11:06:39.307 | INFO     | humanoidverse.utils.motion_lib.motion_lib_base:__init__:53 - Loaded skeleton from /home/wzk/BFM-Zero/humanoidverse/data/robots/mini3/mjcf/mini3.xml
+2026-07-28 11:06:39.307 | INFO     | humanoidverse.utils.motion_lib.motion_lib_base:__init__:54 - Loading motion data from /home/wzk/BFM-Zero/humanoidverse/data/lafan1_mini3...
+2026-07-28 11:06:39.309 | INFO     | humanoidverse.utils.motion_lib.motion_lib_base:load_data:92 - Loaded 77 motions
+Loading Meshes ... ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100% 0:00:01
+Loading Geoms... ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100% 0:00:00
+2026-07-28 11:06:40.528 | INFO     | humanoidverse.utils.motion_lib.motion_lib_base:load_motions:387 - Loading 77 motions...
+2026-07-28 11:06:40.530 | INFO     | humanoidverse.utils.motion_lib.motion_lib_base:load_motions:388 - Sampling motion: tensor([0, 1, 2, 3, 4, 5, 6, 7, 8, 9], device='cuda:0'), ....
+2026-07-28 11:06:40.530 | INFO     | humanoidverse.utils.motion_lib.motion_lib_base:load_motions:389 - Current motion keys: ['/home/wzk/BFM-Zero/humanoidverse/data/lafan1_mini3/fight1_subject5.pkl', '/home/wzk/BFM-Zero/humanoidverse/data/lafan1_mini3/pushAndFall1_subject1.pkl', '/home/wzk/BFM-Zero/humanoidverse/data/lafan1_mini3/obstacles4_subject3.pkl', '/home/wzk/BFM-Zero/humanoidverse/data/lafan1_mini3/obstacles4_subject2.pkl', '/home/wzk/BFM-Zero/humanoidverse/data/lafan1_mini3/jumps1_subject5.pkl', '/home/wzk/BFM-Zero/humanoidverse/data/lafan1_mini3/obstacles2_subject5.pkl', '/home/wzk/BFM-Zero/humanoidverse/data/lafan1_mini3/ground1_subject4.pkl', '/home/wzk/BFM-Zero/humanoidverse/data/lafan1_mini3/dance2_subject2.pkl', '/home/wzk/BFM-Zero/humanoidverse/data/lafan1_mini3/walk3_subject2.pkl', '/home/wzk/BFM-Zero/humanoidverse/data/lafan1_mini3/fightAndSports1_subject4.pkl'], ....
+Loading motions... ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100% 0:00:00
+Gathering results... ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━   
+Processing motions... ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100% 0:00:00
+2026-07-28 11:06:41.248 | INFO     | humanoidverse.utils.motion_lib.motion_lib_base:load_motions:487 - Loaded 77 motions with a total length of 767.434s and 23100 frames.
+Resolved spaces: state=48, action=21, privileged_state=358
+Workdir: results/bfmzero-mini3-gpu4
+compile True
+compiling with mode 'reduce-overhead'
+cudagraphs False
+wandb: Currently logged in as: ricardo_wzk (ricardo_wzk-soochow-university). Use `wandb login --relogin` to force relogin
+/home/wzk/BFM-Zero/.venv/lib/python3.10/site-packages/wandb/util.py:247: DeprecationWarning: The `Scope.user` setter is deprecated in favor of `Scope.set_user()`.
+  scope.user = {"email": s.email}
+/home/wzk/BFM-Zero/.venv/lib/python3.10/site-packages/wandb/sdk/internal/internal_api.py:13: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  from pkg_resources import parse_version
+/home/wzk/BFM-Zero/.venv/lib/python3.10/site-packages/wandb/util.py:247: DeprecationWarning: The `Scope.user` setter is deprecated in favor of `Scope.set_user()`.
+  scope.user = {"email": s.email}
+wandb: wandb version 0.28.1 is available!  To upgrade, please run:
+wandb:  $ pip install wandb --upgrade
+wandb: Tracking run with wandb version 0.12.21
+wandb: Run data is saved locally in results/bfmzero-mini3-gpu4/_wandb/wandb/run-20260728_110647-1vwyjfhw
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run mini3-20260728-110623
+wandb: ⭐️ View project at https://wandb.ai/ricardo_wzk-soochow-university/bfmzero-mini3
+wandb: 🚀 View run at https://wandb.ai/ricardo_wzk-soochow-university/bfmzero-mini3/runs/1vwyjfhw
+All motions already loaded!!! No need to resample.
+2026-07-28 11:06:53.480 | INFO     | humanoidverse.envs.env_utils.history_handler:__init__:25 - History Handler Initialized
+2026-07-28 11:06:53.480 | INFO     | humanoidverse.envs.env_utils.history_handler:__init__:27 - Key: base_ang_vel, Value: 4
+2026-07-28 11:06:53.480 | INFO     | humanoidverse.envs.env_utils.history_handler:__init__:27 - Key: projected_gravity, Value: 4
+2026-07-28 11:06:53.480 | INFO     | humanoidverse.envs.env_utils.history_handler:__init__:27 - Key: dof_pos, Value: 4
+2026-07-28 11:06:53.480 | INFO     | humanoidverse.envs.env_utils.history_handler:__init__:27 - Key: dof_vel, Value: 4
+2026-07-28 11:06:53.480 | INFO     | humanoidverse.envs.env_utils.history_handler:__init__:27 - Key: actions, Value: 4
+Creating the training environment
+Allocating buffers
+Starting training
+Starting evaluation at time 0
+/home/wzk/BFM-Zero/humanoidverse/agents/evaluations/humanoidverse_isaac.py:495: UserWarning: To copy construct from a tensor, it is recommended to use sourceTensor.detach().clone() or sourceTensor.detach().clone().requires_grad_(True), rather than torch.tensor(sourceTensor).
+  tracking_target = torch.tensor(ep["tracking_target"]["state"][:, :pose_dim], dtype=torch.float32)
+/home/wzk/BFM-Zero/humanoidverse/agents/evaluations/humanoidverse_isaac.py:495: UserWarning: To copy construct from a tensor, it is recommended to use sourceTensor.detach().clone() or sourceTensor.detach().clone().requires_grad_(True), rather than torch.tensor(sourceTensor).
+  tracking_target = torch.tensor(ep["tracking_target"]["state"][:, :pose_dim], dtype=torch.float32)
+All motions already loaded!!! No need to resample.
+All motions already loaded!!! No need to resample.
+/home/wzk/BFM-Zero/.venv/lib/python3.10/site-packages/torch/autograd/graph.py:824: UserWarning: Attempting to run cuBLAS, but there was no current CUDA context! Attempting to set the primary context... (Triggered internally at /pytorch/aten/src/ATen/cuda/CublasHandlePool.cpp:181.)
+  return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+W0728 11:07:43.839000 2533443 .venv/lib/python3.10/site-packages/torch/_logging/_internal.py:1130] [6/0] Profiler function <class 'torch.autograd.profiler.record_function'> will be ignored
+                    {'B': 0.001398, 'B_norm': 16.0, 'F1': -0.029016, 'M1': 9.327146, 'Q1': -44.15852, 'Q_aux': -23.840559, 'Q_discriminator': -44.093174, 'Q_fb': 155.15535, 'actor_loss': 474.491974, 'auxQ1': -23.437244, 'aux_critic_loss': 0.868317, 'aux_rew/limits_dof_pos': 0.194794, 'aux_rew/limits_torque': 18.026318, 'aux_rew/penalty_action_rate': 488.876556, 'aux_rew/penalty_ankle_roll': 0.062259, 'aux_rew/penalty_feet_ori': 0.731497, 'aux_rew/penalty_slippage': 1.825449, 'aux_rew/penalty_torques': 8927.706055, 'aux_rew/penalty_undesired_contact': 0.676127, 'critic_loss': 2.503973, 'disc_expert_loss': 0.031957, 'disc_loss': 0.181442, 'disc_train_loss': 0.038619, 'disc_wgan_gp_loss': 0.011087, 'fb_diag': -251.454132, 'fb_loss': 1512.304199, 'fb_offdiag': 643.632324, 'mean_aux_reward': -1.343107, 'mean_disc_reward': -3.941694, 'mean_next_Q': -40.779324, 'mean_next_auxQ': -22.33123, 'orth_loss': 11.201258, 'orth_loss_diag': -255.999985, 'orth_loss_offdiag': 267.200775, 'q_loss': 0.0, 'target_M': 8.927575, 'target_Q': -44.162716, 'target_auxQ': -23.43948, 'unc_Q': 0.52521, 'unc_auxQ': 0.432269, 'z_norm': 16.000008, 'duration [minutes]': 16.262934319178264, 'FPS': 393.5329167848936}
+{'B': 0.001375, 'B_norm': 16.0, 'F1': 0.14355, 'M1': 37.615921, 'Q1': -127.389595, 'Q_aux': -37.927032, 'Q_discriminator': -127.069954, 'Q_fb': 409.606628, 'actor_loss': 2641.544922, 'auxQ1': -37.565708, 'aux_critic_loss': 1.615587, 'aux_rew/limits_dof_pos': 0.229007, 'aux_rew/limits_torque': 17.745987, 'aux_rew/penalty_action_rate': 198.483536, 'aux_rew/penalty_ankle_roll': 0.062419, 'aux_rew/penalty_feet_ori': 0.770646, 'aux_rew/penalty_slippage': 1.191259, 'aux_rew/penalty_torques': 8873.227539, 'aux_rew/penalty_undesired_contact': 0.850789, 'critic_loss': 6.260294, 'disc_expert_loss': 0.008777, 'disc_loss': 0.060598, 'disc_train_loss': 0.009107, 'disc_wgan_gp_loss': 0.004271, 'fb_diag': -243.734604, 'fb_loss': -7743.666504, 'fb_offdiag': 1168.299683, 'mean_aux_reward': -0.890785, 'mean_disc_reward': -5.08225, 'mean_next_Q': -124.322845, 'mean_next_auxQ': -37.158417, 'orth_loss': -86.682304, 'orth_loss_diag': -255.999969, 'orth_loss_offdiag': 169.317215, 'q_loss': 0.0, 'target_M': 37.415791, 'target_Q': -127.394112, 'target_auxQ': -37.566952, 'unc_Q': 0.970291, 'unc_auxQ': 0.532588, 'z_norm': 16.000002, 'duration [minutes]': 31.244697713851927, 'FPS': 427.25796293138535}
+{'B': 0.001221, 'B_norm': 16.0, 'F1': 0.376823, 'M1': 45.508423, 'Q1': -183.845352, 'Q_aux': -42.807613, 'Q_discriminator': -183.495667, 'Q_fb': 509.000397, 'actor_loss': 4721.397461, 'auxQ1': -42.285175, 'aux_critic_loss': 3.909418, 'aux_rew/limits_dof_pos': 0.23101, 'aux_rew/limits_torque': 17.479597, 'aux_rew/penalty_action_rate': 147.606949, 'aux_rew/penalty_ankle_roll': 0.063079, 'aux_rew/penalty_feet_ori': 0.800788, 'aux_rew/penalty_slippage': 0.933688, 'aux_rew/penalty_torques': 8787.805664, 'aux_rew/penalty_undesired_contact': 0.887307, 'critic_loss': 6.218674, 'disc_expert_loss': 0.006817, 'disc_loss': 0.043219, 'disc_train_loss': 0.007077, 'disc_wgan_gp_loss': 0.002932, 'fb_diag': -261.288239, 'fb_loss': -9965.775391, 'fb_offdiag': 1163.200806, 'mean_aux_reward': -0.801661, 'mean_disc_reward': -5.488878, 'mean_next_Q': -181.483078, 'mean_next_auxQ': -41.975471, 'orth_loss': -108.676895, 'orth_loss_diag': -255.999969, 'orth_loss_offdiag': 147.322586, 'q_loss': 0.0, 'target_M': 45.459068, 'target_Q': -183.848297, 'target_auxQ': -42.286243, 'unc_Q': 1.031871, 'unc_auxQ': 0.711484, 'z_norm': 16.000002, 'duration [minutes]': 46.2428316950798, 'FPS': 426.7938239406917}
+{'B': 0.001803, 'B_norm': 16.0, 'F1': 0.269924, 'M1': 46.35611, 'Q1': -221.631729, 'Q_aux': -43.982185, 'Q_discriminator': -221.413559, 'Q_fb': 569.360046, 'actor_loss': 6374.587402, 'auxQ1': -43.505486, 'aux_critic_loss': 3.147555, 'aux_rew/limits_dof_pos': 0.227677, 'aux_rew/limits_torque': 17.138502, 'aux_rew/penalty_action_rate': 114.1577, 'aux_rew/penalty_ankle_roll': 0.062714, 'aux_rew/penalty_feet_ori': 0.84377, 'aux_rew/penalty_slippage': 0.79163, 'aux_rew/penalty_torques': 8665.388672, 'aux_rew/penalty_undesired_contact': 0.92248, 'critic_loss': 4.97294, 'disc_expert_loss': 0.00505, 'disc_loss': 0.032732, 'disc_train_loss': 0.005274, 'disc_wgan_gp_loss': 0.002241, 'fb_diag': -279.413696, 'fb_loss': -11195.727539, 'fb_offdiag': 1250.062744, 'mean_aux_reward': -0.751412, 'mean_disc_reward': -5.838926, 'mean_next_Q': -219.718185, 'mean_next_auxQ': -43.257072, 'orth_loss': -121.663528, 'orth_loss_diag': -255.999969, 'orth_loss_offdiag': 134.335876, 'q_loss': 0.0, 'target_M': 46.309135, 'target_Q': -221.633942, 'target_auxQ': -43.505764, 'unc_Q': 0.961342, 'unc_auxQ': 0.739778, 'z_norm': 15.999993, 'duration [minutes]': 61.300121140480044, 'FPS': 425.1208469037978}
+{'B': 0.002745, 'B_norm': 16.0, 'F1': 0.273417, 'M1': 47.78828, 'Q1': -246.979919, 'Q_aux': -45.225235, 'Q_discriminator': -246.797577, 'Q_fb': 642.554138, 'actor_loss': 8021.151855, 'auxQ1': -44.751682, 'aux_critic_loss': 2.548771, 'aux_rew/limits_dof_pos': 0.21162, 'aux_rew/limits_torque': 17.004629, 'aux_rew/penalty_action_rate': 100.453918, 'aux_rew/penalty_ankle_roll': 0.062976, 'aux_rew/penalty_feet_ori': 0.796736, 'aux_rew/penalty_slippage': 0.756847, 'aux_rew/penalty_torques': 8617.967773, 'aux_rew/penalty_undesired_contact': 0.909418, 'critic_loss': 4.716794, 'disc_expert_loss': 0.006069, 'disc_loss': 0.033144, 'disc_train_loss': 0.006368, 'disc_wgan_gp_loss': 0.002071, 'fb_diag': -289.365906, 'fb_loss': -11303.702148, 'fb_offdiag': 1412.48645, 'mean_aux_reward': -0.745879, 'mean_disc_reward': -5.842294, 'mean_next_Q': -245.573273, 'mean_next_auxQ': -44.545341, 'orth_loss': -124.268242, 'orth_loss_diag': -255.999969, 'orth_loss_offdiag': 131.731201, 'q_loss': 0.0, 'target_M': 47.747467, 'target_Q': -246.980911, 'target_auxQ': -44.751942, 'unc_Q': 0.97296, 'unc_auxQ': 0.717274, 'z_norm': 16.000008, 'duration [minutes]': 76.34952682654063, 'FPS': 425.3388911984323}
+{'B': 0.003365, 'B_norm': 16.0, 'F1': 0.265167, 'M1': 48.983498, 'Q1': -266.149841, 'Q_aux': -44.930061, 'Q_discriminator': -265.959564, 'Q_fb': 683.307495, 'actor_loss': 9187.064453, 'auxQ1': -44.505489, 'aux_critic_loss': 1.803904, 'aux_rew/limits_dof_pos': 0.209104, 'aux_rew/limits_torque': 16.847969, 'aux_rew/penalty_action_rate': 88.781044, 'aux_rew/penalty_ankle_roll': 0.062812, 'aux_rew/penalty_feet_ori': 0.810171, 'aux_rew/penalty_slippage': 0.698848, 'aux_rew/penalty_torques': 8561.716797, 'aux_rew/penalty_undesired_contact': 0.915749, 'critic_loss': 4.229041, 'disc_expert_loss': 0.005402, 'disc_loss': 0.028608, 'disc_train_loss': 0.005677, 'disc_wgan_gp_loss': 0.001753, 'fb_diag': -296.609039, 'fb_loss': -11410.639648, 'fb_offdiag': 1488.949341, 'mean_aux_reward': -0.731195, 'mean_disc_reward': -6.028903, 'mean_next_Q': -264.941956, 'mean_next_auxQ': -44.320827, 'orth_loss': -126.029488, 'orth_loss_diag': -255.999969, 'orth_loss_offdiag': 129.969894, 'q_loss': 0.0, 'target_M': 48.938087, 'target_Q': -266.150574, 'target_auxQ': -44.505547, 'unc_Q': 0.977418, 'unc_auxQ': 0.693784, 'z_norm': 15.999994, 'duration [minutes]': 91.40229500134787, 'FPS': 425.2464889200353}
+{'B': 0.003897, 'B_norm': 16.0, 'F1': 0.259866, 'M1': 50.269035, 'Q1': -280.395203, 'Q_aux': -44.379761, 'Q_discriminator': -280.18924, 'Q_fb': 703.643494, 'actor_loss': 9971.918945, 'auxQ1': -43.974358, 'aux_critic_loss': 1.60808, 'aux_rew/limits_dof_pos': 0.205604, 'aux_rew/limits_torque': 16.730999, 'aux_rew/penalty_action_rate': 79.825676, 'aux_rew/penalty_ankle_roll': 0.062421, 'aux_rew/penalty_feet_ori': 0.834083, 'aux_rew/penalty_slippage': 0.65054, 'aux_rew/penalty_torques': 8519.091797, 'aux_rew/penalty_undesired_contact': 0.920259, 'critic_loss': 4.489589, 'disc_expert_loss': 0.004717, 'disc_loss': 0.024793, 'disc_train_loss': 0.004973, 'disc_wgan_gp_loss': 0.00151, 'fb_diag': -303.12796, 'fb_loss': -11447.124023, 'fb_offdiag': 1531.3396, 'mean_aux_reward': -0.721216, 'mean_disc_reward': -6.2092, 'mean_next_Q': -279.27478, 'mean_next_auxQ': -43.79134, 'orth_loss': -126.753281, 'orth_loss_diag': -255.999969, 'orth_loss_offdiag': 129.246201, 'q_loss': 0.0, 'target_M': 50.226982, 'target_Q': -280.395996, 'target_auxQ': -43.974472, 'unc_Q': 1.01396, 'unc_auxQ': 0.68913, 'z_norm': 16.000002, 'duration [minutes]': 106.4769983569781, 'FPS': 424.62878341517893}
+{'B': 0.004043, 'B_norm': 16.0, 'F1': 0.218575, 'M1': 51.886318, 'Q1': -291.809357, 'Q_aux': -43.954922, 'Q_discriminator': -291.622864, 'Q_fb': 724.096985, 'actor_loss': 10677.012695, 'auxQ1': -43.551208, 'aux_critic_loss': 1.530461, 'aux_rew/limits_dof_pos': 0.20359, 'aux_rew/limits_torque': 16.61307, 'aux_rew/penalty_action_rate': 70.754089, 'aux_rew/penalty_ankle_roll': 0.061661, 'aux_rew/penalty_feet_ori': 0.870081, 'aux_rew/penalty_slippage': 0.599308, 'aux_rew/penalty_torques': 8477.665039, 'aux_rew/penalty_undesired_contact': 0.934916, 'critic_loss': 4.465384, 'disc_expert_loss': 0.004002, 'disc_loss': 0.021107, 'disc_train_loss': 0.004239, 'disc_wgan_gp_loss': 0.001287, 'fb_diag': -308.330933, 'fb_loss': -11458.394531, 'fb_offdiag': 1617.950806, 'mean_aux_reward': -0.706629, 'mean_disc_reward': -6.429521, 'mean_next_Q': -290.695801, 'mean_next_auxQ': -43.37645, 'orth_loss': -127.680153, 'orth_loss_diag': -255.999969, 'orth_loss_offdiag': 128.31926, 'q_loss': 0.0, 'target_M': 51.859016, 'target_Q': -291.809692, 'target_auxQ': -43.551384, 'unc_Q': 1.017587, 'unc_auxQ': 0.685263, 'z_norm': 15.999984, 'duration [minutes]': 121.51538778940836, 'FPS': 425.65361694079564}
+{'B': 0.004319, 'B_norm': 16.0, 'F1': 0.161629, 'M1': 52.006985, 'Q1': -298.843781, 'Q_aux': -45.01712, 'Q_discriminator': -298.673706, 'Q_fb': 757.914001, 'actor_loss': 11443.138672, 'auxQ1': -44.59129, 'aux_critic_loss': 1.60471, 'aux_rew/limits_dof_pos': 0.194567, 'aux_rew/limits_torque': 16.519251, 'aux_rew/penalty_action_rate': 67.518005, 'aux_rew/penalty_ankle_roll': 0.06111, 'aux_rew/penalty_feet_ori': 0.844144, 'aux_rew/penalty_slippage': 0.599415, 'aux_rew/penalty_torques': 8440.072266, 'aux_rew/penalty_undesired_contact': 0.915299, 'critic_loss': 5.231843, 'disc_expert_loss': 0.004292, 'disc_loss': 0.020731, 'disc_train_loss': 0.004513, 'disc_wgan_gp_loss': 0.001193, 'fb_diag': -311.652985, 'fb_loss': -11351.050781, 'fb_offdiag': 1663.022095, 'mean_aux_reward': -0.715865, 'mean_disc_reward': -6.402147, 'mean_next_Q': -297.867462, 'mean_next_auxQ': -44.416092, 'orth_loss': -127.023964, 'orth_loss_diag': -255.999969, 'orth_loss_offdiag': 128.975571, 'q_loss': 0.0, 'target_M': 51.971355, 'target_Q': -298.843384, 'target_auxQ': -44.591301, 'unc_Q': 1.084113, 'unc_auxQ': 0.709333, 'z_norm': 16.000002, 'duration [minutes]': 136.56872613430022, 'FPS': 425.23101368689106}
+{'B': 0.004435, 'B_norm': 16.0, 'F1': 0.156265, 'M1': 52.234032, 'Q1': -307.236237, 'Q_aux': -45.646957, 'Q_discriminator': -307.084869, 'Q_fb': 786.088074, 'actor_loss': 12199.851562, 'auxQ1': -45.219318, 'aux_critic_loss': 1.608026, 'aux_rew/limits_dof_pos': 0.190582, 'aux_rew/limits_torque': 16.411026, 'aux_rew/penalty_action_rate': 63.368977, 'aux_rew/penalty_ankle_roll': 0.060915, 'aux_rew/penalty_feet_ori': 0.850866, 'aux_rew/penalty_slippage': 0.577588, 'aux_rew/penalty_torques': 8398.78418, 'aux_rew/penalty_undesired_contact': 0.918304, 'critic_loss': 5.188776, 'disc_expert_loss': 0.004021, 'disc_loss': 0.018677, 'disc_train_loss': 0.004246, 'disc_wgan_gp_loss': 0.001041, 'fb_diag': -317.515961, 'fb_loss': -11386.074219, 'fb_offdiag': 1659.482178, 'mean_aux_reward': -0.710492, 'mean_disc_reward': -6.522363, 'mean_next_Q': -306.309631, 'mean_next_auxQ': -45.055405, 'orth_loss': -127.280479, 'orth_loss_diag': -255.999969, 'orth_loss_offdiag': 128.718887, 'q_loss': 0.0, 'target_M': 52.191662, 'target_Q': -307.235718, 'target_auxQ': -45.219418, 'unc_Q': 1.083638, 'unc_auxQ': 0.723656, 'z_norm': 15.99999, 'duration [minutes]': 151.60323689778645, 'FPS': 425.7658502927288}
+{'B': 0.004554, 'B_norm': 16.0, 'F1': 0.137832, 'M1': 52.877281, 'Q1': -314.751526, 'Q_aux': -45.95718, 'Q_discriminator': -314.623474, 'Q_fb': 814.159912, 'actor_loss': 12944.744141, 'auxQ1': -45.547329, 'aux_critic_loss': 1.535488, 'aux_rew/limits_dof_pos': 0.186507, 'aux_rew/limits_torque': 16.306347, 'aux_rew/penalty_action_rate': 59.174416, 'aux_rew/penalty_ankle_roll': 0.060666, 'aux_rew/penalty_feet_ori': 0.859941, 'aux_rew/penalty_slippage': 0.555345, 'aux_rew/penalty_torques': 8358.737305, 'aux_rew/penalty_undesired_contact': 0.920956, 'critic_loss': 5.466659, 'disc_expert_loss': 0.003727, 'disc_loss': 0.016755, 'disc_train_loss': 0.003944, 'disc_wgan_gp_loss': 0.000908, 'fb_diag': -322.958984, 'fb_loss': -11398.460938, 'fb_offdiag': 1664.397705, 'mean_aux_reward': -0.707074, 'mean_disc_reward': -6.639712, 'mean_next_Q': -313.852173, 'mean_next_auxQ': -45.393932, 'orth_loss': -127.398727, 'orth_loss_diag': -255.999969, 'orth_loss_offdiag': 128.600647, 'q_loss': 0.0, 'target_M': 52.839062, 'target_Q': -314.751404, 'target_auxQ': -45.547344, 'unc_Q': 1.096092, 'unc_auxQ': 0.722869, 'z_norm': 15.99999, 'duration [minutes]': 166.63326524098713, 'FPS': 425.88477898413487}
+{'B': 0.004617, 'B_norm': 16.0, 'F1': 0.124622, 'M1': 53.501972, 'Q1': -321.247406, 'Q_aux': -45.951401, 'Q_discriminator': -321.124176, 'Q_fb': 844.65155, 'actor_loss': 13697.858398, 'auxQ1': -45.54343, 'aux_critic_loss': 1.489352, 'aux_rew/limits_dof_pos': 0.183398, 'aux_rew/limits_torque': 16.214907, 'aux_rew/penalty_action_rate': 54.859921, 'aux_rew/penalty_ankle_roll': 0.060527, 'aux_rew/penalty_feet_ori': 0.869492, 'aux_rew/penalty_slippage': 0.529508, 'aux_rew/penalty_torques': 8324.599609, 'aux_rew/penalty_undesired_contact': 0.928844, 'critic_loss': 5.197379, 'disc_expert_loss': 0.00342, 'disc_loss': 0.014951, 'disc_train_loss': 0.003635, 'disc_wgan_gp_loss': 0.00079, 'fb_diag': -327.06781, 'fb_loss': -11400.43457, 'fb_offdiag': 1708.871826, 'mean_aux_reward': -0.699744, 'mean_disc_reward': -6.770973, 'mean_next_Q': -320.353821, 'mean_next_auxQ': -45.399982, 'orth_loss': -127.822258, 'orth_loss_diag': -255.999969, 'orth_loss_offdiag': 128.177155, 'q_loss': 0.0, 'target_M': 53.469166, 'target_Q': -321.247131, 'target_auxQ': -45.543457, 'unc_Q': 1.080642, 'unc_auxQ': 0.717838, 'z_norm': 15.999989, 'duration [minutes]': 181.725783598423, 'FPS': 424.132693118777}
+{'B': 0.00486, 'B_norm': 16.0, 'F1': 0.187435, 'M1': 52.634186, 'Q1': -324.771271, 'Q_aux': -46.781868, 'Q_discriminator': -324.658234, 'Q_fb': 875.072327, 'actor_loss': 14349.842773, 'auxQ1': -46.363514, 'aux_critic_loss': 1.495311, 'aux_rew/limits_dof_pos': 0.17555, 'aux_rew/limits_torque': 16.105392, 'aux_rew/penalty_action_rate': 53.423, 'aux_rew/penalty_ankle_roll': 0.060888, 'aux_rew/penalty_feet_ori': 0.852065, 'aux_rew/penalty_slippage': 0.534637, 'aux_rew/penalty_torques': 8282.969727, 'aux_rew/penalty_undesired_contact': 0.913713, 'critic_loss': 5.93634, 'disc_expert_loss': 0.00367, 'disc_loss': 0.01474, 'disc_train_loss': 0.003882, 'disc_wgan_gp_loss': 0.000719, 'fb_diag': -330.348999, 'fb_loss': -11357.307617, 'fb_offdiag': 1720.497803, 'mean_aux_reward': -0.705493, 'mean_disc_reward': -6.746798, 'mean_next_Q': -323.957733, 'mean_next_auxQ': -46.228504, 'orth_loss': -127.474915, 'orth_loss_diag': -255.999969, 'orth_loss_offdiag': 128.524597, 'q_loss': 0.0, 'target_M': 52.579479, 'target_Q': -324.771423, 'target_auxQ': -46.363548, 'unc_Q': 1.11406, 'unc_auxQ': 0.722712, 'z_norm': 15.999987, 'duration [minutes]': 197.37298121849696, 'FPS': 409.10529342741506}
+{'B': 0.004969, 'B_norm': 16.0, 'F1': 0.268879, 'M1': 52.221642, 'Q1': -330.706604, 'Q_aux': -48.105057, 'Q_discriminator': -330.65155, 'Q_fb': 887.425049, 'actor_loss': 14849.861328, 'auxQ1': -47.655083, 'aux_critic_loss': 1.562864, 'aux_rew/limits_dof_pos': 0.173869, 'aux_rew/limits_torque': 16.014843, 'aux_rew/penalty_action_rate': 45.226421, 'aux_rew/penalty_ankle_roll': 0.06087, 'aux_rew/penalty_feet_ori': 0.853819, 'aux_rew/penalty_slippage': 0.50549, 'aux_rew/penalty_torques': 8248.880859, 'aux_rew/penalty_undesired_contact': 0.916846, 'critic_loss': 5.989823, 'disc_expert_loss': 0.003339, 'disc_loss': 0.01308, 'disc_train_loss': 0.003527, 'disc_wgan_gp_loss': 0.000621, 'fb_diag': -333.714661, 'fb_loss': -11397.517578, 'fb_offdiag': 1690.876099, 'mean_aux_reward': -0.839822, 'mean_disc_reward': -6.865551, 'mean_next_Q': -329.894806, 'mean_next_auxQ': -47.404079, 'orth_loss': -127.546822, 'orth_loss_diag': -256.0, 'orth_loss_offdiag': 128.452652, 'q_loss': 0.0, 'target_M': 52.153305, 'target_Q': -330.707092, 'target_auxQ': -47.655453, 'unc_Q': 1.110659, 'unc_auxQ': 0.733613, 'z_norm': 15.999987, 'duration [minutes]': 212.62254203955334, 'FPS': 419.78581909744605}
+{'B': 0.0049, 'B_norm': 16.0, 'F1': 0.239471, 'M1': 53.008629, 'Q1': -338.01059, 'Q_aux': -55.026978, 'Q_discriminator': -338.030151, 'Q_fb': 895.699646, 'actor_loss': 15479.014648, 'auxQ1': -54.581394, 'aux_critic_loss': 2.123924, 'aux_rew/limits_dof_pos': 0.169021, 'aux_rew/limits_torque': 15.851565, 'aux_rew/penalty_action_rate': 32.304314, 'aux_rew/penalty_ankle_roll': 0.060575, 'aux_rew/penalty_feet_ori': 0.861942, 'aux_rew/penalty_slippage': 0.443317, 'aux_rew/penalty_torques': 8188.212402, 'aux_rew/penalty_undesired_contact': 0.923227, 'critic_loss': 8.103824, 'disc_expert_loss': 0.003003, 'disc_loss': 0.011547, 'disc_train_loss': 0.00316, 'disc_wgan_gp_loss': 0.000538, 'fb_diag': -337.596283, 'fb_loss': -11330.657227, 'fb_offdiag': 1735.473511, 'mean_aux_reward': -1.118194, 'mean_disc_reward': -6.968932, 'mean_next_Q': -337.240906, 'mean_next_auxQ': -54.154568, 'orth_loss': -127.285217, 'orth_loss_diag': -255.999969, 'orth_loss_offdiag': 128.714264, 'q_loss': 0.0, 'target_M': 52.951813, 'target_Q': -338.011505, 'target_auxQ': -54.581795, 'unc_Q': 1.114324, 'unc_auxQ': 0.800164, 'z_norm': 15.999987, 'duration [minutes]': 227.78093922535578, 'FPS': 422.2833282405456}
+{'B': 0.0049, 'B_norm': 16.0, 'F1': 0.213564, 'M1': 53.528614, 'Q1': -343.057678, 'Q_aux': -61.507114, 'Q_discriminator': -343.080353, 'Q_fb': 915.674561, 'actor_loss': 16175.751953, 'auxQ1': -61.073376, 'aux_critic_loss': 2.341279, 'aux_rew/limits_dof_pos': 0.159149, 'aux_rew/limits_torque': 15.657013, 'aux_rew/penalty_action_rate': 27.572279, 'aux_rew/penalty_ankle_roll': 0.060392, 'aux_rew/penalty_feet_ori': 0.866578, 'aux_rew/penalty_slippage': 0.409098, 'aux_rew/penalty_torques': 8114.194336, 'aux_rew/penalty_undesired_contact': 0.927814, 'critic_loss': 7.559809, 'disc_expert_loss': 0.002776, 'disc_loss': 0.010395, 'disc_train_loss': 0.002919, 'disc_wgan_gp_loss': 0.00047, 'fb_diag': -342.072571, 'fb_loss': -11357.994141, 'fb_offdiag': 1749.417847, 'mean_aux_reward': -1.17692, 'mean_disc_reward': -7.038875, 'mean_next_Q': -342.33963, 'mean_next_auxQ': -60.704453, 'orth_loss': -127.653427, 'orth_loss_diag': -255.999969, 'orth_loss_offdiag': 128.345932, 'q_loss': 0.0, 'target_M': 53.476063, 'target_Q': -343.057281, 'target_auxQ': -61.073483, 'unc_Q': 1.073993, 'unc_auxQ': 0.829294, 'z_norm': 15.999993, 'duration [minutes]': 242.92183697621027, 'FPS': 422.7695111064625}
+{'B': 0.004902, 'B_norm': 16.0, 'F1': 0.307792, 'M1': 53.319031, 'Q1': -344.538055, 'Q_aux': -67.418587, 'Q_discriminator': -344.59317, 'Q_fb': 940.618408, 'actor_loss': 16792.429688, 'auxQ1': -66.949013, 'aux_critic_loss': 2.530276, 'aux_rew/limits_dof_pos': 0.147208, 'aux_rew/limits_torque': 15.457212, 'aux_rew/penalty_action_rate': 24.768726, 'aux_rew/penalty_ankle_roll': 0.060011, 'aux_rew/penalty_feet_ori': 0.850563, 'aux_rew/penalty_slippage': 0.411614, 'aux_rew/penalty_torques': 8033.088379, 'aux_rew/penalty_undesired_contact': 0.90781, 'critic_loss': 7.043567, 'disc_expert_loss': 0.002986, 'disc_loss': 0.01043, 'disc_train_loss': 0.003133, 'disc_wgan_gp_loss': 0.000431, 'fb_diag': -345.628174, 'fb_loss': -11362.185547, 'fb_offdiag': 1721.569092, 'mean_aux_reward': -1.275239, 'mean_disc_reward': -7.01143, 'mean_next_Q': -343.861053, 'mean_next_auxQ': -66.573563, 'orth_loss': -127.381226, 'orth_loss_diag': -255.999969, 'orth_loss_offdiag': 128.618286, 'q_loss': 0.0, 'target_M': 53.259235, 'target_Q': -344.538757, 'target_auxQ': -66.949326, 'unc_Q': 1.109531, 'unc_auxQ': 0.88137, 'z_norm': 15.99999, 'duration [minutes]': 258.09155172109604, 'FPS': 421.972190588342}

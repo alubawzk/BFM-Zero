@@ -1,0 +1,8 @@
+warning: The `tool.uv.dev-dependencies` field (used in `pyproject.toml`) is deprecated and will be removed in a future release; use `dependency-groups.dev` instead
+/home/wzk/BFM-Zero/.venv/lib/python3.10/site-packages/wandb/sdk/internal/internal_api.py:13: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  from pkg_resources import parse_version
+╭─ Unrecognized options ────────────────────────────────────────╮
+│ Unrecognized options: --use-tensorboard --tensorboard-log-dir │
+│ ───────────────────────────────────────────────────────────── │
+│ For full helptext, run train.py --help                        │
+╰───────────────────────────────────────────────────────────────╯
