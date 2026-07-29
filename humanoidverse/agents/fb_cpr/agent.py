@@ -35,6 +35,22 @@ def replace_state_with_clean_state(
     return discriminator_obs
 
 
+def transition_discount(
+    train_batch: dict,
+    discount: float,
+    device: str | torch.device,
+) -> torch.Tensor:
+    """Return a discount mask using flags attached to the sampled transition."""
+    transition = train_batch if "terminated" in train_batch else train_batch["next"]
+    terminated = transition["terminated"].to(device=device, dtype=torch.bool)
+    truncated = transition.get("truncated")
+    if truncated is None:
+        truncated = torch.zeros_like(terminated)
+    else:
+        truncated = truncated.to(device=device, dtype=torch.bool)
+    return discount * ~torch.logical_or(terminated, truncated)
+
+
 class FBcprAgentTrainConfig(FBAgentTrainConfig):
     lr_discriminator: float = 1e-4
     lr_critic: float = 1e-4
@@ -194,7 +210,7 @@ class FBcprAgent(FBAgent):
             tree_map(lambda x: x.to(self.device), train_batch["next"]["observation"]),
         )
         clean_train_state = train_batch["clean_state"].to(self.device)
-        discount = self.cfg.train.discount * ~train_batch["next"]["terminated"].to(self.device)
+        discount = transition_discount(train_batch, self.cfg.train.discount, self.device)
         expert_obs, expert_next_obs = (
             tree_map(lambda x: x.to(self.device), expert_batch["observation"]),
             tree_map(lambda x: x.to(self.device), expert_batch["next"]["observation"]),

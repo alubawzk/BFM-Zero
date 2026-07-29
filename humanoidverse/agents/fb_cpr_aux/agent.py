@@ -13,7 +13,7 @@ from torch.amp import autocast
 from torch.utils._pytree import tree_map
 
 from ..base import BaseConfig
-from ..fb_cpr.agent import FBcprAgent, FBcprAgentTrainConfig, replace_state_with_clean_state
+from ..fb_cpr.agent import FBcprAgent, FBcprAgentTrainConfig, replace_state_with_clean_state, transition_discount
 from ..nn_models import _soft_update_params, eval_mode
 from .model import FBcprAuxModelConfig
 
@@ -90,7 +90,7 @@ class FBcprAuxAgent(FBcprAgent):
             tree_map(lambda x: x.to(self.device), train_batch["next"]["observation"]),
         )
         clean_train_state = train_batch["clean_state"].to(self.device)
-        discount = self.cfg.train.discount * ~train_batch["next"]["terminated"].to(self.device)
+        discount = transition_discount(train_batch, self.cfg.train.discount, self.device)
         expert_obs, expert_next_obs = (
             tree_map(lambda x: x.to(self.device), expert_batch["observation"]),
             tree_map(lambda x: x.to(self.device), expert_batch["next"]["observation"]),

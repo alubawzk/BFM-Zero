@@ -239,9 +239,10 @@ agent update 中执行以下逻辑：
 clean_state + privileged_state → discriminator 与 discriminator reward
 ```
 
-`clean_state` 使用与普通 `state` 相同的 BatchNorm running statistics 进行归一化。加载没有 `clean_state` 的旧 replay buffer 时，训练会保留 agent checkpoint，但在内存中创建一个新的空 replay buffer，确保判别器不会回退到带噪 policy observation。
+`clean_state` 使用与普通 `state` 相同的 BatchNorm running statistics 进行归一化。加载没有 `clean_state`、或者仍使用旧 autoreset
+边界格式的 replay buffer 时，训练会保留 agent checkpoint，但在内存中创建一个新的空 replay buffer。
 
-## 4. 中风险问题：DOF position 的 reference 不一致
+## 4. 已修复：DOF position 的 reference 不一致
 
 Policy 的 `dof_pos` 为：
 
@@ -265,13 +266,19 @@ Expert 则只减去 nominal default pose：
 ref_dof_pos = motion_res["dof_pos"] - env.default_dof_pos[0]
 ```
 
-因此 expert/policy 的 `dof_pos` 最多可能存在约 `±0.02 rad` 的系统偏移。该差异不大，但仍可能成为判别器的数据来源特征。
+因此旧实现中 expert/policy 的 `dof_pos` 最多可能存在约 `±0.02 rad` 的系统偏移。该差异不大，但仍可能成为判别器的数据来源特征。
 
-建议为判别器单独定义统一 reference convention，或者在构造 expert batch 时采样与 policy 同分布的 default pose offset。
+现在 actor、F/B 和 critic 的 observation 语义保持不变；判别器专用的 `clean_state` 则直接使用：
 
-## 5. 中风险问题：`max_local_self` 静态维度少算一维
+```python
+(simulator.dof_pos - default_dof_pos) * obs_scales.dof_pos
+```
 
-当前配置为：
+这样 policy discriminator observation 与 expert 都以 nominal default pose 为 reference。
+
+## 5. 已修复：`max_local_self` 静态维度少算一维
+
+原配置为：
 
 ```yaml
 max_local_self: ${eval:'(3 + 6 + 3 + 3) * (${robot.num_bodies} + ${robot.motion.nums_extend_bodies}) + 1 - 3 - 1'}
@@ -289,13 +296,13 @@ local angular velocity     24 × 3     = 72
 total                                  358
 ```
 
-当前公式计算结果是 357。正确形式应去掉最后的 `- 1`：
+原公式计算结果是 357。当前配置已经去掉最后的 `- 1`：
 
 ```yaml
 max_local_self: ${eval:'(3 + 6 + 3 + 3) * (${robot.num_bodies} + ${robot.motion.nums_extend_bodies}) + 1 - 3'}
 ```
 
-当前训练没有立刻因此失败，是因为 `HumanoidVerseVectorEnv` 根据实际 tensor 动态构造了 observation space，模型最终得到的是 358 维。
+旧训练没有立刻因此失败，是因为 `HumanoidVerseVectorEnv` 根据实际 tensor 动态构造了 observation space，模型最终得到的是 358 维。
 
 但是底层 `BaseTask` 根据静态配置声明的 Gym observation space 仍然少一维，可能影响：
 
@@ -303,6 +310,11 @@ max_local_self: ${eval:'(3 + 6 + 3 + 3) * (${robot.num_bodies} + ${robot.motion.
 - 依赖 `single_observation_space` 的其他算法；
 - 后续测试或导出工具；
 - 新增严格 shape validation 后的兼容性。
+
+本轮还修复了两项 replay/rollout 问题：
+
+- autoreset 不提供真实 `final_observation` 时，将边界行作为轨迹 endpoint，不再构造“终止前状态 → reset 状态”的伪 transition；
+- expert rollout 环境改用 `torch.randperm` 无放回抽样，使 50% 配置恰好覆盖 50% 的不同环境。
 
 ## 6. 中风险问题：`aux_critic` 配置被忽略
 
@@ -426,12 +438,13 @@ discriminator policy logits mean/std
 
 1. 已完成：对齐 expert/policy `base_ang_vel` 的坐标系和 scale；
 2. 已完成：判别器使用无噪声 policy/expert observation；
-3. 对齐 `default_dof_pos_offset` 的 reference convention；
-4. 修复 `max_local_self` 的 357/358 静态维度；
-5. 修复 `aux_critic` 配置未生效的问题；
-6. 增加 feature dimension、dtype 和统计分布检查；
-7. 使用小规模配置跑过初始化、首次 evaluation、buffer sampling 和至少一次完整 agent update；
-8. 最后再启动 384M steps 的完整训练。
+3. 已完成：对齐 `default_dof_pos_offset` 的 reference convention；
+4. 已完成：修复 `max_local_self` 的 357/358 静态维度；
+5. 已完成：修复 autoreset transition 与 expert rollout 重复抽样；
+6. 修复 `aux_critic` 配置未生效的问题；
+7. 增加 feature dimension、dtype 和统计分布检查；
+8. 使用小规模配置跑过初始化、首次 evaluation、buffer sampling 和至少一次完整 agent update；
+9. 最后再启动 384M steps 的完整训练。
 
 ## 11. 涉及的主要文件
 

@@ -179,6 +179,32 @@ class TrajectoryDictBufferMultiDim(DictBuffer):
         super().extend(data)
         self._recompute_start_stop = True
 
+    def _refresh_trajectory_metadata(self) -> None:
+        if not self._recompute_start_stop:
+            return
+        done = get_key(self.storage, self.end_key)
+        self.start_idx, self.stop_idx, self.lengths = find_start_stop_traj(
+            done.squeeze()[: len(self)], at_capacity=self._is_full, cursor=self._idx - 1
+        )
+        self._recompute_start_stop = False
+
+    def can_sample(self, batch_size: int = 1, seq_length: int | None = None) -> bool:
+        seq_length = seq_length or self.seq_length
+        if batch_size < seq_length:
+            raise ValueError(
+                f"The batch-size must be bigger than the sequence length, got batch_size={batch_size} and seq_length={seq_length}."
+            )
+        if batch_size % seq_length != 0:
+            raise ValueError(
+                f"The batch-size must be divisible by the sequence length, got batch_size={batch_size} and seq_length={seq_length}."
+            )
+        if self.storage is None or self.empty():
+            return False
+
+        self._refresh_trajectory_metadata()
+        offset = int(len(self.output_key_tp1) > 0)
+        return bool(torch.any(self.lengths >= (seq_length + offset)).item())
+
     def sample(self, batch_size: int = 1, seq_length: int | None = None):
         seq_length = seq_length or self.seq_length
         if batch_size < seq_length:
@@ -191,12 +217,7 @@ class TrajectoryDictBufferMultiDim(DictBuffer):
                 f"The batch-size must be divisible by the sequence length, got batch_size={batch_size} and seq_length={seq_length}."
             )
 
-        if self._recompute_start_stop:
-            done = get_key(self.storage, self.end_key)
-            self.start_idx, self.stop_idx, self.lengths = find_start_stop_traj(
-                done.squeeze()[: len(self)], at_capacity=self._is_full, cursor=self._idx - 1
-            )
-            self._recompute_start_stop = False
+        self._refresh_trajectory_metadata()
 
         output, offset = {}, 0
         if len(self.output_key_tp1) > 0:
@@ -226,12 +247,7 @@ class TrajectoryDictBufferMultiDim(DictBuffer):
     def get_full_buffer(self) -> Dict:
         """We assume to return transition based"""
 
-        if self._recompute_start_stop:
-            done = get_key(self.storage, self.end_key)
-            self.start_idx, self.stop_idx, self.lengths = find_start_stop_traj(
-                done.squeeze()[: len(self)], at_capacity=self._is_full, cursor=self._idx - 1
-            )
-            self._recompute_start_stop = False
+        self._refresh_trajectory_metadata()
 
         output, offset = {}, 0
         if len(self.output_key_tp1) > 0:
@@ -260,8 +276,8 @@ def get_idxs(seq_length, num_slices, lengths, start_idx, storage_length, priorit
         traj_idx = torch.multinomial(priorities, num_slices, replacement=True)
     else:
         traj_idx = torch.randint(lengths.shape[0], (num_slices,), device=lengths.device)
-    end_point = lengths[traj_idx] - seq_length - 1
-    relative_starts = (torch.rand(num_slices, device=lengths.device) * end_point).floor().to(start_idx.dtype)
+    num_valid_starts = lengths[traj_idx] - seq_length
+    relative_starts = (torch.rand(num_slices, device=lengths.device) * num_valid_starts).floor().to(start_idx.dtype)
     starts = torch.cat(
         [
             (start_idx[traj_idx, 0] + relative_starts).unsqueeze(1),

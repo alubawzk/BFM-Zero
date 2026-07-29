@@ -64,6 +64,11 @@ class DictBuffer:
     def empty(self) -> bool:
         return len(self) == 0
 
+    def can_sample(self, batch_size: int = 1) -> bool:
+        if batch_size < 1:
+            raise ValueError(f"batch_size must be positive, got {batch_size}.")
+        return not self.empty()
+
     def _ndim(self) -> int:
         return 1
 

@@ -457,9 +457,12 @@ class HumanoidVerseVectorEnv(VectorEnv):
     def _get_clean_policy_state(self, to_numpy: bool = True):
         """Return the noise-free policy state consumed by the discriminator."""
         raw_obs = self._env.obs_buf_dict_raw["clean_policy_obs"]
+        nominal_dof_pos = (self._env.simulator.dof_pos - self._env.default_dof_pos) * float(
+            self._env.config.obs.obs_scales.dof_pos
+        )
         clean_state = torch.cat(
             [
-                raw_obs["dof_pos"],
+                nominal_dof_pos,
                 raw_obs["dof_vel"],
                 raw_obs["projected_gravity"],
                 raw_obs["base_ang_vel"],

@@ -355,7 +355,17 @@ class Workspace:
 
         def make_train_buffer():
             if self.cfg.use_trajectory_buffer:
-                output_key_t = ["observation", "clean_state", "action", "z", "terminated", "truncated", "step_count", "reward"]
+                output_key_t = [
+                    "observation",
+                    "clean_state",
+                    "action",
+                    "z",
+                    "terminated",
+                    "truncated",
+                    "done",
+                    "step_count",
+                    "reward",
+                ]
                 # TODO this interface should be more elegant (how to inform buffer what keys are coming in / need to be sampled?)
                 if isinstance(self.cfg.agent, FBcprAuxAgentConfig):
                     output_key_t.append("aux_rewards")
@@ -364,9 +374,9 @@ class Workspace:
                     capacity=self.cfg.buffer_size // self.cfg.online_parallel_envs,  # make sure to divide by num_envs
                     device=self.cfg.buffer_device,
                     n_dim=2,
-                    end_key="truncated",
+                    end_key="done",
                     output_key_t=output_key_t,  # TODO(team): fix this. in principle we could avoid to sample qpos, qvel for training but we need them for reward evaluation
-                    output_key_tp1=["observation", "terminated"],
+                    output_key_tp1=["observation"],
                 )
             return DictBuffer(capacity=self.cfg.buffer_size, device=self.cfg.buffer_device)
 
@@ -376,10 +386,17 @@ class Workspace:
                 replay_buffer["train"] = TrajectoryDictBufferMultiDim.load(checkpoint_dir / "buffers/train", device=self.cfg.buffer_device)
             else:
                 replay_buffer["train"] = DictBuffer.load(checkpoint_dir / "buffers/train", device=self.cfg.buffer_device)
+            incompatible_buffer_reasons = []
             if "clean_state" not in replay_buffer["train"].storage:
+                incompatible_buffer_reasons.append("missing clean_state")
+            if self.cfg.use_trajectory_buffer and (
+                replay_buffer["train"].end_key != "done" or "done" not in replay_buffer["train"].storage
+            ):
+                incompatible_buffer_reasons.append("uses the old autoreset boundary schema")
+            if incompatible_buffer_reasons:
                 print(
-                    "Checkpointed replay buffer has no clean_state. Starting with an empty replay buffer "
-                    "so the discriminator never consumes noisy policy observations."
+                    f"Checkpointed replay buffer is incompatible ({', '.join(incompatible_buffer_reasons)}). "
+                    "Starting with an empty replay buffer."
                 )
                 replay_buffer["train"] = make_train_buffer()
             else:
@@ -393,9 +410,6 @@ class Workspace:
         progb = tqdm(total=self.cfg.num_env_steps, disable=self.cfg.disable_tqdm)
         td, info = train_env.reset()
         # see https://farama.org/Vector-Autoreset-Mode
-        terminated = np.zeros(self.cfg.online_parallel_envs, dtype=bool)
-        truncated = np.zeros(self.cfg.online_parallel_envs, dtype=bool)
-        done = np.zeros(self.cfg.online_parallel_envs, dtype=bool)
         total_metrics, context = None, None
         start_time = time.time()
         fps_start_time = time.time()
@@ -421,9 +435,6 @@ class Workspace:
                 if uses_humanoidverse_eval:
                     # reset if there is a humanoidverse evaluation
                     td, info = train_env.reset()
-                    terminated = np.zeros(self.cfg.online_parallel_envs, dtype=bool)
-                    truncated = np.zeros(self.cfg.online_parallel_envs, dtype=bool)
-                    done = np.zeros(self.cfg.online_parallel_envs, dtype=bool)
 
                 if self.cfg.prioritization:
                     assert len(eval_metrics[self.priorization_eval_name]) == len(replay_buffer["expert_slicer"].motion_ids), (
@@ -507,16 +518,19 @@ class Workspace:
                     # make sure we set truncated since at the next iteration we are forced to reset the environment
                     # after the evaluation. This is because we share the environment with the evaluation
                     new_truncated = np.ones_like(new_truncated, dtype=bool)
-                    truncated = np.ones_like(new_truncated, dtype=bool)
 
             if Version(gymnasium.__version__) >= Version("1.0"):
+                new_terminated = np.asarray(new_terminated, dtype=bool).reshape(-1)
+                new_truncated = np.asarray(new_truncated, dtype=bool).reshape(-1)
+                new_done = np.logical_or(new_terminated, new_truncated)
                 if self.cfg.use_trajectory_buffer:
                     data = {
                         "observation": tree_map(lambda x: x[None, ...], obs),
                         "clean_state": info["clean_state"][None, ...],
                         "action": action[None, ...],
-                        "terminated": terminated[None, ..., None],
-                        "truncated": truncated[None, ..., None],
+                        "terminated": new_terminated[None, ..., None],
+                        "truncated": new_truncated[None, ..., None],
+                        "done": new_done[None, ..., None],
                         "step_count": step_count[None, ..., None],
                         "reward": new_reward[None, ..., None],
                     }
@@ -532,9 +546,9 @@ class Workspace:
                     if "aux_rewards" in new_info:
                         data["aux_rewards"] = {k: v[None, ..., None] for k, v in new_info["aux_rewards"].items() if not k.startswith("_")}
                 else:
-                    # We add only transitions corresponding to environments that have not reset in the previous step.
-                    # For environments that have reset in the previous step, the new observation corresponds to the state after reset.
-                    indexes = ~done
+                    # Autoreset hides the final observation. Drop boundary transitions instead of connecting
+                    # the pre-reset state to an unrelated reset observation.
+                    indexes = ~new_done
 
                     real_next_obs = tree_map(lambda x: x.astype(np.float32 if x.dtype == np.float64 else x.dtype)[indexes], new_td)
                     # TODO again, we need to remove "time" from the observation (to stay consistent with obs_space)
@@ -572,7 +586,11 @@ class Workspace:
                 raise NotImplementedError("still some work to do for gymnasium < 1.0")
             replay_buffer["train"].extend(data)
 
-            if len(replay_buffer["train"]) > 0 and t > self.cfg.num_seed_steps and update_agent_time_checker.check(t):
+            if (
+                t > self.cfg.num_seed_steps
+                and update_agent_time_checker.check(t)
+                and replay_buffer["train"].can_sample(self.cfg.agent.train.batch_size)
+            ):
                 update_agent_time_checker.update_last_step(t)
                 for _ in range(self.cfg.num_agent_updates):
                     metrics = self.agent.update(replay_buffer, t)
@@ -606,9 +624,6 @@ class Workspace:
 
             progb.update(self.cfg.online_parallel_envs)
             td = new_td
-            terminated = new_terminated
-            truncated = new_truncated
-            done = np.logical_or(new_terminated.ravel(), new_truncated.ravel())
             info = new_info
         train_env.close()
         if self._tensorboard is not None:

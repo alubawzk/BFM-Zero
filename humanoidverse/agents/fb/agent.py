@@ -59,6 +59,21 @@ class FBAgentConfig(BaseConfig):
         return FBAgent
 
 
+def sample_unique_env_indices(
+    num_envs: int,
+    percentage: float,
+    device: str | torch.device,
+) -> torch.Tensor:
+    """Sample the configured fraction of environments without replacement."""
+    if num_envs < 0:
+        raise ValueError(f"num_envs must be non-negative, got {num_envs}.")
+    if not 0.0 <= percentage <= 1.0:
+        raise ValueError(f"rollout_expert_trajectories_percentage must be in [0, 1], got {percentage}.")
+
+    num_selected = int(percentage * num_envs)
+    return torch.randperm(num_envs, device=device)[:num_selected]
+
+
 class FBAgent:
     config_class = FBAgentConfig
 
@@ -74,6 +89,7 @@ class FBAgent:
         self._model.to(self.device)
 
         self.env_idx_with_expert_rollout = None
+        self.tracking_z = None
 
     @property
     def device(self):
@@ -352,6 +368,22 @@ class FBAgent:
             z[:, step] = z[:, step:end_idx].mean(dim=1)
         return self._model.project_z(z)  # N x T x z_dim
 
+    def _refresh_expert_rollout(self, replay_buffer, num_envs: int) -> None:
+        self.env_idx_with_expert_rollout = sample_unique_env_indices(
+            num_envs=num_envs,
+            percentage=self.cfg.train.rollout_expert_trajectories_percentage,
+            device=self._model.device,
+        )
+        if self.env_idx_with_expert_rollout.numel() == 0:
+            self.tracking_z = None
+            return
+
+        self.tracking_z = self._sample_tracking_z(
+            replay_buffer,
+            self.env_idx_with_expert_rollout.numel(),
+            self.cfg.train.rollout_expert_trajectories_length,
+        )
+
     def maybe_update_rollout_context(self, z: torch.Tensor | None, step_count: torch.Tensor, replay_buffer: None = None) -> torch.Tensor:
         # get mask for environmets where we need to change z
         if z is not None:
@@ -364,18 +396,17 @@ class FBAgent:
             if self.cfg.train.rollout_expert_trajectories:
                 idxs = step_count % self.cfg.train.rollout_expert_trajectories_length
                 if torch.any(idxs == 0):
-                    n_elem = int(self.cfg.train.rollout_expert_trajectories_percentage*step_count.shape[0])
-                    self.env_idx_with_expert_rollout = torch.randint(0, step_count.shape[0], size=(n_elem,), device=self._model.device)
-                    self.tracking_z = self._sample_tracking_z(replay_buffer, n_elem, self.cfg.train.rollout_expert_trajectories_length)  # N x T x z_dim
-                mod_time = idxs[self.env_idx_with_expert_rollout].ravel()
-                z[self.env_idx_with_expert_rollout] = self.tracking_z[torch.arange(len(self.env_idx_with_expert_rollout), device=self._model.device), mod_time]
+                    self._refresh_expert_rollout(replay_buffer, step_count.shape[0])
+                if self.env_idx_with_expert_rollout is not None and self.env_idx_with_expert_rollout.numel() > 0:
+                    mod_time = idxs[self.env_idx_with_expert_rollout].ravel()
+                    rollout_idx = torch.arange(self.env_idx_with_expert_rollout.numel(), device=self._model.device)
+                    z[self.env_idx_with_expert_rollout] = self.tracking_z[rollout_idx, mod_time]
         else:
             z = self._model.sample_z(step_count.shape[0], device=self._model.device)
             if self.cfg.train.rollout_expert_trajectories:
-                n_elem = int(self.cfg.train.rollout_expert_trajectories_percentage*step_count.shape[0])
-                self.env_idx_with_expert_rollout = torch.randint(0, step_count.shape[0], size=(n_elem,), device=self._model.device)
-                self.tracking_z = self._sample_tracking_z(replay_buffer, n_elem, self.cfg.train.rollout_expert_trajectories_length)  # N x T x z_dim
-                z[self.env_idx_with_expert_rollout] = self.tracking_z[:, 0]
+                self._refresh_expert_rollout(replay_buffer, step_count.shape[0])
+                if self.env_idx_with_expert_rollout.numel() > 0:
+                    z[self.env_idx_with_expert_rollout] = self.tracking_z[:, 0]
         return z
 
     @classmethod

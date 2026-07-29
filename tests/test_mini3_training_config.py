@@ -4,6 +4,7 @@ import glob
 import unittest
 import xml.etree.ElementTree as ET
 from pathlib import Path
+from types import SimpleNamespace
 
 import joblib
 import numpy as np
@@ -12,6 +13,7 @@ from hydra import compose, initialize_config_dir
 from omegaconf import OmegaConf
 
 from humanoidverse.agents.envs.humanoidverse_isaac import HumanoidVerseVectorEnv
+from humanoidverse.agents.fb.agent import sample_unique_env_indices
 from humanoidverse.agents.fb_cpr.agent import replace_state_with_clean_state
 from humanoidverse.utils.helpers import build_reference_policy_state
 from humanoidverse.utils.motion_lib.motion_lib_robot import MotionLibRobot
@@ -29,6 +31,8 @@ MINI3_MOTIONS = REPO_ROOT / "humanoidverse/data/lafan1_mini3"
 class Mini3TrainingConfigTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
+        if not OmegaConf.has_resolver("eval"):
+            OmegaConf.register_new_resolver("eval", eval)
         with initialize_config_dir(version_base=None, config_dir=str(CONFIG_DIR)):
             cls.config = compose(config_name="exp/bfm_zero/bfm_zero_mini3")
             cls.g1_config = compose(
@@ -62,6 +66,60 @@ class Mini3TrainingConfigTest(unittest.TestCase):
         self.assertIs(discriminator_obs["state"], clean_state)
         self.assertIs(discriminator_obs["privileged_state"], policy_obs["privileged_state"])
         self.assertIs(policy_obs["state"], noisy_state)
+
+    def test_discriminator_dof_position_uses_nominal_reference(self) -> None:
+        wrapper = HumanoidVerseVectorEnv.__new__(HumanoidVerseVectorEnv)
+        dummy_base_env = SimpleNamespace(close=lambda: None)
+        wrapper._env = SimpleNamespace(
+            unwrapped=dummy_base_env,
+            obs_buf_dict_raw={
+                "clean_policy_obs": {
+                    # This value uses the randomized actor reference and must not reach the discriminator.
+                    "dof_pos": torch.tensor([[0.1, 0.6]]),
+                    "dof_vel": torch.tensor([[0.3, 0.4]]),
+                    "projected_gravity": torch.tensor([[0.0, 0.0, -1.0]]),
+                    "base_ang_vel": torch.tensor([[0.5, 0.6, 0.7]]),
+                }
+            },
+            simulator=SimpleNamespace(dof_pos=torch.tensor([[1.1, 2.2]])),
+            default_dof_pos=torch.tensor([[1.0, 2.0]]),
+            config=SimpleNamespace(
+                robot=SimpleNamespace(actions_dim=2),
+                obs=SimpleNamespace(obs_scales=SimpleNamespace(dof_pos=2.0)),
+            ),
+        )
+
+        clean_state = wrapper._get_clean_policy_state(to_numpy=False)
+
+        torch.testing.assert_close(clean_state[:, :2], torch.tensor([[0.2, 0.4]]))
+        torch.testing.assert_close(
+            clean_state[:, 2:],
+            torch.tensor([[0.3, 0.4, 0.0, 0.0, -1.0, 0.5, 0.6, 0.7]]),
+        )
+
+    def test_expert_rollout_environment_sampling_is_unique(self) -> None:
+        indices = sample_unique_env_indices(num_envs=1024, percentage=0.5, device="cpu")
+
+        self.assertEqual(indices.numel(), 512)
+        self.assertEqual(torch.unique(indices).numel(), 512)
+        self.assertGreaterEqual(indices.min().item(), 0)
+        self.assertLess(indices.max().item(), 1024)
+        self.assertEqual(sample_unique_env_indices(16, 0.0, "cpu").numel(), 0)
+        with self.assertRaises(ValueError):
+            sample_unique_env_indices(16, 1.01, "cpu")
+
+    def test_max_local_self_dimension_matches_runtime_layout(self) -> None:
+        for config, expected_dim in ((self.config, 358), (self.g1_config, 463)):
+            configured_dims = {
+                key: int(value)
+                for item in config.obs.obs_dims
+                for key, value in item.items()
+            }
+            num_extended_bodies = int(config.robot.num_bodies + config.robot.motion.nums_extend_bodies)
+            runtime_dim = 1 + (num_extended_bodies - 1) * 3 + num_extended_bodies * (6 + 3 + 3)
+
+            self.assertEqual(configured_dims["max_local_self"], expected_dim)
+            self.assertEqual(configured_dims["max_local_self"], runtime_dim)
 
     def test_g1_and_mini3_expert_angular_velocity_matches_policy_semantics(self) -> None:
         self.assertEqual(float(self.config.obs.obs_scales.base_ang_vel), 0.25)
